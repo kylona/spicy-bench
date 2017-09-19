@@ -1,0 +1,46 @@
+/*
+A translation of: fprintf-org-no.c
+Originally produced at the Lawrence Livermore National Laboratory
+Written by Chunhua Liao, Pei-Hung Lin, Joshua Asplund,
+Markus Schordan, and Ian Karlin
+
+Translated at Brigham Young University by Kyle Storey
+
+*/
+
+//Is FileWriter.write thread safe?
+//Even if it is thread save, is there a data race?
+
+import java.io.*;
+
+public class fprintfOrigNo {
+  public static void main(String[] args)
+  {
+    boolean ret;
+    FileWriter pfile = null;
+    int len=1000;
+
+    int[] A = new int[1000];
+
+    for (int i = 0; i < len; i++) {
+      A[i] = i;
+    }
+
+    try {
+      pfile = new FileWriter("mytempfile.txt");
+      forall (point[i] : [0:len-1]) {
+        pfile.write(Integer.toString(A[i]) + "\n");
+      }
+      pfile.close();
+    }
+    catch (IOException ex) {
+      System.err.println("Error opening File()\n");
+    }
+
+    ret = new File("mytempfile.txt").delete();
+    if (!ret) {
+      System.err.println("Error: unable to delete mytempfile.txt\n");
+    }
+
+  }
+}
