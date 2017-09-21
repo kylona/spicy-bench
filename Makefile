@@ -1,4 +1,4 @@
-NAME=Antidep2VarYes
+NAME=Antidep2OrigYes
 FILE=${NAME}.hj
 
 all:
@@ -9,7 +9,7 @@ jav:
 	javac -d . ${NAME}.java
 
 run:
-	hj -cp classes Antidep2VarYes.hj
+	hj -cp classes ${FILE}
 
 clean:
 	rm ${NAME}.java ${NAME}.class
