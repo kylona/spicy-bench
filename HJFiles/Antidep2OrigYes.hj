@@ -6,9 +6,18 @@ Markus Schordan, and Ian Karlin
 
 Translated at Brigham Young University by Kyle Storey
 
+
+**** NOT REPRODUCABLE ****
+The variable j is declared before the parallel for loop. Because of this
+all threads share j thus j's value at any given time is unpredictable.
+Habenero Java does not allow the modification of a variable inherited from
+the parrent scope (to prevent this problem) thus this error cannot be replicated.
+
 */
 
 public class Antidep2OrigYes {
+
+  static int j;
 
   public static void main(String[] args) {
     int len = 20;
@@ -17,13 +26,15 @@ public class Antidep2OrigYes {
     double[][] a = new double[len][len];
 
     for (int i = 0; i < len; i++) {
-      for (int j = 0; j < len; j++) {
+      for (j = 0; j < len; j++) {
         a[i][j] = 0.5;
       }
     }
 
-    forall (point[i,j] : [0:len-2,0:len-1]) {
-      a[i][j] += a[i+1][j];
+    forall (point[i] : [0:len-2]) {
+      for (j = 0; j < len; j += 1) {
+        a[i][j] += a[i+1][j];
+      }
     }
 
     System.out.println("a[10][10]=" + a[10][10]);
