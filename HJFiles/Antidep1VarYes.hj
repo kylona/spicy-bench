@@ -10,6 +10,8 @@ Translated at Brigham Young University by Kyle Storey
 
 public class Antidep1VarYes {
 
+  static int j;
+
   public static void main(String[] args) {
     int len = 20;
 
@@ -25,8 +27,10 @@ public class Antidep1VarYes {
       }
     }
 
-    forall (point[i,j] : [0:len-2,0:len-1]) {
-      a[i][j] += a[i+1][j];
+    forall (point[i] : [0:len-2]) {
+      for (j = 0; j < len; j += 1) {
+        a[i][j] += a[i+1][j];
+      }
     }
 
   }
