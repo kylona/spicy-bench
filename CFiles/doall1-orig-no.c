@@ -45,24 +45,13 @@ THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-// Race condition due to anti-dependence
-#include <stdlib.h>
-int main(int argc, char* argv[])
+// one dimension array computation
+int a[100];
+int main()
 {
-  int i;
-  int len = 1000;
-
-  if (argc>1)
-    len = atoi(argv[1]);
-
-  int a[len];
-
-  for (i=0; i<len; i++)
-    a[i]= i;
-
+int i;
 #pragma omp parallel for
-  for (i=0;i< len -1 ;i++)
-    a[i]=a[i+1]+1;
-
+  for (i=0;i<100;i++)
+    a[i]=a[i]+1;
   return 0;
 }

@@ -1,4 +1,4 @@
-NAME=DoAll1OrigNo
+NAME=Antidep2VarYes
 FILE=${NAME}.hj
 
 all:
@@ -7,3 +7,9 @@ all:
 jav:
 	cp ${FILE} ${NAME}.java
 	javac -d . ${NAME}.java
+
+run:
+	hj -cp classes Antidep2VarYes.hj
+
+clean:
+	rm ${NAME}.java ${NAME}.class
