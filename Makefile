@@ -1,4 +1,4 @@
-NAME=fprintfOrigNo
+NAME=DoAll1OrigNo
 FILE=${NAME}.hj
 
 all:
