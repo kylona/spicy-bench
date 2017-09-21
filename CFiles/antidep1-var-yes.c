@@ -51,7 +51,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 int main(int argc,char *argv[])
 {
   int i, j;
-  int len = 20; 
+  int len = 20;
 
   if (argc>1)
     len = atoi(argv[1]);
@@ -60,9 +60,9 @@ int main(int argc,char *argv[])
 
   for (i=0; i< len; i++)
     for (j=0; j<len; j++)
-      a[i][j] = 0.5; 
+      a[i][j] = 0.5;
 
-#pragma omp parallel for 
+#pragma omp parallel for
   for (i = 0; i < len - 1; i += 1) {
     for (j = 0; j < len ; j += 1) {
       a[i][j] += a[i + 1][j];
@@ -70,4 +70,3 @@ int main(int argc,char *argv[])
   }
   return 0;
 }
-

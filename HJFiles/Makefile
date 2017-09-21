@@ -1,4 +1,4 @@
-NAME=Antidep1OrigYes
+NAME=Antidep1VarYes
 FILE=${NAME}.hj
 
 all:

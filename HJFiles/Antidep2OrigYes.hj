@@ -22,7 +22,7 @@ public class Antidep2OrigYes {
       }
     }
 
-    forall (point[i,j] : [0:len-2,0:len-2]) {
+    forall (point[i,j] : [0:len-2,0:len-1]) {
       a[i][j] += a[i+1][j];
     }
 
