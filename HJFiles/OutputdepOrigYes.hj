@@ -1,0 +1,30 @@
+/*
+A translation of: outputdep-orig-yes.c
+Originally produced at the Lawrence Livermore National Laboratory
+Written by Chunhua Liao, Pei-Hung Lin, Joshua Asplund,
+Markus Schordan, and Ian Karlin
+
+Translated at Brigham Young University by Lincoln Bergeson
+
+*/
+
+public class OutputdepOrigYes {
+
+	int[] a = new int[100];
+	int x = 10;
+
+	public static void main(String[] args) {
+		OutputdepOrigYes o = new OutputdepOrigYes();
+		o.run();
+	}
+
+	public void run() {
+		int len = 100;
+		forall(point [i] : [0:len-1]) {
+			a[i] = x;
+			x = i;
+		}
+		System.out.println("x=" + x);
+
+	}
+}
