@@ -1,2 +1,1 @@
-.*.sw*
-*.class
+HJLibFiles/classes/*.class
