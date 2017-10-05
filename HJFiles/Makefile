@@ -1,22 +1,18 @@
 NAME=Antidep1VarYes
-FILE=${NAME}.hj
+FILE=${NAME}.java
 LOOPS=10
 
 
 all:
-	hjc -d classes -rt s ${FILE}
-
-jav:
-	cp ${FILE} ${NAME}.java
-	javac -d . ${NAME}.java
+	javac -cp classes:classes/hj-lib-byu.jar -d classes ${FILE}
 
 run:
-	hj -cp classes ${FILE}
+	java -cp classes:classes/hj-lib-byu.jar ${NAME}
 
 loop:
 	while [ true ] ; do \
-	hj -cp classes  ${FILE} ; \
+	 java -cp classes:classes/hj-lib-byu.jar ${NAME} ; \
 	done
 
 clean:
-	rm ${NAME}.java ${NAME}.class
+	rm ${NAME}.class

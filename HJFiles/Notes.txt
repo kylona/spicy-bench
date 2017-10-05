@@ -1,0 +1,3 @@
+Antidep1VarYes.java throws ArrayIndexOutOfBoundsException. This is the expected behavior but should we catch the exception? (The c file does not worry about it)
+Same story with Antidep2Orig.java
+
