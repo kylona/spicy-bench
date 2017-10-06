@@ -6,7 +6,8 @@
 
 Pathlib='HJLibFiles/lib'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
-PathClass='Classes:'$Pathlib'/hj-lib-byu.jar:'$Pathlib'/hamcrest-core-1.3.jar:'$Pathlib'/junit-4.12.jar'
+JarFiles=$(find $Pathlib/* -printf :%p)
+PathClass='Classes'$JarFiles''
 echo $PathClass
 PathToClasses='Classes'
 mkdir $PathToClasses
