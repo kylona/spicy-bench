@@ -1,0 +1,66 @@
+Testsuite: gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.869 sec
+------------- Standard Output ---------------
+  running jpf with args: +mycg.class=gov.nasa.jpf.vm.choice.TypedObjectChoice +mycg.include_null=false +mycg.type=gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest$A
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:27 AM
+got object: null
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:27 AM
+  running jpf with args: +mycg.class=gov.nasa.jpf.vm.choice.TypedObjectChoice +mycg.include_null=false +mycg.type=gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest$A
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:27 AM
+got object: A(1)
+got object: A(2)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:27 AM
+  running jpf with args: +mycg.class=gov.nasa.jpf.vm.choice.TypedObjectChoice +mycg.include_null=true +mycg.type=gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest$A
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:27 AM
+got object: null
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:27 AM
+  running jpf with args: +mycg.class=gov.nasa.jpf.vm.choice.TypedObjectChoice +mycg.include_null=false +mycg.type=gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest$A
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.data.TypedObjectChoiceTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:27 AM
+got object: A(42)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:27 AM
+------------- ---------------- ---------------
+
+Testcase: testNoCG took 2.869 sec
+Testcase: testMultipleObjects took 0.85 sec
+Testcase: testNoObject took 0.596 sec
+Testcase: testObject took 0.478 sec

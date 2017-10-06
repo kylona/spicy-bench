@@ -1,0 +1,131 @@
+Testsuite: gov.nasa.jpf.test.vm.basic.ArrayTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.199 sec
+------------- Standard Output ---------------
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.ArrayTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+------------- ---------------- ---------------
+
+Testcase: testCharArray took 2.818 sec
+Testcase: testArrayStoreExceptionArraycopy took 0.734 sec
+Testcase: testAoBX took 0.783 sec
+Testcase: testArrayCopy took 0.592 sec
+Testcase: test2DStringArray took 0.457 sec
+Testcase: testArrayStoreException took 0.629 sec
+Testcase: testIntArray took 0.345 sec
+Testcase: test2DArray took 0.39 sec
+Testcase: testStringArray took 0.318 sec

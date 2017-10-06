@@ -1,0 +1,109 @@
+Testsuite: gov.nasa.jpf.test.vm.reflection.FieldTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.169 sec
+------------- Standard Output ---------------
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+statInt = 43
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+pub_y_i
+pub_y_s
+pub_x_i
+pub_x_s
+I_S
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.reflection.FieldTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:31 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:31 AM
+------------- ---------------- ---------------
+
+Testcase: testInstanceDouble took 3.07 sec
+Testcase: testStaticInt took 0.902 sec
+Testcase: testSetPrimitive took 0.678 sec
+Testcase: testGetFields took 0.509 sec
+Testcase: testInstanceInt took 0.604 sec
+Testcase: testSetReference took 0.687 sec
+Testcase: testSetArray took 0.531 sec

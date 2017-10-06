@@ -1,0 +1,103 @@
+Testsuite: gov.nasa.jpf.test.java.text.DecimalFormatTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.151 sec
+------------- Standard Output ---------------
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.java.text.DecimalFormatTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:22 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:22 AM
+------------- ---------------- ---------------
+
+Testcase: testIsGroupingUsed took 2.297 sec
+Testcase: testSetGroupingUsed took 0.723 sec
+Testcase: testParseDouble took 1.108 sec
+Testcase: testParseError took 0.518 sec
+Testcase: testDoubleConversion took 0.518 sec
+Testcase: testIsParseIntegerOnly took 0.527 sec
+Testcase: testParseInt took 0.376 sec

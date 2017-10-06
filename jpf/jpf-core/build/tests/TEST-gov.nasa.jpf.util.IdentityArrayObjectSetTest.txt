@@ -1,0 +1,13 @@
+Testsuite: gov.nasa.jpf.util.IdentityArrayObjectSetTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.188 sec
+------------- Standard Output ---------------
+{}
+{a}
+{a}
+{a,b}
+{b}
+{b}
+{}
+------------- ---------------- ---------------
+
+Testcase: testBasic took 0.009 sec

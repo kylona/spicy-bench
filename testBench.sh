@@ -4,11 +4,13 @@
 #searches for source code, compiles and creates .jpf
 #it then times each of the classes nativly and in the datarace detector
 
+export JUNIT_HOME=$(pwd)/jpf/junit
 Pathlib='HJLibFiles/lib'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
 JarFiles=$(find $Pathlib/* -printf :%p)
 PathClass='Classes'$JarFiles''
 echo $PathClass
+exit 1
 PathToClasses='Classes'
 mkdir $PathToClasses
 

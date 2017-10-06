@@ -1,0 +1,46 @@
+Testsuite: gov.nasa.jpf.test.mc.basic.CGReorderTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.184 sec
+------------- Standard Output ---------------
+  running jpf with args: +listener=.test.mc.basic.CGReorderTest$ReorderListener
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.basic.CGReorderTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:23 AM
+reorder choices
+replacing: gov.nasa.jpf.vm.choice.DoubleChoiceFromList[id="verifyDoubleList([D)",isCascaded:false,1.0,2.0,3.0,4.0]
+with: gov.nasa.jpf.vm.choice.DoubleChoiceFromList[id="verifyDoubleList([D)",isCascaded:false,4.0,3.0,2.0,1.0]
+4.0
+3.0
+2.0
+1.0
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:23 AM
+  running jpf with args: +listener=.test.mc.basic.CGReorderTest$ReverseListener
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.basic.CGReorderTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:23 AM
+reverse choice enumeration order
+4
+3
+2
+1
+0
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:23 AM
+------------- ---------------- ---------------
+
+Testcase: testReorder took 2.378 sec
+Testcase: testReverse took 0.714 sec

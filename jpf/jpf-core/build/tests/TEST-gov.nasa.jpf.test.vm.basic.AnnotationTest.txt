@@ -1,0 +1,269 @@
+Testsuite: gov.nasa.jpf.test.vm.basic.AnnotationTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.854 sec
+------------- Standard Output ---------------
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+@gov.nasa.jpf.test.vm.basic.AnnotationTest$A6(value=whatever)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+@gov.nasa.jpf.test.vm.basic.AnnotationTest$A4(a=one,b=42.0)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+@gov.nasa.jpf.test.vm.basic.AnnotationTest$A5(a=whatever,b=foo)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args: +listener=.test.vm.basic.AnnotationTest$DataListener
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+annotation for gov.nasa.jpf.test.vm.basic.AnnotationTest$MyClass.data = gov.nasa.jpf.vm.AnnotationInfo@15bfd87
+   value = the answer
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args: +listener=.test.vm.basic.AnnotationTest$ArgListener
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+-- called method: foo(Lgov/nasa/jpf/test/vm/basic/AnnotationTest$MyClass;Ljava/lang/String;)V
+-- annotations for parameter: 0
+@gov.nasa.jpf.test.vm.basic.AnnotationTest$A1[value=arghh]
+-- annotations for parameter: 1
+none
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+  a[0] = @gov.nasa.jpf.test.vm.basic.AnnotationTest$A6(value=whatever)
+  a[1] = @org.junit.Test(expected=class org.junit.Test$None,timeout=0)
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.vm.basic.AnnotationTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:29 AM
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:29 AM
+------------- ---------------- ---------------
+
+Testcase: testStringValueOk took 4.603 sec
+Testcase: testLongValueOk took 0.712 sec
+Testcase: testStringArrayValueOk took 0.844 sec
+Testcase: testSingleDefaultParamOk took 0.677 sec
+Testcase: testLongAnnotation took 0.764 sec
+Testcase: testClassValue took 0.809 sec
+Testcase: testNamedParamsOk took 0.626 sec
+Testcase: testPartialDefaultParamsOk took 0.435 sec
+Testcase: testFloatAnnotation took 0.319 sec
+Testcase: testFieldAnnotation took 0.411 sec
+Testcase: testEnumValue took 0.394 sec
+Testcase: testRecursiveRuntimeVisibleAnnotationValue took 0.339 sec
+Testcase: testClassArrayValueOk took 0.357 sec
+Testcase: testCharAnnotation took 0.396 sec
+Testcase: getAnnotationsTest took 0.343 sec
+Testcase: testParameterAnnotation took 0.7 sec
+Testcase: testAnnotationClass took 0.461 sec
+Testcase: testDoubleAnnotation took 0.412 sec

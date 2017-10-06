@@ -1,0 +1,99 @@
+Testsuite: gov.nasa.jpf.test.mc.basic.RestorerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.985 sec
+------------- Standard Output ---------------
+  running jpf with args:
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.basic.RestorerTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:24 AM
+--- 1. CG: false
+## storing: 0
+I am X #1
+I am X #2
+I am X #3
+I am X #4
+I am X #5
+--- 2. CG: false
+## storing: 0
+I am X #1
+## restoring: 0
+--- 2. CG: true
+## storing: 0
+I am X #1
+## restoring: 0
+## restoring: 0
+--- 1. CG: true
+## storing: 0
+I am X #1
+I am X #2
+I am X #3
+I am X #4
+I am X #5
+--- 2. CG: false
+## storing: 0
+I am X #1
+## restoring: 0
+--- 2. CG: true
+## storing: 0
+I am X #1
+## restoring: 0
+## restoring: 0
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:24 AM
+  running jpf with args: +search.class=.search.heuristic.BFSHeuristic
+JavaPathfinder core system v8.0 (rev 32+) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+gov.nasa.jpf.test.mc.basic.RestorerTest.runTestMethod()
+
+====================================================== search started: 9/7/17 11:24 AM
+--- 1. CG: false
+## storing: 0
+I am X #1
+I am X #2
+I am X #3
+I am X #4
+I am X #5
+## restoring: 0
+--- 1. CG: true
+## storing: 0
+I am X #1
+I am X #2
+I am X #3
+I am X #4
+I am X #5
+## restoring: 0
+## restoring: 0
+--- 2. CG: false
+## storing: 0
+I am X #1
+## restoring: 0
+--- 2. CG: true
+## storing: 0
+I am X #1
+## restoring: 0
+## restoring: 0
+--- 2. CG: false
+## storing: 0
+I am X #1
+## restoring: 0
+--- 2. CG: true
+## storing: 0
+I am X #1
+## restoring: 0
+
+====================================================== results
+no errors detected
+
+====================================================== search finished: 9/7/17 11:25 AM
+------------- ---------------- ---------------
+
+Testcase: testRestoredInsnCount took 2.998 sec
+Testcase: testRestoredInsnCountBFS took 0.917 sec
