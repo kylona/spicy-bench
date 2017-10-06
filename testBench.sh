@@ -1,11 +1,13 @@
 #!/bin/bash
 
+#reads in class names form classNames.txt in same directory
+#searches for source code, compiles and creates .jpf
+#it then times each of the classes nativly and in the datarace detector
+
 PathToHJlib='HJLibFiles/lib/hj-lib-byu.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
 PathToClasses='Classes'
 mkdir $PathToClasses
-
-echo Not Working Yet...
 
 while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
     FoundJava=$(find -name "$name.java" -print -quit)
