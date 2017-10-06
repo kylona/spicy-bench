@@ -1,1 +1,2 @@
-javac -d classes -cp lib/byu-hjlib.jar "src/$1.java" && java -cp :classes/:lib/byu-hjlib.jar $@
+javac -cp lib/hj-lib-byu.jar:classes -d classes/ src/$1.java 
+java -cp lib/hj-lib-byu.jar:classes $@
