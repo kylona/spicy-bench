@@ -1,0 +1,64 @@
+#This is the full name of the class to test within JPF
+
+#The program to be analyzed
+target = benchmarks.examples.DataRaceIsolateSimple
+#target = demo.demo_example1
+#Location where comp graph is created
+Results_directory = /Users/egm/tmp/
+
+#flags for on the fly data race detection and isolated sections:
+Contains_isolated_sections = true
+On_the_fly = false
+
+#Set this to false if you just want to create comp graph, but don't want to run data race detection analysis
+Data_race_detection = true
+
+#classpath must point to all class files, including jars. Remove any unnecessary lines.
+classpath+=/Users/egm/Documents/jpf.byu.edu/jpf-hj/build/;
+
+#native classpath should include jgrapht libraries
+native_classpath+=/Users/egm/Documents/jpf.byu.edu/jpf-hj/build/;
+native_classpath+=/Users/egm/Documents/jpf.byu.edu/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar;
+
+
+######################
+JPF.vm=VMListener;
+
+#Uncomment these two lines for creating scheduler for Permission regions and computaion graphs
+#Comment it out for precise race detector
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
+#####################
+
+
+## Computation graph analysis for data-race
+##
+## Sound and complete for sturtured parallel programs with 
+## single path execution. If multiple paths exist, then some search, symbolic
+## execution is needed to enumerate different branches (i.e., there may exist
+## a path in the program where data-race happens even through the structure 
+## does not change) 
+##
+listener+=cg.CGRaceDetector
+
+## PreciseRaceDetector
+##
+## Schedules on every shared interaction in jpf-hj runtime leading to glorious
+## state-space explosion in terms of the number of schedules that must be 
+## explored to prove the absence of data-race. 
+## 
+## Sound and complete for every program upto JPF's limitations regarding 
+## sharedness (which are many).
+#listener+=gov.nasa.jpf.listener.PreciseRaceDetector
+
+## Gradual Permissions
+##
+## Schedules on every isolated statement and/or permission region annotation. 
+## Depends on the programmers ability to annotate!
+#listener+=extensions.HjListener;
+
+##############################
+#Listeners for creating state space graphs
+#listener+=gov.nasa.jpf.listener.SimpleDot;
+#listener+=gov.nasa.jpf.listener.StateSpaceDot;
+#listener+=extensions.StateGraphListener;

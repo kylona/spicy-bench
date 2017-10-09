@@ -1,0 +1,817 @@
+%%%%%%%%%%%%%%%%%%%%%% Memory access + Happens-before %%%%%%%%%%%%%%%%%%%%%%
+%% points-to analysis and inter-thread call graph (static)
+@techreport{choi2001static, 
+  title={Static datarace analysis for multithreaded object-oriented programs},
+  author={Choi, Jong-Deok and Loginov, Alexey and Sarkar, Vivek},
+  year={2001},
+  institution={Technical Report RC22146, IBM Research}
+}
+
+%% Static + dynamic -- only tracks potential racey memory accesses (instrumentation with low overhead is key)
+@article{EraserUpgrade, 
+ author = {Choi, Jong-Deok and Lee, Keunwoo and Loginov, Alexey and O'Callahan, Robert and Sarkar, Vivek and Sridharan, Manu},
+ title = {Efficient and {P}recise {D}atarace {D}etection for {M}ultithreaded {O}bject-oriented {P}rograms},
+ journal = {SIGPLAN Not.},
+ issue_date = {May 2002},
+ volume = {37},
+ articleno={1},
+ number = {5},
+ month = may,
+ year = {2002},
+ issn = {0362-1340},
+ pages = {258--269},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/543552.512560},
+ doi = {10.1145/543552.512560},
+ acmid = {512560},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {dataraces, debugging, multithreaded programming, object-oriented programming, parallel programs, race conditions, static-dynamic co-analysis, synchronization},
+}
+
+
+@inproceedings{kahlon2009static,
+  title={Static data race detection for concurrent programs with asynchronous calls},
+  author={Kahlon, Vineet and Sinha, Nishant and Kruus, Erik and Zhang, Yun},
+  booktitle={Proceedings of the the 7th joint meeting of the European software engineering conference and the ACM SIGSOFT symposium on The foundations of software engineering},
+  pages={13--22},
+  year={2009},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% Static build set of memory references for each task. Compare with may-be parallel tasks
+@incollection{vechev2011automatic, 
+  title={Automatic verification of determinism for structured parallel programs},
+  author={Vechev, Martin and Yahav, Eran and Raman, Raghavan and Sarkar, Vivek},
+  booktitle={Static Analysis},
+  pages={455--471},
+  year={2011},
+  publisher={Springer},
+  address={Springer}
+}
+
+%% Refine pairs of memory access that may happen in parrallel. Includes lock-analysis
+@article{naik2006effective,
+ author = {Naik, Mayur and Aiken, Alex and Whaley, John},
+ title = {Effective Static Race Detection for Java},
+ journal = {SIGPLAN Not.},
+ issue_date = {June 2006},
+ volume = {41},
+ number = {6},
+ month = jun,
+ year = {2006},
+ articleno={1},
+ issn = {0362-1340},
+ pages = {308--319},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1133255.1134018},
+ doi = {10.1145/1133255.1134018},
+ acmid = {1134018},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Java, concurrency, multi-threading, static race detection, synchronization},
+} 
+
+%%%%%%%%%%%%%%%%%%%%%% Model Checking Structured Parallism %%%%%%%%%%%%%%%%%%%%%%
+@inproceedings{gligoric2012x10x,
+  title={X10{X}: {M}odel checking a new programming language with an "old" model checker},
+  author={Gligoric, Milos and Mehlitz, Peter C and Marinov, Darko},
+  booktitle={Software Testing, Verification and Validation (ICST), 2012 IEEE Fifth International Conference on},
+  pages={11--20},
+  year={2012},
+  organization={IEEE},
+  publisher={IEEE},
+  address={IEEE}
+}
+
+@article{zirkel2013automated,
+  title={Automated {V}erification of {C}hapel {P}rograms Using {M}odel {C}hecking and {S}ymbolic {E}xecution.},
+  author={Zirkel, Timothy K and Siegel, Stephen F and McClory, Timothy},
+  journal={NASA Formal Methods},
+  volume={7871},
+  pages={198--212},
+  year={2013},
+  publisher={Springer}
+}
+
+@article{anderson2014jpf,
+  title={{JPF} verification of {H}abanero {J}ava programs},
+  author={Anderson, Peter and Chase, Brandon and Mercer, Eric},
+  journal={ACM SIGSOFT Software Engineering Notes},
+  volume={39},
+  number={1},
+  pages={1--7},
+  year={2014},
+  publisher={ACM}
+}
+
+%%%%%%%%%%%%%%%%%%% Dynamic Model Checking (general parallelism)
+@inproceedings{Godefroid,
+ author = {Godefroid, Patrice},
+ title = {Model Checking for Programming Languages Using VeriSoft},
+ booktitle = {Proceedings of the 24th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+ series = {POPL '97},
+ year = {1997},
+ isbn = {0-89791-853-3},
+ location = {Paris, France},
+ articleno={1},
+ pages = {174--186},
+ numpages = {13},
+ url = {http://doi.acm.org/10.1145/263699.263717},
+ doi = {10.1145/263699.263717},
+ acmid = {263717},
+ publisher = {ACM},
+ address = {New York, NY, USA}
+}
+
+%%%%%%%%%%%%%%%%%%%%%% DPST (or task dependency graph/computation graph) %%%%%%%%%%%%%%%%%%%%%%
+%% Limited to histories and _only_ fork-join behavior -- Primary contribution is bounding histories of accesses -- intended forun-time monitoring and not necessarily verification. Speeds up the ability to determine if two accesses happeneded in parallel (Offest Span labeling). The graph is to support the proof. The labeling itself indicates the relationahip (seems related to SP-bags). 
+@inproceedings{mellor1991fly, 
+ author = {Mellor-Crummey, John},
+ title = {On-the-fly Detection of Data Races for Programs with Nested Fork-join Parallelism},
+ booktitle = {Proceedings of the 1991 ACM/IEEE Conference on Supercomputing},
+ series = {Supercomputing '91},
+ year = {1991},
+ isbn = {0-89791-459-7},
+ location = {Albuquerque, New Mexico, USA},
+ articleno={1},
+ pages = {24--33},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/125826.125861},
+ doi = {10.1145/125826.125861},
+ acmid = {125861},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{raman2012scalable,
+  title={Scalable and {P}recise dynamic datarace detection for structured parallelism},
+  author={Raman, Raghavan and Zhao, Jisheng and Sarkar, Vivek and Vechev, Martin and Yahav, Eran},
+  booktitle={ACM SIGPLAN Notices},
+  volume={47:6},
+  pages={531--542},
+  year={2012},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%% SP-based: %%%%%%%%%%%%%%%%%%%%%%
+
+% SP-Bags
+@inproceedings{Feng1997EDD258492258493, 
+ author = {Feng, Mingdong and Leiserson, Charles E.},
+ title = {Efficient Detection of Determinacy Races in {C}ilk Programs},
+ booktitle = {Proceedings of the Ninth Annual ACM Symposium on Parallel Algorithms and Architectures},
+ series = {SPAA '97},
+ year = {1997},
+ isbn = {0-89791-890-8},
+ location = {Newport, Rhode Island, USA},
+ articleno = {1},
+ pages = {1--11},
+ numpages = {11},
+ url = {http://doi.acm.org/10.1145/258492.258493},
+ doi = {10.1145/258492.258493},
+ acmid = {258493},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{Cheng1998DDR277651277696, 
+ author = {Cheng, Guang-Ien and Feng, Mingdong and Leiserson, Charles E. and Randall, Keith H. and Stark, Andrew F.},
+ title = {Detecting Data Races in {C}ilk Programs That Use Locks},
+ booktitle = {Proceedings of the Tenth Annual ACM Symposium on Parallel Algorithms and Architectures},
+ series = {SPAA '98},
+ year = {1998},
+ isbn = {0-89791-989-0},
+ location = {Puerto Vallarta, Mexico},
+ articleno = {1},
+ pages = {298--309},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/277651.277696},
+ doi = {10.1145/277651.277696},
+ acmid = {277696},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Cilk, algorithm, data race, debugging, multithreading, parallel programming, race detection},
+} 
+
+@inproceedings{Bender2004OMS10079121007933,
+ author = {Bender, Michael A. and Fineman, Jeremy T. and Gilbert, Seth and Leiserson, Charles E.},
+ title = {On-the-fly Maintenance of Series-parallel Relationships in Fork-join Multithreaded Programs},
+ booktitle = {Proceedings of the Sixteenth Annual ACM Symposium on Parallelism in Algorithms and Architectures},
+ series = {SPAA '04},
+ year = {2004},
+ isbn = {1-58113-840-7},
+ location = {Barcelona, Spain},
+ pages = {133--144},
+ articleno = {1},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1007912.1007933},
+ doi = {10.1145/1007912.1007933},
+ acmid = {1007933},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Cilk, SP-bags, SP-hybrid, SP-order, algorithm, amortized analysis, data race, data structure, dynamic set, fork-join, graph, least common ancestor, locking, multi-threading, mutual exclusion, on the fly, order maintenance, parallel computing, parse tree, race detection, series-parallel, thread, trace, tree, work stealing},
+} 
+
+@article{Async-Finish-Race,
+  added-at = {2012-12-10T00:00:00.000+0100},
+  author = {Raman, Raghavan and Zhao, Jisheng and Sarkar, Vivek and Vechev, Martin T. and Yahav, Eran},
+  biburl = {http://www.bibsonomy.org/bibtex/2f19708396d9bd00dcaa3d596647b001d/dblp},
+  ee = {http://dx.doi.org/10.1007/s10703-012-0143-7},
+  interhash = {ae2ff1c23e0ed7602e0b411c322beeb4},
+  intrahash = {f19708396d9bd00dcaa3d596647b001d},
+  journal = {Formal Methods in System Design},
+  keywords = {dblp},
+  number = 3,
+  pages = {321-347},
+  timestamp = {2012-12-11T11:36:40.000+0100},
+  title = {Efficient data race detection for async-finish parallelism},
+  volume = 41,
+  year = 2012
+}
+
+%% Adds futures and in the HJ runtime
+@inproceedings{drdForFutures, 
+  title={{D}ynamic {D}eterminacy {R}ace {D}etection for {T}ask {P}arallelism with {F}utures},
+  author={Surendran, Rishi and Sarkar, Vivek},
+  booktitle={Runtime Verification, 2016 16th International Conference on},
+  year={2016},
+  articleno={1},
+  numpages={2},
+  pages={1--2},
+  organization={Springer},
+  publisher={Sprinter},
+  address={Springer}
+}
+
+%% Short version of drdForFutures
+@Inbook{Surendran2016, 
+author="Surendran, Rishi
+and Sarkar, Vivek",
+title="Dynamic Determinacy Race Detection for Task Parallelism with Futures",
+bookTitle="Runtime Verification: 16th International Conference, RV 2016, Madrid, Spain, September 23--30, 2016, Proceedings",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="368--385",
+isbn="978-3-319-46982-9",
+doi="10.1007/978-3-319-46982-9_23",
+url="http://dx.doi.org/10.1007/978-3-319-46982-9_23"
+}
+
+%% Parallelizes using a work-stealing scheduler 
+@inproceedings{Utterback2016PGP29357642935801, 
+ author = {Utterback, Robert and Agrawal, Kunal and Fineman, Jeremy T. and Lee, I-Ting Angelina},
+ title = {Provably Good and Practically Efficient Parallel Race Detection for Fork-Join Programs},
+ booktitle = {Proceedings of the 28th ACM Symposium on Parallelism in Algorithms and Architectures},
+ series = {SPAA '16},
+ year = {2016},
+ isbn = {978-1-4503-4210-0},
+ location = {Pacific Grove, California, USA},
+ pages = {83--94},
+ numpages = {12},
+ articleno={1},
+ url = {http://doi.acm.org/10.1145/2935764.2935801},
+ doi = {10.1145/2935764.2935801},
+ acmid = {2935801},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {determinacy race, order-maintenance data structures, race detection, series-parallel maintenance, work stealing},
+} 
+
+%%%%%%%%%%%%%%%%%%%%%% Vector Clock: %%%%%%%%%%%%%%%%%%%%%%
+@article{lamport1978time,
+  title={Time, clocks, and the ordering of events in a distributed system},
+  author={Lamport, Leslie},
+  journal={Communications of the ACM},
+  volume={21},
+  number={7},
+  pages={558--565},
+  year={1978},
+  publisher={ACM}
+}
+
+@inproceedings{flanagan2009fasttrack,
+  title={Fast{T}rack: efficient and precise dynamic race detection},
+  author={Flanagan, Cormac and Freund, Stephen N},
+  booktitle={ACM Sigplan Notices},
+  volume={44:6},
+  pages={121--133},
+  year={2009},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% Determines library calls that do not commute
+@inproceedings{dimitrov2014commutativity, 
+  title={Commutativity race detection},
+  author={Dimitrov, Dimitar and Raychev, Veselin and Vechev, Martin and Koskinen, Eric},
+  booktitle={ACM SIGPLAN Notices},
+  volume={49:6},
+  pages={305--315},
+  year={2014},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+
+
+%%%%%%%%%%%%%%% Lockset %%%%%%%%%%%%%%%
+@article{savage1997eraser,
+  title={Eraser: A dynamic data race detector for multithreaded programs},
+  author={Savage, Stefan and Burrows, Michael and Nelson, Greg and Sobalvarro, Patrick and Anderson, Thomas},
+  journal={ACM Transactions on Computer Systems (TOCS)},
+  volume={15},
+  number={4},
+  pages={391--411},
+  year={1997},
+  publisher={ACM}
+}
+
+%% Lockset -- static analysis
+@inproceedings{engler2003racerx, 
+  title={Racer{X}: effective, static detection of race conditions and deadlocks},
+  author={Engler, Dawson and Ashcraft, Ken},
+  booktitle={ACM SIGOPS Operating Systems Review},
+  volume={37:5},
+  pages={237--252},
+  year={2003},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+% Handles ability to grow or shring locks believed to protect shared variables (fewer false reports)
+@techreport{locksets-msr, 
+author = {Tayfun Elmas, Shaz Qadeer, Serdar Tasiran},
+title = {Precise race detection and efficient model checking using locksets},
+institution={MSR},
+booktitle = {},
+year = {2005},
+month = {September},
+publisher = {},
+url = {https://www.microsoft.com/en-us/research/publication/precise-race-detection-and-efficient-model-checking-using-locksets/},
+address = {},
+pages = {},
+journal = {},
+volume = {},
+chapter = {},
+isbn = {},
+}
+
+@incollection{elmas2006goldilocks,
+  title={Goldilocks: Efficiently computing the happens-before relation using locksets},
+  author={Elmas, Tayfun and Qadeer, Shaz and Tasiran, Serdar},
+  booktitle={Formal Approaches to Software Testing and Runtime Verification},
+  pages={193--208},
+  year={2006},
+  publisher={Springer},
+  address={Springer}
+}
+
+@inproceedings{elmas2007goldilocks,
+  title={Goldilocks: a race and transaction-aware {J}ava runtime},
+  author={Elmas, Tayfun and Qadeer, Shaz and Tasiran, Serdar},
+  booktitle={ACM SIGPLAN Notices},
+  volume={42:6},
+  pages={245--255},
+  year={2007},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% Relative lock-set (static analysis)
+@inproceedings{voung2007relay, 
+  title={{RELAY}: static race detection on millions of lines of code},
+  author={Voung, Jan Wen and Jhala, Ranjit and Lerner, Sorin},
+  booktitle={Proceedings of the the 6th joint meeting of the European software engineering conference and the ACM SIGSOFT symposium on The foundations of software engineering},
+  pages={205--214},
+  year={2007},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% Static -- build UCG from synchronization primitives (lock/unlock)
+@inproceedings{kahlon2010universal, 
+  title={Universal causality graphs: {A} precise happens-before model for detecting bugs in concurrent programs},
+  author={Kahlon, Vineet and Wang, Chao},
+  booktitle={Computer Aided Verification},
+  pages={434--449},
+  year={2010},
+  organization={Springer},
+  publisher={Springer},
+  address={Springer}
+}
+
+%%%%%%%%%%%%%%%%%%%%%% Permission Regions: %%%%%%%%%%%%%%%%%%%%%%
+@incollection{westbrook2012practical,
+  title={Practical permissions for race-free parallelism},
+  author={Westbrook, Edwin and Zhao, Jisheng and Budimli{\'c}, Zoran and Sarkar, Vivek},
+  booktitle={ECOOP 2012--Object-Oriented Programming},
+  pages={614--639},
+  year={2012},
+  publisher={Springer},
+  address={Springer}
+}
+
+@inproceedings{westbrook2012permission,
+  title={Permission regions for race-free parallelism},
+  author={Westbrook, Edwin and Zhao, Jisheng and Budimli{\'c}, Zoran and Sarkar, Vivek},
+  booktitle={Runtime Verification},
+  pages={94--109},
+  year={2012},
+  organization={Springer},
+  publisher={Springer},
+  address={Springer}
+}
+
+@inproceedings{mercer2015model,
+  title={Model Checking Task Parallel Programs using Gradual Permissions},
+  author={Mercer, Eric and Anderson, Peter and  Vrvilo, Nick and Sarkar, Vivek},
+  booktitle={Proceedings of 30th IEEE/ACM International Conference on Automated Software Engineering, New ideas category},
+  year={2015},
+  pages={535--540},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}	
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Runtimes for Structured Parallelism %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{blumofe1996cilk,
+  title={Cilk: An efficient multithreaded runtime system},
+  author={Blumofe, Robert D and Joerg, Christopher F and Kuszmaul, Bradley C and Leiserson, Charles E and Randall, Keith H and Zhou, Yuli},
+  journal={Journal of parallel and distributed computing},
+  volume={37},
+  number={1},
+  pages={55--69},
+  year={1996},
+  publisher={Elsevier}
+}
+
+@inproceedings{cave2011habanero,
+  title={Habanero-{J}ava: the new adventures of old {X}10},
+  author={Cav{\'e}, Vincent and Zhao, Jisheng and Shirako, Jun and Sarkar, Vivek},
+  booktitle={Proceedings of the 9th International Conference on Principles and Practice of Programming in Java},
+  pages={51--61},
+  year={2011},
+  organization={ACM},
+  publisher={ACM},
+  address = {ACM}
+}
+
+% Library version of HJ
+@inproceedings{imam2014habanero, 
+  title={Habanero-{J}ava library: a {J}ava 8 framework for multicore programming},
+  author={Imam, Shams and Sarkar, Vivek},
+  booktitle={Proceedings of the 2014 International Conference on Principles and Practices of Programming on the Java platform: Virtual machines, Languages, and Tools},
+  pages={75--86},
+  year={2014},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+@article{charles2005x10,
+ author = {Charles, Philippe and Grothoff, Christian and Saraswat, Vijay and Donawa, Christopher and Kielstra, Allan and Ebcioglu, Kemal and von Praun, Christoph and Sarkar, Vivek},
+ title = {X10: {An} {O}bject-oriented {A}pproach to {N}on-uniform {C}luster {C}omputing},
+ journal = {SIGPLAN Not.},
+ issue_date = {October 2005},
+ articleno = {1},
+ volume = {40},
+ number = {10},
+ month = oct,
+ year = {2005},
+ issn = {0362-1340},
+ pages = {519--538},
+ numpages = {20},
+ url = {http://doi.acm.org/10.1145/1103845.1094852},
+ doi = {10.1145/1103845.1094852},
+ acmid = {1094852},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Java, X10, atomic blocks, clocks, data distribution, multithreading, non-uniform cluster computing (NUCC), partitioned global address space (PGAS), places, productivity, scalability}
+} 
+
+
+%%%%%%%%%%%%%%%%%%%%%% Precise/Dynamic/Model Checking %%%%%%%%%%%%%%%%%%%%%%
+
+%% Just like JPF -- tracks thread IDs on memory accesses and checks dynamically for data race
+@book{schonberg1989fly, 
+  title={On-the-fly detection of access anomalies},
+  author={Schonberg, D},
+  volume={24:7},
+  year={1989},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% JPF Precise detector?
+@misc{kulikov2010detecting, 
+  title={Detecting Data Races with Java PathFinder},
+  author={Kulikov, Sergey and Shafiei, Nastaran and Van Breugel, Franck and Visser, Willem},
+  year={2010}
+}
+
+%%%%%%%%%%%%%%%%%%%%%% Type Checking %%%%%%%%%%%%%%%%%%%%%%
+@article{abadi2006types,
+  title={Types for safe locking: Static race detection for Java},
+  author={Abadi, Martin and Flanagan, Cormac and Freund, Stephen N},
+  journal={ACM Transactions on Programming Languages and Systems (TOPLAS)},
+  volume={28},
+  number={2},
+  pages={207--255},
+  year={2006},
+  publisher={ACM},
+  address={ACM},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Thread-modular model checking %%%%%%%%%%%%%%%%%%%%%%
+@article{xu1997rely,
+  title={The rely-guarantee method for verifying shared variable concurrent programs},
+  author={Xu, Qiwen and de Roever, Willem-Paul and He, Jifeng},
+  journal={Formal Aspects of Computing},
+  volume={9},
+  number={2},
+  pages={149--174},
+  year={1997},
+  publisher={Springer},
+  address={Springer}
+}
+
+@incollection{flanagan2003thread,
+  title={Thread-modular model checking},
+  author={Flanagan, Cormac and Qadeer, Shaz},
+  booktitle={Model Checking Software},
+  pages={213--224},
+  year={2003},
+  publisher={Springer},
+  address={Springer}
+}
+
+@Inbook{henzinger2003thread,
+author="Henzinger, Thomas A.
+and Jhala, Ranjit
+and Majumdar, Rupak
+and Qadeer, Shaz",
+title="Thread-Modular Abstraction Refinement",
+bookTitle="Computer Aided Verification: 15th International Conference, CAV 2003, Boulder, CO, USA, July 8-12, 2003. Proceedings",
+year="2003",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="262--274",
+isbn="978-3-540-45069-6",
+doi="10.1007/978-3-540-45069-6_27",
+url="http://dx.doi.org/10.1007/978-3-540-45069-6_27"
+}
+
+@incollection{malkis2007precise,
+  title={Precise thread-modular verification},
+  author={Malkis, Alexander and Podelski, Andreas and Rybalchenko, Andrey},
+  booktitle={Static Analysis},
+  pages={218--232},
+  year={2007},
+  publisher={Springer},
+  address={Springer}
+}
+
+
+@inproceedings{gotsman2007thread,
+  title={Thread-modular shape analysis},
+  author={Gotsman, Alexey and Berdine, Josh and Cook, Byron and Sagiv, Mooly},
+  booktitle={ACM SIGPLAN Notices},
+  volume={42:6},
+  pages={266--277},
+  year={2007},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%% Assertion based %%%%%%%%%%%%%%%%%%%%%%
+
+%% Assertion library to specify determinancy (thread based)
+@inproceedings{burnim2009asserting, 
+  title={Asserting and checking determinism for multithreaded programs},
+  author={Burnim, Jacob and Sen, Koushik},
+  booktitle={Proceedings of the the 7th joint meeting of the European software engineering conference and the ACM SIGSOFT symposium on The foundations of software engineering},
+  pages={3--12},
+  year={2009},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%% Follow-on to burnim2009asserting but automate the assertion specification 
+@inproceedings{burnim2010determin, 
+  title={{DETERMIN}: {I}nferring likely deterministic specifications of multithreaded programs},
+  author={Burnim, Jacob and Sen, Koushik},
+  booktitle={Proceedings of the 32nd ACM/IEEE International Conference on Software Engineering-Volume 1},
+  pages={415--424},
+  year={2010},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+%%%%%%%%%%%%%%%%%%%%%% Final-state Check %%%%%%%%%%%%%%%%%%%%%%
+
+%% Create hash-key from final memory state. Run many times. See if changes.
+@inproceedings{nistor2010instantcheck, 
+  title={Instantcheck: {C}hecking the determinism of parallel programs using on-the-fly incremental hashing},
+  author={Nistor, Adrian and Marinov, Darko and Torrellas, Josep},
+  booktitle={Proceedings of the 2010 43rd Annual IEEE/ACM International Symposium on Microarchitecture},
+  pages={251--262},
+  year={2010},
+  organization={IEEE Computer Society},
+  publisher={IEEE},
+  address={IEEE}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Testing Approaches %%%%%%%%%%%%%%%%%%%%%%%%%%%
+@inproceedings{hong2012testing,
+  title={Testing concurrent programs to achieve high synchronization coverage},
+  author={Hong, Shin and Ahn, Jaemin and Park, Sangmin and Kim, Moonzoo and Harrold, Mary Jean},
+  booktitle={Proceedings of the 2012 International Symposium on Software Testing and Analysis},
+  pages={210--220},
+  year={2012},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+@inproceedings{yu2012maple,
+  title={{M}aple: a coverage-driven testing tool for multithreaded programs},
+  author={Yu, Jie and Narayanasamy, Satish and Pereira, Cristiano and Pokam, Gilles},
+  booktitle={ACM Sigplan Notices},
+  volume={47:10},
+  pages={485--502},
+  year={2012},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+@inproceedings{terragni2015recontest,
+  title={Recontest: {E}ffective regression testing of concurrent programs},
+  author={Terragni, Valerio and Cheung, Shing-Chi and Zhang, Charles},
+  booktitle={Software Engineering (ICSE), 2015 IEEE/ACM 37th IEEE International Conference on},
+  volume={1},
+  pages={246--256},
+  year={2015},
+  organization={IEEE},
+  publisher={IEEE},
+  address={IEEE}
+}
+
+@inproceedings{yu2014simrt,
+  title={Sim{RT}: an automated framework to support regression testing for data races},
+  author={Yu, Tingting and Srisa-an, Witawas and Rothermel, Gregg},
+  booktitle={Proceedings of the 36th International Conference on Software Engineering},
+  pages={48--59},
+  year={2014},
+  organization={ACM},
+  publisher={ACM},
+  address={ACM}
+}
+
+@inproceedings{leon2015unfolding,
+  title={Unfolding Based Minimal Test Suites for Testing Multithreaded Programs},
+  author={Leon, Hernan Ponce de and Saarikivi, Olli and Kahkonen, Kari and Heljanko, Keijo and Esparza, Javier},
+  booktitle={Application of Concurrency to System Design (ACSD), 2015 15th International Conference on},
+  pages={40--49},
+  year={2015},
+  organization={IEEE},
+  publisher={IEEE},
+  address={IEEE}
+}
+
+@article{kahkonen2015unfolding,
+  title={Unfolding based automated testing of multithreaded programs},
+  author={K{\"a}hk{\"o}nen, Kari and Saarikivi, Olli and Heljanko, Keijo},
+  journal={Automated Software Engineering},
+  volume={22},
+  number={4},
+  pages={475--515},
+  year={2015},
+  publisher={Springer}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% UNSORTED %%%%
+
+@article{ESC,
+ author = {Flanagan, Cormac and Leino, K. Rustan M. and Lillibridge, Mark and Nelson, Greg and Saxe, James B. and Stata, Raymie},
+ title = {Extended {S}tatic {C}hecking for {J}ava},
+ journal = {Proceedings of the ACM SIGPLAN 2002 conference on Programming language design and implementation (SIGPLAN Not.)},
+ issue_date = {May 2002},
+ volume = {37},
+ number = {5},
+ month = may,
+ year = {2002},
+ issn = {0362-1340},
+ pages = {234--245},
+ numpages = {12},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {compile-time program checking},
+}
+
+@book{miller1988mechanism,
+  title={A mechanism for efficient debugging of parallel programs},
+  author={Miller, Barton P and Choi, Jong-Deok},
+  volume={23},
+  number={7},
+  year={1988},
+  publisher={ACM}
+}
+
+@online{jgrapht,
+title = {{JGraphT}, {A} {J}ava {L}ibrary focused on data structures and algorithms},
+url = {http://jgrapht.org/},
+author={JGraphT},
+year={2017}
+}
+
+@online{graphviz,
+title = {{GraphViz}, {A} {G}raph {V}isualization {S}oftware},
+url = {http://www.graphviz.org/},
+author={GraphViz},
+year={2017}
+}
+
+@incollection{popeea2012compositional,
+  title={Compositional termination proofs for multi-threaded programs},
+  author={Popeea, Corneliu and Rybalchenko, Andrey},
+  booktitle={Tools and Algorithms for the Construction and Analysis of Systems},
+  pages={237--251},
+  year={2012},
+  publisher={Springer}
+}
+
+@article{bouajjani,
+  title={Analysis of recursively parallel programs},
+  author={Bouajjani, Ahmed and Emmi, Michael},
+  journal={ACM SIGPLAN Notices},
+  volume={47},
+  number={1},
+  pages={203--214},
+  year={2012},
+  publisher={ACM}
+}
+
+@inproceedings{demsky2015satcheck,
+  title={{SATC}heck: {SAT}-directed stateless model checking for {SC} and {TSO}},
+  author={Demsky, Brian and Lam, Patrick},
+  booktitle={Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications},
+  pages={20--36},
+  year={2015},
+  organization={ACM}
+}
+
+%% Defines the terms
+@inproceedings{dennis2012determinacy, 
+  title={Determinacy and repeatability of parallel program schemata},
+  author={Dennis, Jack B and Gao, Guang R and Sarkar, Vivek},
+  booktitle={Data-Flow Execution Models for Extreme Scale Computing (DFM), 2012},
+  pages={1--9},
+  year={2012},
+  organization={IEEE},
+  publisher={IEEE},
+  address={IEEE}
+}
+
+
+%%%%%%%%%%%%Benchmarks%%%%%%%%%%%%%%%%%%%%%%%
+@inproceedings{virouleau,
+  title = {{E}valuation of {O}pen{MP} {D}ependent {T}asks with the {KASTORS} Benchmark Suite},
+  author = {Virouleau, Philippe and BRUNET, Pierrick and Broquedis, Fran{\c c}ois and Furmento, Nathalie and Thibault, Samuel and Aumage, Olivier and Gautier, Thierry},
+  booktitle = {{10th International Workshop on OpenMP, IWOMP2014}},
+  address = {Salvador, Brazil, France},
+  publisher = {{Springer}},
+  series = {10th International Workshop on OpenMP, IWOMP2014},
+  pages = {16 - 29},
+  year = {2014},
+  month = Sep,
+}
+
+@article{bull2000benchmark,
+  title={A benchmark suite for high performance Java},
+  author={Bull, J Mark and Smith, Lorna A and Westhead, Martin D and Henty, David S and Davey, Robert A},
+  journal={Concurrency - Practice and Experience},
+  volume={12},
+  number={6},
+  pages={375--388},
+  year={2000}
+}

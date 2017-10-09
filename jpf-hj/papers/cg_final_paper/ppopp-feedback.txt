@@ -1,0 +1,236 @@
+Review 1:
+Paper Summary
+This paper presents an algorithm for detecting data races in structured parallel Java programs. It first converts the Habanero Java programs to the generic task parallel programs, from which a directed graph is computed. Then it topologically orders the nodes of the graph and checks every two nodes in the topological order to detect the data races. The technique is implemented based on JPF framework and evaluated on several small benchmarks.
+Strengths
+It proposes a data race detection algorithm for task parallel Java programs based on a computed graph and model checks it with JPF.
+Weaknesses
+-) The contribution over previous work is not significant.
+
+-) The title of the paper is verification, however, this paper only detects data races. It would be better to change the title to something like, data race detection…
+
+-) The benchmarks evaluated are too small and the evaluation is not adequate to demonstrate the effectiveness of the technique.
+
+-) The structure of the paper needs to be adjusted. Instead of introducing the race detection algorithm first and then the graph computation, it would be better to first introduce the task parallel programs, then how to compute the directed graph and present the algorithm at last.
+
+
+Comments for author
+The paper's contribution is not clear. The motivation says "existing techniques are unsound for programs with mutual exclusion". This is not true as general race detectors are all able to handle locks. More importantly, the paper does not show any example that an existing technique such as PLDI'12 Raman et al. [23] cannot find the race, but the proposed technique can.
+
+Suggestions:
+
+Adjust the structure of the paper.
+
+Provide the algorithm of how to convert the task parallel Java programs to the generic task parallel language and how to compute the graph from the generic task parallel programs.
+
+Add more explanation to the experimental results. For example, what does the states explored by JPF mean? Why can this technique reduce the state? Do you find any new races?
+
+Evaluate on larger and real programs.
+
+Compare with existing techniques such as PLDI'12 Raman et al. [23].
+
+=====================================================================================================================
+Review 2:
+Paper Summary
+The authors propose a model checking technique to identify data races: the tool will identify all races that exist in the given program, without false positive or negatives, the verification takes into account mutual exclusion and fork/join synchronization. The algorithm uses partial order reduction to optimize the model checker's scheduler.
+
+The novelty is on using computation graphs (partial orders), as opposed to locksets, in the context of model checking data races.
+Strengths
+The work is interesting, as it explores the practicality of using model checking to check for races, when using computation graphs. This work also introduces a (novel) notion of asynchronous race detection, in the sense that memory accesses are not blocked by the verification algorithm, which is either executed offline or at certain check-points (at the end of a finish).
+Weaknesses
+Major concerns, ordered by severity:
+
+A. the authors did not explore/evaluate satisfactorily their design choices 
+B. evaluation is insufficient 
+C. complexity analysis is not detailed enough to assess its correctness
+
+(See questions for the elaboration of these points.)
+Novelty
+2. Incremental improvement
+Comments for author
+The authors did not compare this work with, which I find to be the most relevant related work:
+
+"Precise Race Detection and Efficient Model Checking Using Locksets" (2005). Tayfun Elmas, Shaz Qadeer, Serdar Tasiran. Technical Report MSR-TR-2005-118.
+
+Section 1.
+
+3) Dynamic improvement to the data race detection algorithm for structured parallel programs
+
+This sentence is too vague. I could not understand what the authors' intent.
+
+Section 4. pp 6.
+
+Lemma 1. is hard to read. Why not just say:
+
+Let G, G' \in \mathcal{G}(P).
+
+If DRF(G) and P does not contain critical sections, then DRF(G').
+
+Same for Corollary 1, why not rephrase it as:
+
+Let G, G' \in \mathcal{G}(P).
+
+If \not DRF(G) and P does not contain critical sections, then \not DRF(G').
+
+Section 5.
+
+I could not find any related work that performs post-mortem analysis. Is this the first post-mortem race detection analysis? This fact should be made clearer. Is there any limitation in related work that prevents it from using such a technique?
+
+Section 5. pp 5.
+
+Operator "=" is confusing to me, because when it is used for terms of the language, it corresponds to equality, as in "n1 = fresh()", but when it is used in the context of graph augmentation, "N = N \cup {n0', nn1}" the left-hand side corresponds to the set of nodes after reduction and the right-hand side corresponds to the set of nodes before reduction.
+
+The notation should be consistent.
+
+Section 5. pp 7.
+
+To improve the efficiency of analysis at run-time.
+
+Shouldn't it be at model-checking-time?
+
+Section 7. par 2.
+
+From what I understand, the intent of this paragraph is to relate the events that JPF provides with the rules of the operational semantics.
+
+I found the text really hard to read. For instance, in the sentence
+
+I propose the following structure for this paragraph: 1) describe each JPF event, 2) explain which events trigger which rules.
+
+For instance, in the sentence
+
+The POST rule is used to add nodes to the graph when the objectCreated method returns a task object.
+
+I have the following clarity concerns:
+
+What do you mean by "the POST rule is not used to add nodes"? It seems to me that the POST rule adds nodes as a consequence of spawning a task.
+
+when the objectCreated method returns a created object.
+
+What do you mean by returning a created object? By looking up the API method objectCreated is a void method.
+
+The operational semantics (Section 3) conflate two subjects: the semantics of the language, with the computation graph augmentation. While I realize that this saves space, in my opinion having the two subjects conflated hinders the clarity;
+
+Section 7. par 2.
+
+All in all, 7 listeners and 2 factories are replaced in JPF consisting of roughly 1600 lines of code.
+
+This sentence is not very informative. Can you briefly describe why do you need 7 listeners? Are these listeners related? What are the factories for?
+
+Section 8. par 1.
+
+The results of this technique have been compared to two approaches implemented [on top of] JPF
+
+What do you mean by results? Theoretical results? Isn't the tool that is being evaluated?
+
+Section 8. (High-level)
+
+The evaluation is geared towards showing scenarios where it is expected for this tool to outperform others. It is also important to understand the limits of this technique. We need to understand when we should avoid using model checking.
+
+For example, I assume some of the benchmarks do not have isolated statements. How much slower is it this tool versus [23,24]? Are there situations where this tool outperforms [23,24]?
+
+Isn't the Precise Race Detector (PRD) a general purpose algorithm that works, unchanged, for any Java/HJ program? The authors should clarify if that is the case. And note the situations in which PRD can be used and this technique cannot. The authors should also clarify the scope of when Gradual Permission Regions are useful.
+
+Section 8. par 2.
+
+You should state whether Precise Race Detector the algorithm is complete. Are the reports of this tool complete for all inputs, or just for a fixed input?
+
+Section 8. pp 10. par 2.
+
+Table I could be made easier to read by grouping race and race-free programs together.
+
+Section 8. pp 10. par 2.
+
+The precise race detector has support for races in arrays, but is is disabled by default. Why was this not accounted for in the benchmark?
+
+Section 8. pp 10. par 4.
+
+Please, list which benchmarks use isolated.
+Questions for Authors
+Section 1.
+
+The authors state as a contribution:
+
+An implementation of the data race detection algorithm for Habanero Java
+But I could not find any reference to where one can download this tool. How can this be counted as a contribution to the academic community, if we there is no actual tool available?
+
+Ideally, we would have the source code available, with a permissive open source license.
+
+Section 2. (C)
+
+data race detection algorithm using computation graphs that runs in O(N^2) where N is the number of nodes in the graph.
+Checking if (~ a < b) in a computation graph, amounts to testing if a is connected to b (reachability test), which has a complexity of O(N^2). How can algorithm 1 have a complexity of O(N^2)?
+
+Dynamic race detection techniques usually group memory accesses by memory location instead of comparing every node of the computation graph, therefore sacrificing space for speed. The authors should evaluate, or at least discuss, why this technique was not considered. Ideally, this technique would have been evaluated in the benchmark section.
+
+Section 2. (A)
+
+For instance, did you consider generating the transitive closure of the computation graph, rather than just the computation graph? This would make checking if two accesses are ordered O(1). The authors should comment on this.
+
+Did you consider arranging the accesses by location (as it is usually done by dynamic race detectors), rather than comparing every pair of nodes in the computation graph arbitrarily?
+
+Section 5. (A,B)
+
+This paper proposes a verification technique checks for races either: (A) at the end of the program (B) at the end of each finish block
+
+One would expect that (A) should be faster for programs without races (as the tool performs fewer race tests), whereas (B) should be faster for programs with races (as the model-checker can cut-off faster).
+
+Table I should include techniques (A) and (B), instead of just one, to let us observe whether or not the observation above holds for these benchmarks.
+
+Dynamic race detection usually checks at each memory access, it would be interesting to evaluate if this level of granularity is advantageous for model checking.
+
+It seems to me that the level of confidence of "how racy a program should be" could greatly improve the usefulness of this tool. While the user could provide this level of confidence as a parameter, it would be interesting to explore automatic approaches: static race detectors should provide a good estimate of such parameter.
+
+
+=====================================================================================================================
+Review 3:
+
+Paper Summary
+This paper proposes a technique for detecting data races (or some call determinay races) for a task-parallel program that employs mutual exclusions. The use of mutual exclusions makes it challenging to provide provably correct race detector, because the use of mutual exclusion, even in the absence of determinacy races, causes different computation dags to be generated from run to run, depending on the scheduling. The proposed technique involves generating different computation dags by altering the schedules to cause the critical sections to be executed in different orders, and running a race detection algorithm on the generated dag. The technique is implemented and evaluated for the Habanero Java platform.
+Strengths
+Combining model checking with dynamic race detection could potentially be interesting.
+Weaknesses
+The contributions seem thin and some of the claims seem incorrect. There are a lot of issues with this paper. Please see my comments for authors.
+Novelty
+2. Incremental improvement
+Comments for author
+The proposed race detection algorithm (Algorithm 1) is inefficient.
+On top of that, the O(N^2) analysis for Algorithm 1 is also incorrect --- note that it is only O(N^2) if you can perform line 8--10 in constant time, and those sets are not necessarily constant size.
+
+Also I believe that this algorithm is naive and the race detection can be done more efficiently. [1] proposes a dynamic race detector that handles computation dags with futures, and their algorithm can be generalized to check computation dags with mutual exclusions, provided that you are only checking a single schedule (which is what Algorithm 1 is doing), and their on-the-fly race detector does not incur O(N^2) time.
+
+[1] Brief Announcement: Dynamic Determinacy Race
+
+Detection for Task Parallelism with Futures.  By Rishi Surendran
+and Vivek Sarkar.  SPAA 2016.
+It is not clear to me why it is necessary to put the process of computation graph generation into operational semantics. The process can be described much simply, and it's not like the operational semantics was used to prove anything that cannot be proven without.
+
+The whole section was confusing to read --- terms and notations are used with clearly defined. For instance, in page 4, the middle section, the entire three paragraph starting from the mention of the region valuation function was really confusing. A bunch of notations was defined but never really explained what they are used for and what they mean when you map them back to the program execution. The phrase passing ownership was used a lot, but the paper never explained what passing ownership means and what's the implication.
+
+The proof of lemma 1 is informal but also seemed unnecessary.
+If a program does not use mutual exclusion, for a given input for a given program, in the absence of determinacy races, the same computation dag will always be generated.
+
+Algorithm 2 is a way of generating different schedules for executing program that uses isolated keyword. The paper makes the claim that it finds all unique computation graphs --- the paper cites [26] for this claim, but I looked at [26], and [26] does not actually claim that it is complete. And, just looking at the schedule, I don't see why it would be complete.
+
+Given that I don't actually believe Algorithm 2 generates all possible computation dags, I also don't believe in the evaluation. But in addition, the benchmark instance used are too small. Each program generating only a few tasks --- the largest one is only 525 tasks. To provide a perspective, a usual divide-and-conquer 8 way matrix multiplication algorithm with a coarsened base case with input of say 1024x1024 matrices should generate 8^6 tasks, which would be on the order of 260000 tasks.
+
+Related work: The technique used say, in [17], is quite different from that used in [19], or [21], or [22]. Moreover, fundamentally, the kinds of guarantees that one can provide for a setting in [17] (pthreaded programs) and [19--22] (task parallel programs) are quite different. For instance, for a pthreaded program that uses virtual clock to determine happens-before relation, the race detector is only analyzing a single schedule, and thus the race detector can only say something about whether a race is observed in the analyzed schedule. (The happens-before relation can change from run to run.) For task parallel programs that use constructs such as spawn / sync or even future, the dependencies between strands are deterministic in the absence of determinacy races, and thus the race detector can provide a much stronger guarantee. Please be sure that you fully understand the papers that you are citing.
+
+Also, other related, besides the [1] mentioned above: [2] On-the-Fly Maintenance of Series-Parallel Relationships in Fork-Join Multithreaded Programs by Michael A. Bender, Jeremy T. Fineman, Seth Gilbert, and Charles E. Leiserson. SPAA 2004.
+
+[3] Provably Good and Practically Efficient Parallel Race Detection for Fork-Join Programs by Robert Utterback, Kunal Agrawal, Jeremy T. Fineman, and I-Ting Angelina Lee. SPAA 2016.
+
+Why is the title "with predictive analysis"? It doesn't seem to me that this work has anything to do with predictive analysis.
+=====================================================================================================================
+Review 4:
+
+Paper Summary
+This paper presents a novel approach to dynamically determining race conditions in task-parallel programs/apps.
+Strengths
+Excellent insight and valuable contribution to the community. Debugging 'AMT' apps is going to be challenging, and this paper presents a general approach to moving us closer to writing race-free code. It is well written, well developed, and overall a strong piece of work.
+Weaknesses
+I don't have any real criticism of this paper/work. I would like to see it developed into a general toolkit or lib, if that is possible, but obviously that is outside the scope of this paper.
+Novelty
+3. New contribution
+Comments for author
+Excellent idea and extremely well developed. Well done.
+
+=====================================================================================================================

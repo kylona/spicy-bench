@@ -1,0 +1,208 @@
+%% bare_conf.tex
+%% V1.4a
+%% 2014/09/17
+%% by Michael Shell
+%% See:
+%% http://www.michaelshell.org/
+%% for current contact information.
+%%
+%% This is a skeleton file demonstrating the use of IEEEtran.cls
+%% (requires IEEEtran.cls version 1.8a or later) with an IEEE
+%% conference paper.
+%%
+%% Support sites:
+%% http://www.michaelshell.org/tex/ieeetran/
+%% http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran/
+%% and
+%% http://www.ieee.org/
+
+%%*************************************************************************
+%% Legal Notice:
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%% In no event shall IEEE or any contributor to this code be liable for
+%% any damages or losses, including, but not limited to, incidental,
+%% consequential, or any other damages, resulting from the use or misuse
+%% of any information contained here.
+%%
+%% All comments are the opinions of their respective authors and are not
+%% necessarily endorsed by the IEEE.
+%%
+%% This work is distributed under the LaTeX Project Public License (LPPL)
+%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
+%% distributed and modified. A copy of the LPPL, version 1.3, is included
+%% in the base LaTeX documentation of all distributions of LaTeX released 
+%% 2003/12/01 or later.
+%% Retain all contribution notices and credits.
+%% ** Modified files should be clearly indicated as such, including  **
+%% ** renaming them and changing author support contact information. **
+%%
+%% File list of work: IEEEtran.cls, IEEEtran_HOWTO.pdf, bare_adv.tex,
+%%                    bare_conf.tex, bare_jrnl.tex, bare_conf_compsoc.tex,
+%%                    bare_jrnl_compsoc.tex, bare_jrnl_transmag.tex	
+%%*************************************************************************
+
+%\documentclass[conference]{IEEEtran}
+
+%\let\oldvec\vec
+\RequirePackage{amsmath}
+\let\oldvec\vec
+\documentclass{llncs}
+\let\vec\oldvec
+
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\setlength{\paperheight}{11in}
+\setlength{\paperwidth}{8.5in}
+
+\let\proof\relax
+\let\endproof\relax
+
+%\usepackage{amsmath, listings, amsthm, amssymb, proof, xspace, stmaryrd, times}
+\usepackage{listings, amsthm, amssymb, proof, xspace, stmaryrd, times}
+
+\usepackage[pass]{geometry}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{paralist}
+\usepackage{comment}
+\let\oldvec\vec
+\usepackage{graphicx}
+\usepackage{epstopdf}
+
+%\let\vec\oldvec
+%\let\proof\relax
+%\let\endproof\relax
+
+\usepackage{subfigure}
+\usepackage{cite}
+\usepackage[nounderscore]{syntax}
+\usepackage{newfloat}
+\usepackage{esvect}
+\usepackage{semantic}
+\usepackage{mathpartir}
+\usepackage[table]{xcolor}
+\usepackage{flushend}
+\pdfoptionpdfminorversion=7
+
+
+\DeclareFloatingEnvironment[
+  % the file extension for the file used to create the list:
+  fileext   = logr,% don't use log here!
+  % the heading for the list:
+  listname  = {List of Grammars},
+  % the name used in captions:
+  name      = Grammar,
+  % the default floating parameters if the environment is used
+  % without optional argument:
+  placement = htp
+]{Grammar}
+
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\lemmaref}[1]{Lemma~\ref{#1}}
+\newcommand{\tableref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\lineref}[1]{Line~\ref{#1}}
+\newcommand{\corref}[1]{Corollary~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\algoref}[1]{Algorithm~\ref{#1}}
+
+
+\newcommand{\setof}[1]{\ensuremath{\left \{ #1 \right \}}}
+\newcommand{\tuple}[1]{\ensuremath{\langle #1 \rangle }}
+
+%\newcommand{\mystar}{{\fontfamily{lmr}\selectfont$\star$}}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+%\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{light-gray}{gray}{0.88}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  morekeywords={proc, post, await, ewait, var, skip, assume, call, return, async, finish, future, isolated, forall}
+}
+
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{corollary}{Corollary}
+
+\usepackage{algorithm, algpseudocode}
+
+\input{defs.tex}
+
+\begin{document}
+
+\title{Model-checking Task Parallel Programs for Data-race}
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+
+\begin{comment}
+\author{{Radha Nakade}
+{Department of Computer Science\\
+Brigham Young University\\
+Provo, Utah\\
+Email: radha.nakade@gmail.com}
+\and
+{Eric Mercer}
+{Department of Computer Science\\
+Brigham Young University\\
+Provo, Utah\\
+Email: egm@cs.byu.edu}
+\and
+{Jay McCarthy}
+{Department of Computer Science\\
+University of Massachusetts Lowell\\
+Email: jay.mccarthy@gmail.com}}
+\end{comment}
+
+\author{Radha Nakade\inst{1} \and
+ Eric Mercer\inst{1} \and
+Jay McCarthy\inst{2} }
+
+\institute{Brigham Young University, Provo, Utah
+\and
+University of Massachusetts Lowell}
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+%\IEEEpeerreviewmaketitle
+
+\input{introduction}
+\input{drd}
+\input{cg}
+\input{on-the-fly-drd}
+\input{otf}
+\input{results}
+\input{related-work}
+\input{conclusion}
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{../bib/paper}
+
+\end{document}

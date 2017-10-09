@@ -1,0 +1,40 @@
+\section{Other}
+%Other notes---incorporate later
+\begin{itemize}
+\item Habanero Java Overview
+	\begin{itemize}
+	\item Relation to Java: Habanero Java is a mid-level concurrency language that operates as an extension to Java. This extension includes the introduction of various concurrency constructs, such as asynchronous task creation, weak atomicity, and multiple synchronization tools. Using these features requires simple keywords to be added to regular Java programs. HJ programs are converted to Java byte through the specialized HJ compiler. This bytecode can then be run on JRE 5 or later.
+	\item Concurrency Keywords---finish, async, isolated, and future
+	\item High-level Concurrency Guarantees:   
+	\end{itemize}
+\item Java Pathfinder Overview
+	\begin{itemize}
+	\item How does it work?
+	\item How we interact with it?---Listeners and Choice Generators
+	\end{itemize}
+\item Homemade verification library
+	\begin{itemize}
+	\item Summary of how library works: Our verification implements each task structure of HJ as an individual thread. Consequently, our implementation of \textbf{async} and \textbf{finish} is a simple fork/join approach. The \textbf{isolated} keyword is implemented with a single global lock. This approach, although course, provides a simple solution suitable for a verification library. Finally, the \textbf{future} keyword has been implemented using java.util.Concurrent signaling semaphores.
+	\item Possibly compare it with X10X approach
+		\begin{enumerate}
+			\item \textbf{Modified the model checker}---my understanding is that changes related to correctness were minor. However, they did modify JPF to leverage the information gained from their static analysis. Namely, they changed the way JPF handled activities that altered only data within their own place. Lastly, if shared accesses were contained within X10 \textbf{atomic} section then all execution orders were not explored. This causes some behavior to be missed (if one access is protected, but another is not).
+			
+			\item \textbf{Modified the language runtime}---When a thread pool is used to handle \textit{activities} some of the possible execution orders are missed. Each thread in the pool will execute sequentially each \textit{activity} that is assigned to it. Neither the JVM (obviously) or JPF will modify this behavior. Thus to see all of the possible execution orders we need to have a one-to-one mapping of \textit{activities} to threads. 
+
+			\item \textbf{Extended the language compiler}---again they made changes to leverage static analysis. Also, they changed the behavior of ateach keyword to create less activities that performed more communication with each other.
+
+			\item \textbf{Developed new static analysis}---They analyze the code to determine place-locality of activities. I don't think that we support multi-place HJ programs. \textbf{DOUBLE-CHECK}
+		\end{enumerate}
+	\item Benefits or Reasons why we chose this approach
+		\begin{itemize}
+		\item Small Code: Our motivation behind developing our own verification runtime library was simplicity. We wanted to be able to implement the complete behavior of \textbf{async}, \textbf{finish}, \textbf{isolated}, and \textbf{future} in the simplest possible way. Currently, our library contains X lines of code. The original HJ runtime library is Y lines of code. This small size provides three major benefits.
+			\begin{enumerate}
+			\item Easy to prove correctness: We always have as many threads as active tasks. Thus we are easily able to explore all possible option. When Peter et al. integrated X10 into JPF they had to modify the runtime for this very reason. This looks like a major plus. 
+			\item Easy to modify or extend:  
+			\item Easy to see where JPF hooks in:
+			\end{enumerate}
+		\item Threads are free in JPF---Creating Java threads in JPF is cheap because JPF has its own internal representation of threads and its own thread scheduler. 
+		\item Java doesn't natively support continuations outside of threads. Therefore the only way to capture a continuation (other than threads) is to perform a transformation on the bytecode. This isn't elegant or simple.
+		\end{itemize}
+	\end{itemize}
+\end{itemize}

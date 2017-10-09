@@ -1,0 +1,10 @@
+\section{Conclusion} \label{sec:conclusion}
+This work presents a sound and complete technique for data race detection in task parallel programs using computation graphs. A dynamic improvement for the data race detection algorithm called on-the-fly analysis is also described. The computation graph creation is presented with the formal semantics for task parallel languages. A scheduling algorithm to create all computation graph structures for programs containing mutual exclusion is also presented. The data race detection analysis is implemented for Java implementation of Habanero programming model using Java Pathfinder and evaluated on a host of benchmarks. The results are compared to JPF's precise race detector and gradual permission regions based extension. The results show that this technique reduces the time required for verification significantly. The results for data race detection using computation graphs are also compared to the on-the-fly analysis to demonstrate the performance gain it offers.
+
+\begin{comment}
+This work can be extended in the following ways:
+\begin{itemize}
+\item The data race detector based on computation graphs explores just one control flow path that is taken by the program execution based on the input. The listener can be extended to explore other control flow paths by using Symbolic Execution.
+\item The computation graphs can be created statically using program instrumentation and analyzed to gain performance improvements.
+\end{itemize}
+\end{comment}

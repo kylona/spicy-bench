@@ -1,0 +1,109 @@
+\section{Structured Parallel languages}
+\label{sec:otf-drd}
+
+Non-determinism arises in task parallel programs primarily due to two reasons: data races and the order in which return value handlers are executed. Non-deterministic programs create different computation graphs under different program schedules. When the behavior of the program is non-deterministic, the result of the data race detection algorithm for a computation graph can be applied only for that particular program run. 
+Therefore, structured parallel languages impose restrictions to make the computation graphs of data race free programs deterministic. It helps in verifying program correctness under different schedules efficiently. 
+
+These languages impose the following restrictions:
+\begin{itemize}
+\item Passing ownership of tasks from a parent to a child task is not allowed. 
+\item Tasks whose return value handlers side effect can be posted in single-task regions only (i.e., regions that contain only a single task). A side-effect of a return value handler can be a change in the state of either the local variable or a region variable. 
+\item All the tasks are joined to the main task at the end of the program execution. This is ensured by having the initial program configuration as \tuple{$T[\textbf{post} $ r_0 \leftarrow p_0~e~\varepsilon~\vec{r}~\vec{r}~\lambda$v.v; $\textbf{await}~r_0; \textbf{await}~r_1; \ldots], m_0} on some procedure $p_0$, $\vec{r}$ is the region sequence containing all regions and $\forall r \in \mathtt{Regs}, m_0(r) = \emptyset$
+\end{itemize}
+
+\begin{comment}
+The non-determinism in program behavior due to different order of execution of return value handlers is countered by structured parallel languages such as Habanero Java and X10 by imposing an order on the task synchronization when the return value handlers do not commute. The languages do not allow task passing to ensure that task synchronization is always predefined and does not depend on the program schedule. All the un-synchronized tasks have to join to the main task at the end of program execution to ensure determinism in structure of computation graphs under different schedules.
+\end{comment}
+
+\subsection{Habanero Java}
+Habanero Java is a structured parallel programming language that gives importance to the usability and safety of parallel constructs. It guarantees properties such as determinism and serialization for subsets of parallel constructs. However, these guarantees hold only in the absence of data races.
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+public class Example1{
+	static int x = 0;
+	public static void main(String[] args) {
+			finish {
+				async { //Task1
+					x = x + 1; }
+				finish{
+					async { //Task2
+						x = x + 2;  } } }
+			future f = async { //Task3
+				return 5; }
+			x = f.get(); } }
+\end{lstlisting}
+  \end{center}
+  \vspace{-2em}
+  \caption{An example of HJ Program.}
+  \label{fig:hj-async-fin}
+\end{figure}
+
+\figref{fig:hj-async-fin} shows an example of an HJ program. The main task has two nested finish-blocks with tasks being posted to both these blocks and a future task.
+
+The \textbf{async} construct creates a new asynchronous task that runs in parallel with the parent task. The \textbf{finish} construct is used to collectively synchronize children tasks with their parent task. The \textbf{finish} $s$ statement causes the parent task to execute $s$ and then wait until all tasks created inside the finish-block have completed. The \textbf{future} construct lets tasks return values to other tasks: \textbf{future} $f$ = \textbf{async} $s$ creates a new child task to execute $s$. The local variable $f$ contains a handle to the newly created task that can be used to obtain the value returned by $s$. The blocking operation $f.get()$ retrieves this value when the child task completes execution. Habanero also includes loop parallelism constructs such as \emph{foraync} and \emph{forall} which are syntactic sugar for the presented constructs. 
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}[mathescape=true]
+  proc $main$ (var n : int)
+  	$\texttt{l}(r_1) := 0;$
+	post $r_1 \leftarrow p_1~0~\varepsilon~\vec{r}~\vec{r}~\lambda n.n$;
+	post $r_2 \leftarrow p_2~0~\varepsilon~\vec{r}~\vec{r}~\lambda n.n$;
+	await $r_2$;
+	await $r_1$;
+	post $r_3 \leftarrow p_2~0~\varepsilon~\vec{r}~\vec{r}~\lambda n. r_1 := n$;
+	ewait $r_3$;	
+  proc $p_1$ (var n : int)
+  	$\texttt{l}(r_1) := \texttt{l}(r_1) + 1$
+  proc $p_2$ (var n : int)
+  	$\texttt{l}(r_1) := \texttt{l}(r_1) + 2$
+  proc $p_3$ (var n : int)
+  	return 5
+\end{lstlisting}
+  \end{center}
+    \vspace{-2em}
+  \caption{HJ program converted to task parallel language.}
+        \vspace{-1em}
+  \label{fig:hj-async-fin-converted}
+\end{figure}
+
+The HJ example from \figref{fig:hj-async-fin} is converted to the generic task parallel language presented in this paper as shown in \figref{fig:hj-async-fin-converted}. The procedure $main$ posts task from the outer finish block to region $r_1$ and task from the inner finish block to region $r_2$. Since, the inner finish block completes execution first, \textbf{await} on region $r_2$ is called before $r_1$. The future posts a task to region $r_3$ followed by an \textbf{ewait} on $r_3$.
+
+\subsection{Properties of structured parallel programs}
+
+Let $\mathcal{G}( P )$ return the set of computation graphs from all possible schedules of the program $P$. And, let $\mathrm{DRF}( G )$ return true if Algorithm 1 reports the graph to be data race free.
+
+\begin{lemma} 
+\label{lem:drf}
+For a graph $G \in \mathcal{G}( P ), \mathrm{DRF}( G ) \rightarrow \{\forall G^\prime \in \mathcal{G}( P ), \mathrm{DRF}( G^\prime ) \}$ if $P$ does not contain critical sections.
+\end{lemma}
+\begin{proof}
+  Suppose there exists $\{G,G^\prime\} \subseteq \mathcal{G}$ such that $\mathrm{DRF}( G )$ is true but $\mathrm{DRF}( G^\prime )$ is false. As such, either $G$ and $G^\prime$ have the same structure and differ in the region variables accessed, or they have different structures all together. To accomplish either situation, there must be a source of non-determinism either in the program $P$ itself or as a result of the semantic definition for task parallel programs and how computation graphs are derived from executions. $P$ does not contain critical sections (i.e., access to shared variables is not guarded by locks). Also, the input to the program is fixed and expression evaluation is deterministic by definition (e.g., the choice operator is not allowed), the non-determinism needed to create $G$ and $G^\prime$ must arise through task interaction. 
+
+  Tasks interact at creation, completion, and through shared region variables. The interaction needs to be such that it causes a task in $P$ to follow a different control flow path to access different region variables or to post and synchronize tasks differently in order to create $G$ and $G^\prime$ so that one has no data race while the other one does. At task creation, the \textsc{Post} rule in \figref{fig:semantics} indicates that the parent task passes to the child task the value of the child's local variable, other tasks from the parent, the read and write region variables, and the return value handler. Each is discussed separately.
+
+  Structured parallel languages do not allow task passing by definition. The definition also mandates all regions for reading and writing in each task. As such, no different information is exchanged that can lead to $G$ and $G^\prime$ by task passing or access lists---synchronization between tasks (e.g., \textbf{await} and \textbf{ewait}) and available regions to access are identical. That leaves the child's local variable and the return value handler to discuss.
+
+  Structured parallel languages by definition restrict the tasks that have side-effecting return value handlers (i.e., handlers that alter the local variable in the parent task) to be posted into single-task regions only. This restriction effectively serializes the computation in the return value handlers to always be deterministic (i.e., it follows the same order to yield the same computation, in the absence of data race, since expressions are deterministic). Therefore, it is not possible to create $G$ and $G^\prime$ with return value handlers in the absence of data race.
+
+  Turning to the child's local variable, to create $G$ and $G^\prime$, some task in the program $P$ must see a different value for that local variable which is then used in an expression such that the same task takes one control path in $G$ and a different control path in $G^\prime$. The only way to alter the value of a local variable is through a conflicting access on some region variable shared between two tasks (e.g., a data race), but since that does not exist in $G$, $\mathrm{DRF}( G )$ is true, then it cannot exist in $G^\prime$ either because the program $P$ is deterministic by virtue of $G$ being data race free---a contradiction. '
+\end{proof}
+
+Structured parallel programs that do not have mutual exclusion are deterministic in the absence of data races. This property was first claimed in \cite{cave2011habanero}. \lemmaref{lem:drf} provides the first formal proof of this property. Other claimed properties of structured parallel languages follow directly from \lemmaref{lem:drf}.
+
+\begin{corollary}\label{cor:drf}
+For a graph $G \in \mathcal{G}( P ), \neg\mathrm{DRF}( G ) \rightarrow \{\forall G^\prime \in \mathcal{G}( P ), \neg\mathrm{DRF}( G^\prime ) \}$ if $P$ does not contain critical sections.
+\end{corollary}
+\begin{proof}
+Trivial from \lemmaref{lem:drf}.
+\end{proof}
+
+\begin{theorem} \label{thm:strcutured-par-progs}
+Algorithm \ref{algo:drd} is sound and complete for structured parallel programs with fixed input.
+\end{theorem}
+\begin{proof}
+%From Lemma \ref{lem:drf} and corollary 1, it can be seen that a single computation graph is enough to verify a structured parallel program under any schedule. Theorem \ref{thm:graph} states that Algorithm \ref{algo:drd} is sound and complete for a computation graph. Therefore, Algorithm \ref{algo:drd} is sound and complete for structured parallel programs with fixed input.
+Trivial by \lemmaref{lem:drf} and \corref{cor:drf}.
+\end{proof}

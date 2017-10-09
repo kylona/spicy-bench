@@ -1,0 +1,129 @@
+\section{Introduction}
+Despite the explosion in multi-core hardware for general purpose
+computing, writing programs to take advantage of the available
+processing power is a task reserved for expert
+developers. Parallel programming models are nuanced with non-trivial 
+language semantics, and the first programs from the uninitiated have
+more in common with sequential execution than parallel performance due
+to excessive synchronization, or worse, those programs are
+fraught with concurrency errors due to an absence of needed
+synchronization. Parallel semantics is not the normal mental model for
+most programmers, and as a result, parallelism is employed little,
+deployed incorrectly, or exclusively reserved for the expert users
+which are not found in abundance.
+
+The Habanero extreme scale software research project intends to bring
+multi-core programming to the masses by providing languages,
+compilers, run-time systems, and tools to support programmers that are
+not experts in concurrency. Habanero itself is a task-parallel
+programming model built around lightweight asynchronous tasks and data
+transfers. As such, rather than manipulating processes, threads, and
+synchronization for concurrent execution, the programmer identifies
+sections of the program that can run concurrently as tasks using
+simple annotations in the sequential code. An implementation of
+Habanero would then shoulder the complexity of the parallel execution
+and absolve the programmer of that responsibility. The
+programmer now focuses on the high-level task constructs while an
+implementation worries about how to correctly implement and
+synchronize those constructs.
+
+Aside from the simplified task-parallel programming model, Habanero
+gives some limited correctness guarantees. It defines safe subsets of
+the language that preserve correctness in regards to concurrent
+interactions. For example, programs that only create tasks and join
+on their termination are free of deadlock, support serialization (i.e.,
+removing all the annotations yields a sequential program that gives
+the same computation), and in the absence of data-race (i.e.,
+conflicting concurrent accesses to shared memory), those same programs
+are deterministic. In a safe subset, a programmer does not need to
+worry about concurrent interactions between tasks beyond data-race.
+
+Habanero Java (\hj) is the most widely deployed implementation of the
+Habanero model, and it has been adopted as a pedagogical language for
+teaching concurrency \cite{Cave:2011:HNA:2093157.2093165}; however,
+there is a gap between the theory of the language with its safe subsets
+and the implementation in regards to test and validation.  When operating
+within a safe subset of the language or outside for
+performance, there is no easy way to determine when and if a program
+is free of data-race---a necessary condition for determinism. Even
+debugging computation is non-trivial as the \hj\ implementation is
+complex, so a user has no obvious method to track a task, let alone
+control its execution, using a conventional debugger. As a result,
+inefficient code inspection, run-time failures, and
+\emph{printf}-debugging are the primary techniques for test and validation.
+
+This paper presents research to address debugging, test, and
+validation for task parallel programming models such as Habanero. The
+first contribution is a new implementation of Habanero for Java in the
+form of a library (\hjv). The implementation trades performance for
+simplicity and correctness. It does this by using Java threads for
+each task, and using global locks with conditions for features of
+Habanero that require mutual exclusion and complex synchronization. As
+such, it is well suited for test and validation since a conventional
+debugger is able to inspect and control the execution of tasks (e.g.,
+Java threads). Additionally, weighing in with only 32
+classes and around 1,300 lines of code, the library is an
+order of magnitude less complex than even the most simple
+implementations in the \hj\ distribution. Careful manual inspection of
+the code base, which is conveniently small, with extensive testing and
+verification, reasonably ensure a high degree of confidence in its correctness and supports the
+claim that \hjv\ preserves all behaviors allowed by the Habanero
+semantics. That said, finding deadlock and data-race in an input
+program is still a difficult challenge as is enumerating behaviors for test in non-deterministic programs.
+
+The \hjv\ library enables model checking for \hj\ programs. Model
+checking exhaustively enumerates program behavior, and in the case of
+task-parallel programming models, it reasons over task schedules to
+prove the absence of errors. The Java Pathfinder model checker (\jpf)
+is able to directly verify freedom from deadlock and data-race in
+\hj\ programs using \hjv\ as the Habanero implementation because \hjv\ employs a one-to-one
+mapping between tasks and threads. The verification leverages the
+native support for threads and locks in \jpf\ to automatically explore all possible
+ways to schedule concurrent tasks. Such an approach is not possible
+using the other Habanero implementations in the \hj\ distribution
+because \jpf\ does not know where to schedule. The model checking is effective for verifying the
+\hjv\ implementation beyond manual inspection and proving small
+programs correct, but it does not scale to larger programs.
+
+The second contribution to debugging, test, and validation is an
+implementation in \jpf\ of a sound algorithm for the validation of
+task-parallel programming models such as Habanero that is able to
+detect programs that are free of deadlock and data-race (\jpfhj). It also enumerates all outcomes that arise from non-determinism in sequencing isolated atomic blocks. The
+algorithm still employs model checking with the \hjv\ library as
+before; however, to scale to larger input programs, the algorithm uses
+permission regions to annotate atomic blocks of read/write operations
+on shared memory. These atomic blocks effectively reduce the number of
+schedules that must be considered to prove a program correct.
+
+Permission regions are program annotations that announce how a task
+interacts with shared memory (i.e., reading or writing), and over what
+region of code that interaction takes place
+\cite{Westbrook:2011:PRR:2341616.2341627,
+  Westbrook:2012:PPR:2367163.2367201}. During execution, auxiliary
+data structures track access on those memory regions and signal an
+error on any conflicting access. Permission regions have been shown
+effective in dynamically detecting data-race at run-time.
+
+\jpfhj\ includes an implementation of permission regions and a
+specialized scheduling algorithm to reduce the number of explored
+schedules needed to show a program free of deadlock and data-race. The
+new algorithm only preempts at the entrance to permission regions and isolated atomic blocks to
+schedule threads.  As stated previously, the new algorithm is sound,
+meaning that it may reject programs that are actually correct if the
+permission regions are too big, but effective at controlling state explosion. The
+algorithm does report a witness to any discovered deadlock or
+data-race violation which can be used to validate the error with the
+debugger. If the error is a false report due to the size of the
+regions, then the witness provides insight on how to reduce the size of
+the permission regions. This new algorithm together with the
+simplified run-time provide needed support for debug, test, and
+validation of task parallel programs.
+
+The principle contributions described in this paper are summarized as
+\begin{compactitem}
+\item \hjv: a verification specific implementation of Habanero for Java as a Java library that is extensively tested through model checking with \jpf\ and is amenable to conventional debugging;
+\item \jpfhj: an implementation of permission regions in the \jpf\ model checker with a sound algorithm that only schedules on permission regions and isolated atomic blocks to prove a program free of deadlock and data-race; and 
+\item an empirical study showing the impact of permission regions on the complexity of model checking over a set of benchmarks.
+\end{compactitem}
+The \hjv\ library and \jpfhj\ specialization are available for
+download at: \url{http://javapathfinder.org/jpf-hj/}.

@@ -1,0 +1,261 @@
+%% For double-blind review submission, w/o CCS and ACM Reference (max submission space)
+\documentclass[sigplan,10pt,review,anonymous,table]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+%% For double-blind review submission, w/ CCS and ACM Reference
+%\documentclass[sigplan,10pt,review,anonymous]{acmart}\settopmatter{printfolios=true}
+%% For single-blind review submission, w/o CCS and ACM Reference (max submission space)
+%\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+%% For single-blind review submission, w/ CCS and ACM Reference
+%\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true}
+%% For final camera-ready submission, w/ required CCS and ACM Reference
+%\documentclass[sigplan,10pt]{acmart}\settopmatter{}
+
+
+%% Conference information
+%% Supplied to authors by publisher for camera-ready submission;
+%% use defaults for review submission.
+\acmConference[PPoPP'18]{ACM SIGPLAN Conference on Principles and Practices of Parallel Programming}{February 24--28, 2018}{V\"{o}sendorf, Austria}
+\acmYear{2018}
+\acmISBN{} % \acmISBN{978-x-xxxx-xxxx-x/YY/MM}
+\acmDOI{} % \acmDOI{10.1145/nnnnnnn.nnnnnnn}
+\startPage{1}
+
+%% Copyright information
+%% Supplied to authors (based on authors' rights management selection;
+%% see authors.acm.org) by publisher for camera-ready submission;
+%% use 'none' for review submission.
+\setcopyright{none}
+%\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\copyrightyear{2017}           %% If different from \acmYear
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%\citestyle{acmauthoryear}  %% For author/year citations
+%\citestyle{acmnumeric}     %% For numeric citations
+%\setcitestyle{nosort}      %% With 'acmnumeric', to disable automatic
+                            %% sorting of references within a single citation;
+%% e.g., \cite{Smith99,Carpenter05,Baker12}
+                            %% rendered as [14,5,2] rather than [2,5,14].
+%\setcitesyle{nocompress}   %% With 'acmnumeric', to disable automatic
+                            %% compression of sequential references within a
+                            %% single citation;
+                            %% e.g., \cite{Baker12,Baker14,Baker16}
+                            %% rendered as [2,3,4] rather than [2-4].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Note: Authors migrating a paper from traditional SIGPLAN
+%% proceedings format to PACMPL format must update the
+%% '\documentclass' and topmatter commands above; see
+%% 'acmart-pacmpl-template.tex'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% Some recommended packages.
+\usepackage{booktabs}   %% For formal tables:
+                        %% http://ctan.org/pkg/booktabs
+\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                        %% http://ctan.org/pkg/subcaption
+
+
+%% BEGIN: Packages and definitions for Radha's paper to build
+% Packages needed for Radha's paper
+\usepackage{paralist,comment,algorithm,algpseudocode,mathpartir,listings,graphicx,epstopdf,multicol}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+%\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{light-gray}{gray}{0.88}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  morekeywords={proc, post, await, ewait, var, skip, assume, call, return, async, finish, future, isolated, forall}
+}
+
+% Commands needed for Radha's paper
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\lemmaref}[1]{Lem.~\ref{#1}}
+\newcommand{\tableref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Sec.~\ref{#1}}
+\newcommand{\defref}[1]{Def.~\ref{#1}}
+\newcommand{\lineref}[1]{Line~\ref{#1}}
+\newcommand{\corref}[1]{Cor.~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\algoref}[1]{Algo.~\ref{#1}}
+
+\newcommand{\setof}[1]{\ensuremath{\left \{ #1 \right \}}}
+\newcommand{\tuple}[1]{\ensuremath{\langle #1 \rangle }}
+
+\usepackage{marginnote}
+\newcommand{\marginX}{\marginnote{{\quad\textbf{!}\quad}}}
+\newcommand{\egm}[1]{\mbox{}{\color{pink!70!black}{\marginX{}[\textbf{Eric}: #1]}}}
+\newcommand{\peter}[1]{\mbox{}{\color{pink!70!black}{\marginX{}[\textbf{Peter}: #1]}}}
+
+\input{defs}
+%% END: Packages and definitions for Radha's paper to build
+
+\begin{document}
+
+%% Title information
+
+\title[Model-checking Task Parallel Programs]{Model-checking Task Parallel Programs for Data-races using Computation Graphs}
+%\titlenote{This research is funded by NSF Grant 1302524}%% \titlenote is optional;
+                                        %% can be repeated if necessary;
+                                        %% contents suppressed with 'anonymous'
+%\subtitle{Subtitle}                     %% \subtitle is optional
+
+
+%\subtitlenote{with subtitle note}       %% \subtitlenote is optional;
+                                        %% can be repeated if necessary;
+                                        %% contents suppressed with 'anonymous'
+
+
+%% Author information
+%% Contents and number of authors suppressed with 'anonymous'.
+%% Each author should be introduced by \author, followed by
+%% \authornote (optional), \orcid (optional), \affiliation, and
+%% \email.
+%% An author may have multiple affiliations and/or emails; repeat the
+%% appropriate command.
+%% Many elements are not rendered, but should be provided for metadata
+%% extraction tools.
+
+\author{Radha Nakade and Eric Mercer and Peter Aldous}
+%\authornote{}
+\orcid{}
+\affiliation{%
+  \institution{Brigham Young University}
+  \streetaddress{}
+  \city{Provo} 
+  \state{UT} 
+  \postcode{}
+}
+\email{radha,egm,aldous@cs.byu.edu}
+
+\author{Jay McCarthy}
+%\authornote{}
+\affiliation{%
+  \institution{University of Massachusetts Lowell}
+  \streetaddress{}
+  \city{Lowell} 
+  \state{Massachusetts} 
+  \postcode{}
+}
+\email{jay.mccarthy@gmail.com}
+
+% The default list of authors is too long for headers}
+\renewcommand{\shortauthors}{R. Nakade, E. Mercer, P. Aldous, and J. McCarthy}
+
+%% Paper note
+%% The \thanks command may be used to create a "paper note" ---
+%% similar to a title note or an author note, but not explicitly
+%% associated with a particular element.  It will appear immediately
+%% above the permission/copyright statement.
+%\thanks{with paper note}                %% \thanks is optional
+                                        %% can be repeated if necesary
+                                        %% contents suppressed with 'anonymous'
+
+
+%% Abstract
+%% Note: \begin{abstract}...\end{abstract} environment must come
+%% before \maketitle command
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+%
+% The code below should be generated by the tool at
+% http://dl.acm.org/ccs.cfm
+% Please copy and paste the code instead of the example below. 
+%
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10010940.10010992.10010998</concept_id>
+<concept_desc>Software and its engineering~Formal methods</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Formal methods}
+%% End of generated code
+
+% We no longer use \terms command
+%\terms{Theory}
+\keywords{Task Parallel Languages, Data-race, Model Checking, Computation Graphs}
+
+
+%% \maketitle
+%% Note: \maketitle command must come after title commands, author
+%% commands, abstract environment, Computing Classification System
+%% environment and commands, and keywords command.
+\maketitle
+
+\input{introduction}
+New Outline for PPoPP 2018 Submission:
+\begin{enumerate}
+\item Contribution and Example showing our approach
+\item Formal definition of Computation Graph with Language semantics (including isolation)
+  \begin{enumerate}
+  \item Proof that computation graph is correct from semantics
+  \item Algorithm to detect data race on computation graph with its complexity
+  \end{enumerate}
+\item Model Checking with Proof
+\item Deterministic restriction with Proof
+\item Results
+\item Discussion
+\item Related Work
+\end{enumerate}
+
+\input{example}
+\input{cg-language}
+\input{proof}
+\input{results}
+\input{discussion}
+\input{related-work}
+\input{conclusion}
+
+%% Acknowledgments
+\begin{acks}                            %% acks environment is optional
+                                        %% contents suppressed with 'anonymous'
+  %% Commands \grantsponsor{<sponsorID>}{<name>}{<url>} and
+  %% \grantnum[<url>]{<sponsorID>}{<number>} should be used to
+  %% acknowledge financial support and will be used by metadata
+  %% extraction tools.
+  This material is based upon work supported by the
+  \grantsponsor{GS100000001}{National Science
+    This research is funded by NSF Grant 
+    Foundation}{http://dx.doi.org/10.13039/100000001} under Grant
+  No.~\grantnum{GS100000001}{1302524}.  Any opinions, findings, and
+  conclusions or recommendations expressed in this material are those
+  of the author and do not necessarily reflect the views of the
+  National Science Foundation.
+\end{acks}
+
+
+%% Bibliography
+%\bibliography{bibfile}
+
+
+%% Appendix
+%\appendix
+%\section{Appendix}
+
+%Text of appendix \ldots
+\bibliography{../bib/paper} 
+
+\end{document}

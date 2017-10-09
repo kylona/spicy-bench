@@ -1,0 +1,166 @@
+\section{Habanero Java}
+
+The Habanero Java language puts particular emphasis on the usability and safety of the parallel constructs. 
+
+HJ Constructs:
+
+\begin{enumerate}
+\item \textbf{Task Creation and Termination:} HJ has two basic constructs for task creation and termination: Async and Finish. 
+
+\textbf{Async:} It creates an asynchronous task that can execute in parallel with its parent task. The async(() $ \rightarrow \langle$stmt$\rangle$) causes the parent task to fork into a new task to execute the 'stmt' in parallel with the parent task. \\
+\textbf{Finish:} The finish construct causes the parent task to wait until all the async tasks created inside the finish scope have finished execution. The finish construct acts as a join for the children tasks. finish(() $ \rightarrow \langle$stmt$\rangle$) causes the parent task to block until all the children tasks inside 'stmt' have finished execution.
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+public class Example{
+  static int x = 0;
+  public static void main(String[] args){
+    launchHabaneroApp(() -> {
+      finish(() -> {
+        async(() -> { //Task1
+           int t = x;
+           x = t+1;
+        });
+        async(() -> { //Task2
+           int u = x;
+           x = u+2;		
+        });
+      });
+      System.out.println("Value of x = " + x);	
+    });
+  }
+}
+\end{lstlisting}
+  \end{center}
+  \caption{HJ Program with Async and Finish}
+  \label{fig:hj-async-finish}
+\end{figure}
+
+Fig. \ref{fig:hj-async-finish} shows an example of a simple HJ program with only the basic parallel constructs - async and finish. The main task spawns two new tasks that increment the value of a shared variable 'x'. The computation graph for the program is shown in Fig. \ref{fig:cg}
+
+\item \textbf{Loop Parallelism:} HJ makes loop parallelism easier with its constructs - forAll and forAsync. These constructs can be used to spawn a large number of tasks in a loop. There is an implicit finish around the asynchronous tasks spawned by forAll whereas forAsync does not have any such restriction.
+
+%Example:
+%\begin{figure}
+%  \begin{center}
+%    \begin{lstlisting}
+%public class Example{
+%	static int x = 0;
+%	public static void main(String[] args){
+%		launchHabaneroApp(() -> {
+%			finish(() -> {
+%				forAsync(2, 3, () -> {
+%					x++;
+%				});
+%			});
+%			System.out.println("Value of x = " + x);	
+%		});
+%	}
+%}
+%\end{lstlisting}
+%  \end{center}
+%  \caption{HJ Program with ForAsync}
+%  \label{fig:hj-forasync}
+%\end{figure}
+%
+%\begin{figure}
+%  \begin{center}
+%    \begin{lstlisting}
+%public class Example{
+%	static int x = 0;
+%	public static void main(String[] args){
+%		launchHabaneroApp(() -> {
+%			forAll(2, 3, () -> {
+%				x++;
+%			});
+%			System.out.println("Value of x = " + x);	
+%		});
+%	}
+%}
+%\end{lstlisting}
+%  \end{center}
+%  \caption{HJ Program with ForAll}
+%  \label{fig:hj-forall}
+%\end{figure}
+
+\item \textbf{Co-ordination and Mutual Exclusion: } A lot of times, task creation and execution depends on the data available to the tasks or the order of execution of other tasks. HJ provides different constructs for synchronization between tasks such as futures and isolated. \\
+\textbf{Futures:} the future construct is used to return values from a newly created child task to the parent task. HjFuture$\langle$T$\rangle$ f = Future $\langle$T$\rangle$ (() $ \rightarrow \langle$stmt$\rangle$) creates a new child task to execute 'stmt' in parallel with the parent task. The parent task can wait for the child task to finish and obtain the value returned by the child task bu calling f.get() method. \\
+\textbf{Isolated:} The isolated construct helps to synchronize the access to shared variables by various tasks. It is implemented as a critical section with a single lock. When a task executes isolated block, it basically acquires this lock and when it finishes execution, it releases the lock. During this time, no other task is allowed to execute their isolated blocks. When two tasks have mutually exclusive blocks of code  isolated(() $ \rightarrow \langle$stmt1$\rangle$) and  isolated(() $ \rightarrow \langle$stmt2$\rangle$), the runtime basically serializes the execution of stmt1 and stmt2 in any order.
+
+Example of Isolated:
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+public class Example{
+  static int x = 0;
+  public static void main(String[] args){
+    launchHabaneroApp(() -> {
+	  finish(() -> {
+	  	async(() -> { //Task1
+		  isolated(() -> {
+			x = 2;	
+		  });
+		});
+		async(() -> { //Task2		
+		  isolated(() -> {
+			if(x == 0){
+			  async(() -> { //Task3
+			    x++;
+			  });
+			} else {
+			   x--;
+			}
+		});
+	  });
+	});
+	System.out.println("Value of x = " + x);	
+   });
+  }
+}
+\end{lstlisting}
+  \end{center}
+  \caption{HJ Program with Isolated}
+  \label{fig:hj-isolated}
+\end{figure}
+
+Fig. \ref{fig:hj-isolated} shows an example of a HJ program with isolated blocks.
+%Example of Futures:
+%
+%\begin{figure}
+%  \begin{center}
+%    \begin{lstlisting}
+%public class Example{
+%	static int x = 0;
+%	public static void main(String[] args){
+%		launchHabaneroApp(() -> {
+%		  finish(() -> {
+%			final HjFuture<Integer> f1 = future(() ->{
+%				x++;
+%				return x;
+%           });
+%                
+%			final HjFuture<Integer> f2 = future(() ->{
+%				int tmp = 0;
+%				tmp = x;
+%				return tmp;
+%           });
+%                
+%			async(() -> { //Task2
+%				int u = x;
+%				x = u+2;		
+%			});
+%		 });
+%		 System.out.println("Value of x = " + x);	
+%		});
+%	}
+%}
+%\end{lstlisting}
+%  \end{center}
+%  \caption{HJ Program with Futures}
+%  \label{fig:hj-futures}
+%\end{figure}
+
+
+\end{enumerate}
+

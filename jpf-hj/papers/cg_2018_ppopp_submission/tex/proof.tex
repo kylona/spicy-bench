@@ -1,0 +1,266 @@
+\section{Proof of correctness}
+\label{sec:proof}
+
+For a given program and input, the computation graphs produced by the
+tree semantics in Section~\ref{sec:semantics} demonstrate a data race
+if and only if a data race is possible for the given program and
+input.
+
+\begin{comment}
+\begin{definition}\label{def:scheduler}
+A scheduler is a program capable of deciding which task to reduce,
+given a tree configuration.
+\end{definition}
+\end{comment}
+
+\begin{definition}[\textit{conflict}]
+Two statements conflict if they both access the same shared variable
+and at least one of them writes to that variable.
+$\rv\left(\statement\right)$ and $\wv\left(\statement\right)$ behave
+as expected.
+\begin{gather*}
+\mathit{conflict}(\statement_i,\statement_j) =
+\begin{array}{l}
+  \rv(\statement_i) \cap \wv(\statement_j) \neq \emptyset\ \vee \\
+  \rv(\statement_j) \cap \wv(\statement_i) \neq \emptyset\ \vee \\
+  \wv(\statement_i) \cap \wv(\statement_j) \neq \emptyset\ \\
+\end{array}
+\end{gather*}
+\end{definition}
+
+\begin{definition}[Active statements]
+A state \st\ has a set of active statements \activestatements{\st}
+that corresponds to the next statement to be reduced in each of the
+active tasks in the state.
+\end{definition}
+
+\begin{definition}[Concurrency]
+Two statements are concurrent if and only if an execution of the
+program can result in a state \st\ such that both statements are
+active at the same time:
+
+\begin{gather*}
+\concurrent{\statement}{\statement'} \bimp \exists \st \left(\st_{0}
+\overset{*}{\rightarrow} \st \; \wedge \; \left\{\statement,
+\statement'\right\} \subseteq \activestatements{\st}\right) .
+\end{gather*}
+
+A state \st\ that satisfies this condition for \statement\ and
+\statement' is called a witness state for
+\concurrent{\statement}{\statement'}.
+\end{definition}
+
+\begin{definition}[Data race]
+Two statements $\statement$ and $\statement'$ demonstrate a data race if
+and only if they conflict and if they are concurrent:
+
+\begin{align*}
+\dr\left(\statement, \statement'\right) =
+\concurrent{\statement}{\statement'} \; \wedge
+\mathit{conflict}\left(\statement, \statement'\right).
+\end{align*}
+\end{definition}
+
+Two statements that occur in the same thread of execution cannot be
+concurrent, as exactly one statement is active in each active thread
+at any point in time. Two statements inside of \isolated-statements
+cannot be concurrent; once one has entered its \isolated-statement,
+all other threads must block upon reaching an \isolated-statement
+until the first thread exits its \isolated-statement.
+
+Before proving the correctness of data races in the computation graph,
+it is useful to observe that only nodes that end in a \post-statement
+and \isolated-statements can have multiple outgoing edges. In both
+cases, the edges go to nodes in different threads of execution.
+Similarly, only \isolated-statements and nodes following an \await- or
+\ewait-statement (in the parent thread) and following
+\textbf{return}-statements (in child threads) have multiple incoming
+edges. As with \post\ statements, the edges that converge on a node
+come from distinct threads of execution.
+
+\begin{lemma}
+\label{lemma:concurrent-to-unordered}
+If two statements $\statement \in \node$ and $\statement' \in \node'$
+are concurrent, \node\ and \node' are unordered in the computation
+graph \cg\ in every witness state \st\ for
+\concurrent{\statement}{\statement'}:
+
+\begin{gather*}
+\text{Given } \, \statement \in \node \text{ and } \statement' \in
+\node', \\
+\forall \st \left(\st_{0} \overset{*}{\rightarrow} \st \wedge
+\left\{\statement, \statement'\right\} \subseteq
+\activestatements{\st} \implies
+\unrelated{\node}{\node'}{\prec}{\nprec}\right) .
+\end{gather*}
+\end{lemma}
+
+\begin{proof}
+By inspection of the semantics, outgoing edges are created on active
+threads' nodes only on or after each respective node's final
+reduction. New nodes are always fresh. As such, the nodes for any two
+active statements are unrelated.
+\end{proof}
+
+\begin{lemma}
+\label{lemma:unordered-to-concurrent}
+If two nodes $\node$ and $\node'$ are unordered in a state's
+computation graph \cg, every $\statement \in \node$ and $\statement'
+\in \node'$ are concurrent:
+
+\begin{gather*}
+\text{Given} \, \statement \in \node \text{ and } \statement' \in
+\node', \unrelated{\node}{\node'}{\prec}{\nprec} \implies
+\concurrent{\statement}{\statement'} .
+\end{gather*}
+\end{lemma}
+
+\begin{proof}
+
+The two nodes \node\ and \node' are both reachable; otherwise, they
+would not have been generated in \cg. Within a node, it is possible to
+advance or wait independent of other nodes' behaviors. Accordingly, it
+is possible to begin at $\st_{0}$ and advance until \statement\ is
+active. Similarly, it is possible to advance until \statement' is
+active. What remains to be proven is whether or not it is possible to
+reach a state where both \statement\ and \statement' are active; in
+other words, if it is possible for some schedule to reach \statement\
+in one task and then to reach \statement' in some other task without
+advancing the first task any further.
+
+By the construction of \cg, \node\ and \node' must have some least
+common ancestor $\node_{A}$ that is also reachable. $\node_{A}$ must
+either end in a \post-statement or be an \isolated-statement, as the
+reduction rules only allow these two statements to have multiple
+outgoing edges. In both cases, the child nodes of $\node_{A}$ must be
+in different tasks. Without loss of generality, we say that \task\
+either contains \node or is some ancestor of the task that does.
+Similarly, we say that \task' either contains \node' or is an ancestor
+of the task that does.
+
+We first advance to $\node_{A}$ on some schedule that does not
+contradict $\prec$. This is possible because $\node_{A}$, \node, and
+\node' were all generated. At this point, execution of \task\ and its
+children is independent of \task' and its children because $\node_{A}$
+is the least common ancestor of \node\ and \node'; no
+\isolated-statements can cause one to block on the other, nodes are
+generated fresh and so \post-statements cannot link them, and \await-
+and \ewait-statements cannot join them. We advance \task\ and any
+relevant children until reaching \node\ and then proceed until
+reaching \statement. Then, we advance \task' and any relevant children
+until reaching \node' and then proceed until reaching \statement'.
+
+At this point, both \statement\ and \statement' are active, so they
+must be concurrent.
+\end{proof}
+
+Our proof asserts that the computation graph demonstrates a data race
+if and only if such a data race exists. As such, we need not reason
+about any behaviors that occur after a data race.
+
+\begin{comment}
+\begin{definition}[Schedule]
+A schedule is a series of states that starts with the initial state
+$\st_{0}$. Each state can be derived from its predecessor in the
+schedule:
+
+\begin{gather*}
+\tuple{\st_{0}, \st_{1}, \ldots, \st} \text{ where } \st_{0}
+\rightarrow \st_{1} \rightarrow \ldots \rightarrow \st .
+\end{gather*}
+\end{definition}
+
+\begin{definition}[Race-free schedule]
+A race-free schedule is a schedule that contains only race-free
+reductions.
+\end{definition}
+
+Data races occur, in one sense, as an interaction between two
+different reductions. However, a single reduction is sufficient to
+influence downstream behaviors. It is possible to reason about all
+race-free schedules without enumerating them.
+
+\begin{definition}[Race-free state]
+A race-free state \rf{\st} is a state in a race-free schedule.
+\end{definition}
+\end{comment}
+
+\begin{lemma}[Soundness of \textit{conflict} over nodes]
+\label{lemma:conflict-sound}
+If two nodes conflict, there exists a pair of statements, one from
+each node, that conflicts:
+
+\begin{gather*}
+\mathit{conflict}\left(\node, \node'\right) \implies \exists
+\statement \in \node, \statement' \in \node'
+\left(\mathit{conflict}\left(\statement, \statement'\right)\right) .
+\end{gather*}
+\end{lemma}
+
+\begin{proof}
+If two nodes conflict, it is because \rv\ and \wv\ were updated in
+some reduction. More specifically, if $\rv\left(\node\right) \ne
+\emptyset$, at least one statement $\statement \in \node$ must read a
+global variable; the reduction of statements that read a global
+variable are the only way that \rv\ updates. The same reasoning
+applies to \wv.
+\end{proof}
+
+\begin{lemma}[Completeness of \textit{conflict} over nodes]
+\label{lemma:conflict-complete}
+If two statements conflict, their respective nodes will conflict.
+
+\begin{gather*}
+\text{Given } \statement \in \node \wedge \statement' \in \node',
+\left(\mathit{conflict}\left(\statement, \statement'\right)\right)
+\implies \mathit{conflict}\left(\node, \node'\right) .
+\end{gather*}
+\end{lemma}
+
+\begin{proof}
+If $\statement \in \node$, then \statement\ must have been reduced in
+\node. By inspection of the semantic rules, $\rv\left(\node\right)$
+and $\wv\left(\node\right)$ must be updated to include \statement\ as
+necessary. Accordingly, nodes conflict whenever statements they
+include conflict.
+\end{proof}
+
+\begin{theorem}[Soundness of computation graph over data races]
+If a computation graph reports a data race, there is a data race in
+the program on the given input.
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lemma:unordered-to-concurrent} and
+Lemma~\ref{lemma:conflict-sound}.
+\end{proof}
+
+\begin{theorem}[Completeness of computation graph over data races]
+If there is a data race in the program on the given input, a
+computation graph generated by the model checker reports a data race.
+\end{theorem}
+\begin{proof}
+The definition of data race states that the two statements must be
+concurrent, which implies that it is possible to reach both of them in
+the same execution. As a result, any two statements that conflict and
+are both reachable will be members of nodes in some computation graph.
+By Lemma~\ref{lemma:conflict-complete}, the computation graph
+identifies the conflict.
+
+The model checker ensures that a computation graph exists for every
+possible ordering on \isolated-statements. Computation graphs are
+strict partial orders on nodes. Imposing an order on isolated edges
+takes the form of adding a tuple on two unrelated members of the
+strict partial order and calculating its closure to create a second
+relation and adding the reverse of the tuple to the original relation
+and calculating its transitive closure to create a third. The
+properties of strict partial orders guarantee that the second and
+third relations are also strict partial orders and that any two
+members of the strict partial orders (besides the two in the tuple)
+that were unrelated in the original order are unrelated in at least
+one of the resulting orders.
+
+As such, at least one of the resulting computation graphs will
+correctly identify that two statements belong to unordered
+nodes. By Lemma~\ref{lemma:concurrent-to-unordered}, the statements
+are concurrent.
+\end{proof}

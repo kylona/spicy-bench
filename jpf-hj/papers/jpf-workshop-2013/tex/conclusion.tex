@@ -1,0 +1,22 @@
+\section{Conclusions and Future Work}
+The paper presents the VR system which is an HJ runtime system for
+verification. The runtime supports \texttt{async}, \texttt{finish},
+\texttt{isolated}, and future data-driven forms of \texttt{async} in
+the HJ language and is small enough to manual inspect for
+correctness. It runs standalone as an alternative HJ runtime system
+and in the JPF model checker without any modification to the runtime or JPF. When run in the JPF model checker, JPF
+is able to prove an HJ program data-race free. Such a proof ensures HJ
+safety guarantees such as deadlock freedom, deterministic execution,
+and the program is able to serialize. The paper further compares the
+VR system to HJ runtime systems. It also shows the performance gains
+in JPF between the default scheduler and the optimized scheduler.
+
+Future work is to extend the VR system to support the \texttt{forall}, \texttt{forasync}, data-driven programming with \texttt{await}, \texttt{next}, \texttt{phaser} constructs, and exceptions which are
+also part of the HJ semantics. There is also a need to formalize the
+behavior of the new optimized default scheduler factory in JPF and
+prove that is sound and complete for proving data-race freedom in HJ
+programs. The scheduler will need to be further extended for the new
+HJ constructs, though the default schedule would still be sound and
+complete for data-race freedom. Finally, future work needs to address
+scalability in large HJ programs as the number of schedules to
+consider becomes rather prohibitive in these programs.

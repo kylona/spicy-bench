@@ -1,0 +1,60 @@
+\section{JPF and VR}
+
+JPF and VR both use Java reflection. When the user verifies an HJ program, the user runs JPF with VR as the target, and the HJ program as the input to the target. JPF uses reflection to open VR with the HJ program as an argument. VR in turn uses reflection to create a new thread to execute the HJ program and gives any remaining arguments as arguments to the HJ program. Reflection is intentional because VR has to be flexible to run an HJ program specified by the user and still provide functionality to HJ semantics. However, any property violations that JPF finds are within the HJ program and not within VR or JPF.
+
+\begin{comment}
+\begin{figure}
+\begin{center}
+{\small
+\begin{verbatim}
+public static void main (String args[]) {
+   Class<?> verifyClass = 
+      Class.forName((args[0])+"$Main");
+   Class<?> stringArrayClass = args.getClass();
+   Constructor<?> constructor = 
+      verifyClass.getConstructor(stringArrayClass);
+   String[] newArgs = new String[args.length -1];
+   for (int i = 0; i < args.length-1; i++)
+      newArgs[i] = args[i+1];
+   java.lang.Object object = 
+      constructor.newInstance(
+         (java.lang.Object) newArgs);
+   Class<?> thread = Class.forName("java.lang.Thread");
+   Method method = thread.getDeclaredMethod("start");
+   method.invoke(object, (java.lang.Object[]) null);}
+\end{verbatim}
+}
+\end{center}
+\caption{A simplified version of the main method in VR.}
+\label{fig:main}
+\end{figure}
+\end{comment}
+
+VR heavily relies on the soundness of JPF, and JPF's race detector. JPF's soundness is based on its partial order reduction and global search object ID. JPF's partial order reduction is critical: JPF must produce and examine essential interleaves for each thread and stop at locations where a data race occurs for checking. JPF does this by creating \texttt{ChoiceGenerators}, copying the current state of the machine, at certain parts of thread execution. JPF then systematically explores the state space, executing one thread at a time, which is called state expansion. The global search object ID is necessary for checks to ensure objects used by two threads are the same, even at different choice generators. JPF's \texttt{PreciseRaceDetector} from the default distribution is important because it checks for and reports data races that JPF has located.
+
+VR was made with the intention to be used for verification, specifically by JPF. It was built in the simplest way possible to still produce correct results. We did not include any specific optimizations. To increase efficiency, an optimized scheduler can be integrated that is more suited with VR for scheduling, state expansion, and executing different interleavings than the default JPF scheduler factory.
+
+The default JPF scheduler factory produces choice generators at several key locations in the partial order reduction, such as thread creation, thread termination, shared field access, monitor access, etc. However, not all state expansions from choice generators are interesting or relevant to VR. The optimized scheduler will only create choice generators for thread creation, shared array element access, and shared field access. \figref{fig:pseudocode} shows  psuedocode for the optimized scheduler. The optimized scheduler thus creates a smaller state space for JPF to verify than the default scheduler and removes the unnecessary choice generators that the default scheduler gives: thread suspense, thread resume, thread sleep, thread interrupt, thread yield, thread notify, thread terminate, shared object expose, wait, monitor enter, monitor exit, sync method enter, and sync method exit. Even after removing all these choice generators, the optimized scheduler still offers the same data race freedom guarentees that the default scheduler does. The optimized scheduler is given in the same repository as VR.
+
+\begin{figure}
+\begin{center}
+{\small
+\begin{verbatim}
+createCG (string type, Thread[] threadsAvailable) {
+    if (type.equals("THREAD_START"))
+      createDefaultCG(type,threadsAvailable);
+    else if (type.equals("SHARED_ARRAY_ACCESS"))
+        createDefaultCG(type,threadsAvailable);
+    else if (type.equals("SHARED_FIELD_ACCESS"))
+        createDefaultCG(type,threadsAvailable);
+    else
+        noChoiceGenerator();}
+\end{verbatim}
+}
+\end{center}
+\caption{Psuedocode for the optimized scheduler.}
+\label{fig:pseudocode}
+\end{figure}
+\input{discussion}
+
+

@@ -1,0 +1,7 @@
+\section{Conclusion and Future Work}
+In this work, we presented a new way of detecting data-races in HJ programs with the help of computation graphs. The CGRaceDetector explores fewer states compared to the number of states explored by JPF's PreciseRaceDetector. This work can be further extended in the following ways:
+\begin{enumerate}
+\item The CGRaceDetector explores just one control flow path that is taken by the program execution based on the input. The listener can be extended to explore other control flow paths as well by using Symbolic Execution.
+\item The CGRaceDetector listener can be extended to include co-ordination constructs such as phasers and Data Driven Futures.
+\item To detect benign data-races, a new listener can be implemented that creates shared access choice generators for only the variables that were a part of the dara race. If the program produces deterministic results, the race condition is benign.
+\end{enumerate}

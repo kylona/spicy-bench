@@ -1,0 +1,22 @@
+\section{Conclusions \& Future Work}
+
+To summarize, we have introduced VR-lib for model checking of HJ programs in JPF.
+VR-lib supports the use of phasers as well as GPRs. GPRs in combination with JPF
+has been shown to be an effective strategy for model checking small programs for
+race conditions. Opportunities for future improvements in this area are as follows:
+\begin{compactitem}
+\item support for actors, exceptions, and finish accumulators in VR-lib
+\item automatic static insertion of GPR annotations (this will relieve the
+burden from the programmer and provide stronger guarantees that the program is
+annotated correctly)
+\item support of multi-variable annotation to increase readability of annotated
+programs
+\item test the effectiveness of GPRs for larger HJ programs
+\end{compactitem}
+Source for VR-lib, including benchmarks, can be found at
+% NV: You might want to use the hyperref package, which would let you
+% use the \url{...} command to turn the following URL into a real link.
+% The hyperref package is also awesome because it makes your \ref commands
+% generate intra-document links to your figures, etc.
+\url{https://jpf.byu.edu/hg/jpf-hj.}
+

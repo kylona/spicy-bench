@@ -1,0 +1,16 @@
+\begin{thebibliography}{1}
+
+\bibitem{Anderson:2015:JVH:2693208.2693245}
+P.~Anderson, N.~Vrvilo, E.~Mercer, and V.~Sarkar.
+\newblock J{P}{F} {V}erification of {H}abanero {J}ava {P}rograms {U}sing
+  {G}radual {T}ype {P}ermission {R}egions.
+\newblock {\em SIGSOFT Softw. Eng. Notes}, 40(1):1--5, Feb. 2015.
+
+\bibitem{Cave:2011:HNA:2093157.2093165}
+V.~Cav{\'e}, J.~Zhao, J.~Shirako, and V.~Sarkar.
+\newblock Habanero-{J}ava: the new adventures of old {X}10.
+\newblock In {\em Proceedings of the 9th International Conference on Principles
+  and Practice of Programming in Java}, PPPJ '11, pages 51--61, New York, NY,
+  USA, 2011. ACM.
+
+\end{thebibliography}

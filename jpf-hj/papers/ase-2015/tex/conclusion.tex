@@ -1,0 +1,30 @@
+\section{Conclusions \& Future Work}
+This paper presents an approach for the test and validation of
+task-parallel languages using the Habanero programming model as an
+example. The approach creates a specialized implementation of
+Habanero that is purposed for validation. The implementation
+is not only much simpler than performance oriented implementations, it
+facilitates a conventional debugger in controlling the
+scheduling order of concurrent tasks. More importantly, the
+implementation lends itself to model checking to prove that an input
+program is free of deadlock and data-race.
+As model checking does not scale to larger programs, this paper
+presents a sound algorithm for proving a program free of deadlock and
+data-race that uses permission regions to mitigate state
+explosion. The algorithm reduces the number of schedules it must
+consider by only preempting at the entrance to permission regions. If
+the regions are too large though, the algorithm may reject a program
+that is actually free of deadlock and data-race. Since the model
+checker provides a witness to any detected violation, it is possible to
+manually validate the witness to refine the permission regions as needed. The
+approach is illustrated with a full implementation in the \jpf\ model
+checker and results on several input programs.
+
+Future work includes automating the annotation of permission regions
+based on the sharing detection in \jpf; automating the validation of
+the counter-example to see if it is real or an artifact  of the
+permission regions being too big; developing techniques that use the
+counter-example to automatically refine permission regions; and
+incorporating into the verification process static-analysis to prevent
+scheduling on regions that statically cannot race.
+

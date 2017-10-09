@@ -1,0 +1,217 @@
+\begin{algorithm}
+\caption{Permission Region Informed Search}\label{algo:search}
+\begin{algorithmic}[1]
+  \Function{search}{$t$, $h$, $T$}
+  \State \textbf{loop:}\ ($h$, $T$) $:=$ \texttt{run}($t$, $h$, $T$)\label{loc:run}
+  \State
+  \State \textit{s} $:=$ \texttt{status}($t$, $T$)
+  \State \textit{permission\_violation} = \textbf{false}
+  \If{\textit{s} $=$ PR\_ENTRY} \label{loc:PR}
+  \State ($h$, $T$, \textit{permission\_violation}) $:=$ \texttt{acquire}($t$, $h$, $T$)\label{loc:acquire}
+  \ElsIf{\textit{s} $=$ PR\_EXIT}
+  \State ($h$, $T$) $:=$ \texttt{release}($t$, $h$, $T$)\label{loc:release}
+  \State \textbf{goto} loop
+  \EndIf
+  \State
+  \If{\textit{permission\_violation}}\label{loc:datarace}
+  \State report permission\_violation and exit
+  \EndIf
+  \State
+  \State $R = $ \texttt{runnable}($T$)
+  \If{$R = \emptyset$}
+  \If{blocked($T$) $\neq \emptyset$}\label{loc:deadlock}
+  \State report deadlock and exit
+  \Else
+  \State report any uncovered sharing and exit\label{loc:term}
+  \EndIf
+  \EndIf
+  \State
+  \If{$(h,T) \not\in S$}\Comment{$S$ is a global variable}\label{loc:visited}
+  \State $S = S \cup \{(h, T)\}$
+  \If{\textit{s} $=$ PR\_ENTRY $\vee$ \textit{s} $=$ ISOLATED}\label{loc:entry:isolated}
+  \ForAll{$t_i \in R$}\label{loc:prsched}
+  \State \texttt{search}($t_i$, $h$, $T$)
+  \EndFor
+  \Else
+  \State $t_i$ := \texttt{random}($R$)\label{loc:rand}
+  \State \texttt{search}($t_i$, $h$, $T$)
+  \EndIf
+  \EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\section{\jpfhj\ Search Algorithm}
+
+Permission regions create natural scheduling boundaries for model checking that can be
+leveraged to mitigate state explosion while preserving the essential
+behaviors of the program that lead to data races, deadlocks, assertion violations, or exceptions since they represent points of execution where sharing is expected.  The intuition is that given a fixed
+program input, erroneous behavior can only arise from interactions between tasks
+on shared memory. As such, it is only necessary to preempt running
+tasks at the entrance to permission regions and
+\texttt{isolated}-constructs. If a program has any deadlocks, data
+races, assertion violations, or exceptions for a fixed program input,
+then such a deadlock, data race, assertion violation, or exception exists
+in one of the schedules that is explored from those preemption points.
+
+\algoref{algo:search} is the pseudo-code for the algorithm to explore
+all task schedules created at entry to permission regions and
+\texttt{isolated}-constructs. The pseudo-code only covers the detection of data
+races (i.e., permission region violations) or deadlocks; though, assertion violations and exceptions can be
+detected similarly. The state of the program in the pseudo-code is
+simplified for clarity; it is represented by a heap, $h$, and a set of
+tasks, $T$. The lowercase $t$ indicates a task. \lineref{loc:run}
+updates the heap and pool of tasks by running task $t$ until it
+blocks, exits, reaches a permission region boundary (i.e., entry or
+exit), or reaches an \texttt{isolated}-construct.
+
+At the entry point of the permission region (PR\_ENTRY), \lineref{loc:acquire}
+updates the state machine for the acquired permissions on the object in the heap and
+checks to see if the acquisition signals a permission violation. At the exit
+point of the permission region (PR\_EXIT), \lineref{loc:release} updates the
+state machine for the released permissions on the object in the heap, and the algorithm
+restarts task $t$ running anew at \lineref{loc:run}.
+
+If there is a permission violation, then it is detected on
+\lineref{loc:datarace}. Similarly, \lineref{loc:deadlock} detects a deadlock. A
+deadlock state is indicated when there are no runnable tasks (i.e.,
+$R = \emptyset$) and there exists tasks that are blocked. A report
+for either a permission violation or a deadlock includes a witness trace for
+validation and debugging. In the absence of a deadlock or a permission violation,
+and when there are simply no more tasks to run, \lineref{loc:term}
+terminates the search and reports any detected sharing that was not
+annotated by a permission region or covered by an
+\texttt{isolated}-construct. Such sharing is detected by tracking tasks on every heap access.
+
+The set $S$ on \lineref{loc:visited} is a global set to track the
+visited states. \lineref{loc:prsched} does the actual scheduling by
+considering all runnable tasks, including the currently
+running task $t$, as a next task to run. Note that in the current
+state, if the task $t$ is preempted because it enters a permission
+region, then that state reflects the acquired permissions on that
+region. In the case that task $t$  blocked,
+\lineref{loc:rand} chooses a random runnable task to schedule next.
+
+\figref{fig:permission-violation-state}, shown previously, is the
+state space explored by the search algorithm for the permission region
+annotated version of the program in
+\figref{fig:hj-async-finish}. Recall that the example has two tasks
+that access the shared object {\tt stk}: one reading and the other writing. The
+ovals in the diagram represent scheduling points, and as before, the
+blocks on the left represent the state of the state machine tracking permissions. As
+indicated by the pseudo-code, the algorithm only preempts running
+tasks at the entrance to permission regions. In this example, it
+schedules the child task after the main task acquires read permissions
+to elicit the permission violation. By observation, if the permission regions in
+the annotated program were replaced
+with \texttt{isolated}-constructs, then the explored state space would
+no longer include the violation, but it would include all schedules
+that interleave the atomic blocks defined by the \texttt{isolated}-constructs.
+
+\begin{algorithm}[t]
+\caption{Procedure to Validate a Program}\label{algo:validate}
+\begin{algorithmic}[l]
+  \Procedure{validate}{$p$}
+  \State ($h$, $T$) $:=$ init($p$)
+  \State $R := $ runnable($T$)
+  \State $t$ $:=$ random($R$)
+  \State $S := \emptyset$
+  \State search($t$, $h$, $T$)
+  \While{uncovered sharing is reported}
+  \State Add permissions or {\tt isolated} on sharing
+  \State ($h$, $T$) $=$ init($p$)
+  \State $S := \emptyset$
+  \State search($t$, $h$, $T$)
+  \EndWhile
+  \EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\algoref{algo:validate} is a procedural flow describing the process of
+program validation using the new search in
+\algoref{algo:search}. When \algoref{algo:search}
+finishes, the algorithm reports any heap locations that have been accessed by
+more than one distinct task outside a permission region or an
+\texttt{isolated}-construct with the input program location where that
+access occurs. Using this information, a user is able to manually
+annotate the program location appropriately, and then repeat the
+search. The process terminates when a permission violation or a deadlock is
+discovered, or no more sharing outside of permission regions or \texttt{isolated}-constructs exists.
+
+\begin{theorem}
+  \algoref{algo:search} is sound in that it only
+  accepts programs that have no permission violations or deadlock on a given
+  input under the restriction that the programs terminate and have all sharing correctly
+  annotated with permission regions or wrapped in
+  \texttt{isolated}-constructs.
+\end{theorem}
+\begin{proof}
+The soundness proof reasons over a slightly modified version of the
+algorithm that is iterative and takes as an additional input
+a search tree, which is similar to \figref{fig:permission-violation-state}, that
+captures all possible sequences of release and acquire statements
+explored thus far. The algorithm traverses that input tree and at each
+leaf node tries to extend that node by one generation if
+possible. After the traversal, the algorithm returns the new tree. The
+algorithm is called in an iterative manner until the tree reaches a
+fix-point (which is guaranteed since the program terminates).
+
+Let $P(n)$ be the statement that this modified search algorithm
+returns all interesting sequences of acquire and release statements of
+length $n$ or less for a given input program, where interesting means
+containing a permission violation or deadlock.
+
+\noindent\textbf{Basis Step:} the algorithm produces all interesting
+sequences of length $n \leq 1$. This case is trivially established with
+the initial state of the program that represents a sequence of length
+$n \leq 1$ and cannot contain a permission violation or deadlock since the program has not yet
+done anything. As such, it includes all interesting sequences.
+
+\noindent\textbf{Inductive Step:} assume the modified algorithm has
+correctly generated a tree representing all interesting sequences of $n$ or less;
+it is necessary to show that from such a tree the algorithm is able to generate all
+interesting sequences of length $n+1$ or less.  There are three possible outcomes at any
+leaf of the input tree:
+\begin{compactenum}
+\item the leaf cannot be extended as it is already an interesting sequence having a permission violation or deadlock;
+\item the leaf cannot be extended as there are no more tasks to run, in which case it is not interesting; or
+\item the leaf is able to be extended with one or more immediate descendants.
+\end{compactenum}
+The first two cases are directly covered by \lineref{loc:datarace} through Line 24 of the
+algorithm; there is no way to have any descendants in those
+situations and the sequences are already classified as interesting or not.
+
+For the third case, first consider \lineref{loc:entry:isolated} of the algorithm that creates
+the next generation in the tree for permission regions and {\tt isolated}-constructs. Every runnable task is scheduled (\lineref{loc:prsched}) and each of those tasks
+must reach an immediate successor. Such a successor may be a permission violation or a deadlock, making it an interesting sequence, a preemption, a
+block condition, or exit by the constraint that the input program must
+terminate. As such, any $n+1$ length sequence that exists, is
+generated.
+
+Further, any interesting $n+1$ sequence is generated. To see
+this outcome, it is important to understand that the order of
+acquisition relative to read or write does not matter in detecting a
+violation. The state machines on the objects are not dependent on
+acquisition order; they only depend on what tasks hold read or write permissions
+at the time of acquisition. As the algorithm always first
+acquires a permission and then schedules other tasks, it generates all
+the interesting $n+1$ sequences if any exist. In this case, a sequence is interesting due to a permission violation. If a permission violation does not exist in a sequence, then a deadlock is
+detected as usual.
+
+To complete the inductive step, the code under Line 32 must be considered. That code covers
+a blocked or exited task. The input program has all sharing
+annotated or {\tt isolated} by the theorem statement, meaning that any non-determinism
+due to scheduling is enumerated by \lineref{loc:prsched} so all reachable
+program paths on the input are considered. If an interesting sequence exists
+because of a deadlock, then it is either found in the $n+1$ step, by
+having selected the correct task, or in a later step when the
+correct task is chosen. If the deadlock depends on a particular sequence of
+task executions, then those sequences are enumerated by \lineref{loc:prsched}. As
+such, the deadlock is either deterministic (i.e., independent of the
+schedule) or non-deterministic (i.e., a product of a data race on some
+shared object). In the former, the choice of task does not matter,
+and in the latter, \lineref{loc:prsched} enumerates all possible orders over permission region blocks and 
+isolated blocks.
+\end{proof}
+As a side note, \algoref{algo:search} is complete when all regions
+cover a single operation (i.e., an individual byte-code in the case of Java). Such completeness is at the cost of the number of explored schedules.

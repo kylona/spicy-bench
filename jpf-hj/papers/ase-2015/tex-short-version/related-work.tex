@@ -1,0 +1,25 @@
+\section{Related Work}
+
+The algorithm introduced in this paper is related to existing algorithms that only
+schedule on synchronizations
+\cite{Vakkalanka:2008:DVM:1427782.1427794, conf/pldi/MusuvathiQ07, Emmi:2011:DS:1926385.1926432, conf/popl/Godefroid97, Fasttrack}. Grouping synchronizations in regions trades
+completeness for efficiency in a manner similar to bounding. Prior methods using permission regions only detect violations at running time and do not search the schedule space \cite{Westbrook:2011:PRR:2341616.2341627}; though it is possible to use a gradual type system to enforce guarantees at compile time \cite{Westbrook:2012:PPR:2367163.2367201}. An early version of a verification
+specific run-time for Habanero requires a specialized Habanero Java
+compiler and does not implement all the Habanero constructs (most
+notably \texttt{future} and phasers)
+\cite{Anderson:2014:JVH:2557833.2560582}. A preliminary version of
+\jpfhj\ details how to extend \jpf\ but does not define the search
+algorithm, prove its correctness, provide support for arrays, or
+provide support for \texttt{isolated}-constructs
+\cite{Anderson:2015:JVH:2693208.2693245}.
+
+Other approaches to verify task-parallel languages create new virtual
+machines with verification support \cite{chapel}, or specialize
+existing verification tools to work with existing run-times
+\cite{conf:icst:GligoricMM12}. These assume the run-times correctly
+implement the language. Dynamic methods that intercept the run-time
+calls or instrument the program input can be effective for
+verification using stateless search or bounding techniques
+\cite{conf/pldi/MusuvathiQ07, Emmi:2011:DS:1926385.1926432}. Bounded techniques apply equally well to the algorithm in this paper. Static method to find data races often have better performance but are more likely to reject correct programs
+
+%\cite{670549, Eraser, Async-Finish-Race, SP-BAGS, ESC, Warlock, RacerX, Relay}. 

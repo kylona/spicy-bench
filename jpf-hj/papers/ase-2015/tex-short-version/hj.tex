@@ -1,0 +1,53 @@
+\section{Habanero Java}
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}[language=Java,escapechar=|,numbers=left,xleftmargin=18pt,numberstyle=\footnotesize]
+public static void main(final String[] s) {
+  Stack stk = initStack();
+  
+  launchHabaneroApp(() -> {
+    finish(() -> { |\label{line:finish}|
+
+      async(() -> { |\label{line:async}|
+        stk.push(5);|\label{line:push}|
+      });
+
+      stk.peek();|\label{line:peek}|
+    });
+  });
+}
+\end{lstlisting}
+  \end{center}
+  \caption{An \hj\ program snipet using the \texttt{async} and \texttt{finish} statements.}
+  \label{fig:hj-async-finish}
+\end{figure}
+
+The Habanero programming model is built around a task-parallel view of
+concurrency. \figref{fig:hj-async-finish} is an \hj\ program using
+Habanero's most basic task constructs: \emph{finish} and \emph{async}.
+The \texttt{finish}-construct is a generalized join operation for
+collective synchronization: the parent task executes and then waits
+until all tasks created within the {\tt finish}-construct have completed
+(including transitively created tasks). 
+
+The \texttt{async}-construct is a mechanism for creating a new
+asynchronous task: the calling task (parent) creates a new task
+(child) to execute in parallel with the parent.  The child can read or
+write any data in the heap and can read, but not write, any local
+variable belonging to the parent's lexical scope. A task created in an
+\texttt{async}-construct becomes ready for scheduling at the point it
+is declared in the program.
+
+The program in \figref{fig:hj-async-finish} enters a {\tt
+  finish}-construct (\lineref{line:finish}) where it creates a child task
+(\lineref{line:async}) to write to the stack (\lineref{line:push}). the
+parent task then inspects the stack (\lineref{line:peek}). The two
+stack operations are not ordered and execute logically in
+parallel. The parent blocks at the end of the {\tt finish}-construct
+until the child task completes.
+
+Other constructs in the Habanero model include: \emph{isolated} and \emph{actors} for
+mutual exclusion, \emph{future} for passing data between tasks, and
+\emph{phasers} for arbitrary point-to-point synchronization
+\cite{Cave:2011:HNA:2093157.2093165}.

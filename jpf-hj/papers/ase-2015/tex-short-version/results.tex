@@ -1,0 +1,203 @@
+\section{Results}
+
+A new Java library was implemented to evaluate \algoref{algo:search}
+in the \jpf\ model checker (\hjv). The library uses Lambda support in Java 8,
+and it is purposed for verification in \jpf. \algoref{algo:search}
+itself is an extension to \jpf\ that implements permission regions and
+the search (\jpfhj).  Each is briefly discussed before the
+results from several benchmark programs are presented.
+
+\subsection{\hj\ Library for Verification}
+
+\hjv\ is a new Java library implementation of the Habanero model designed
+specifically for debugging and verification. It consists of roughly 1,300
+lines of code in 32 classes. Most of the classes address the
+programmer interface rather than the library
+internals. \figref{fig:hj-async-finish} is the interface
+using Java 8 Lambda functions and is identical to other Java library implementations of
+the Habanero model \cite{hj-lib}.
+
+\begin{comment}
+The implementation of the \texttt{async} and \texttt{finish}
+constructs uses Java threads and the ability to join those
+threads. Flattening the Lambda function in the Java 8 interface to an anonymous inner class elucidates the
+structure of the library. That code for the \texttt{async} call in
+\figref{fig:hj-async-finish} using an anonymous inner-class is shown below:
+\begin{lstlisting}
+  async(new HjRunnable() {
+    public void run() {
+      X.push(5);
+    }
+  });
+\end{lstlisting}
+The parameter for the call is an instance of an \texttt{HjRunnable} object
+object, and an \texttt{HjRunnable} is an extension to the standard Java
+thread. The \texttt{run} method for the thread is specialized in the
+anonymous inner-class. A programmer may use either syntax with \hjv.
+
+Staying at a high-level view of the implementation, tasks are threads
+with extra information to implement the Habanero model. To support the
+\texttt{finish}-construct, that thread includes the notion of a
+\emph{finish-scope}. A finish-scope holds references to any child
+thread created within a \texttt{finish}-construct, and a stack of
+finish-scopes tracks the nesting of \texttt{finish}-constructs within
+a task. When a task is created, it is added to the current running
+thread's active finish-scope. In this way, when a parent reaches the
+end of a \texttt{finish}-construct, it is able to join on all threads
+in the current finish-scope. After joining, the finish-scope is popped
+from the stack making the next outer finish-scope the active scope.
+\end{comment}
+
+\hjv\ supports all of the constructs in the Habanero model including
+phasers. To increase confidence in the correctness of \hjv, test cases were created
+to utilize specific features of the runtime. Each of these test
+cases were run within \jpf\ with full scheduling enabled (i.e., it
+schedules on every bytecode related to thread synchronization or
+sharing). Thus, for each case, \jpf\ is used to determine that \hjv\ is
+free of data races and deadlocks. In total, 22 test cases were created
+consisting of approximately 1,000 lines of source code.
+
+\subsection{\jpf\ Implementation}
+
+The implementation of permission regions in \jpf\ spans 1,036
+lines of code and covers 11 distinct class objects. It leverages
+\jpf's ability to track thread IDs of all accesses to objects, so it not only reports
+violations on the permission regions, but it also identifies shared
+accesses that are not annotated by permission regions or covered by \texttt{isolated}-constructs. In this way,
+\jpf\ updates the user when a shared access has been missed in the
+annotations.
+
+The implementation uses two key features of \jpf: byte-code listeners
+and object attributes. It installs a byte-code listener to watch for
+instances of the byte-code that calls methods. The actual methods for
+the permission regions interface are empty stubs, and when the
+listener activates on the interface, it gets the method's parameters
+from the stack and updates the associated state machines
+appropriately. The state machines themselves reside in an attribute of the object \cite{DBLP:journals/ase/PasareanuVBGMR13}. The important property of attributes
+is that they follow heap objects through the entirety of state space
+exploration. For arrays, a separate permissions state machine is stored
+for every index. 
+
+The \jpf\ implementation of \algoref{algo:search} exploits the
+extensible nature of the tool by providing a new
+\emph{scheduling-factory}.  A scheduling-factory is activated on
+preemption, when a thread is no longer able to run, or if there is
+input non-determinism.  It decides what
+threads are scheduled by inserting
+\emph{choice-generators} into the state search to enumerate the available choices. The search iterates over those
+choices starting a new search for each choice.
+
+The default scheduling-factory of \jpf\ is replaced with a new factory
+that does not insert any choices on thread actions, locks,
+synchronization, or shared accesses to objects. Anything related to
+concurrency is turned off except for forced context switches such as a
+thread exiting or a thread blocking. In those cases, the new
+scheduling-factory inserts a choice generator with a single choice
+that represents a random thread that is runnable.
+
+To insert the preemption points for permission regions and
+\texttt{isolated}-constructs, the byte-code listener from the
+implementation of permission regions is extended to also listen for
+the calls to \texttt{isolated}. At the
+entrance to permission regions, the permission regions' state machine for the
+object is updated as before, but after the update, a choice-generator
+is inserted into the search that includes choices for all runnable
+threads. Similarly, a choice-generator is inserted at the
+\texttt{isolated} call. The entire factory with the listener extension is only a few
+hundred lines of code but significantly reduces the verification
+cost.
+
+\emph{Benchmark Results}
+
+\jpf's default code to detect data races is named
+\emph{PreciseRaceDetector}. \tableref{tab:perf} compares the performance
+of \jpfhj\ with \emph{PreciseRaceDetector} over several benchmark
+programs taken from materials used to teach the Habanero model or test the Habanero
+runtimes. These programs are not necessarily indicative of actual Habanero
+programs in the real world but do contain the breadth
+ of \hj\ constructs: {\tt async}, {\tt isolated},
+{\tt finish}, {\tt future}, and phasers. Many benchmarks also include
+arrays and shared arrays. The sizes of the benchmarks are
+indicated by the \emph{SLOC} column (i.e., the number of program locations)
+and the \emph{Tasks} column (i.e., the number of tasks created).
+
+In \tableref{tab:perf}, an entry of N/A in the time column indicates a
+running time greater than 30 minutes on a Macbook Pro, core I7, with 8
+Gb of ram. The \emph{Error} column indicates if a data race or deadlock is discovered. An entry of \emph{Detected Race*} is an incorrect
+result: the program is actually free from data races.
+
+The first thing to notice in the table is that the
+\emph{PreciseRaceDetector} is more likely to not complete in the time
+bound due to exploring an excessive number of task schedules: it
+schedules on individual byte-codes where \jpfhj\ schedules on
+regions. The second thing to notice is that the
+\emph{PreciseRaceDetector} reports data races in \emph{TwoDimArrays},
+\emph{Add}, and \emph{ScalarMultiply} benchmarks where no data races
+exists. This error report is a limitation of
+\emph{PreciseRaceDetector} where it is not able to discern accesses to
+the arrays on disjoint indexes; rather, it reports an error because the access on the array object looks like a data race and exits. If \jpf\ is configured to not exit on error discovery, then the entries become N/A. That is why the \emph{Time} entries on those
+examples appear to improve over the entries for \jpfhj.
+
+The final thing to notice in the table is that the cost of
+verification is difficult to predict based solely on the static number of
+region annotations, as it depends not just on that number, but the size
+of the regions, and how many tasks contain the regions. For example, the
+\emph{PrimeNumberCounter} and its variants have very few regions, as
+defined by the annotations in the code, but those regions are part of every created
+task, so those benchmarks have a much larger number of schedules to explore.
+
+\begin{table*}
+\centering
+\caption{Performance Comparison between \jpfhj\ and \emph{PreciseRaceDetector}}
+\label{tab:perf}
+\scalebox{0.9}{\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+        &      &       & \multicolumn{4}{c|}{Permission Regions} &
+\multicolumn{3}{c|}{PreciseRaceDetector} \\ \hline
+Test ID & SLOC & Tasks & States  & Time  & Regions  & Error Note & States      &
+Time      & Error Note     \\ \hline
+PrimitiveArrayNoRace & 29 & 3 & 5 & 0:00:00 & 0 & No Race & 11,852 & 0:00:00 &
+No Race \\ \hline
+PrimitiveArrayRace & 39 & 3 & 5 & 0:00:00 & 2 & No Race & 220 & 0:00:00 &
+Detected Race \\ \hline
+TwoDimArrays & 30 & 11 & 15 & 0:00:00 & 0 & No Race & 597 & 0:00:00 &
+Detected Race* \\ \hline
+ForAllWithIterable & 38 &  2 & 9 & 0:00:00 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+IntegerCounterIsolated  & 54 & 10 & 1,013,102 & 0:05:53 & 3 & No Race & N/A & N/A 
+& N/A \\ \hline
+PipelineWithFutures & 69 & 5 & 34 & 0:00:00 & 1 & No Race & N/A & N/A & N/A
+\\ \hline
+SubstringSearch & 83 & 59 & 8 & 0:00:00 & 2 & Detected Race & N/A & N/A & N/A
+\\ \hline
+BinaryTrees & 80 & 525 & 632 & 0:00:03 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounter & 51 & 25 & 231,136 & 0:01:08 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounterForAll & 52 & 25 & 6 & 0:00:00 & 2 & Detected Race* & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounterForAsync & 44 & 11 & 449,511 & 0:02:51 & 2 & No Race & N/A & N/A
+& N/A \\ \hline
+ReciprocalArraySum & 58 & 2 & 32 & 0:00:06 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+Add & 67 & 3 & 62,374 & 0:00:33 & 6 & No Race & 4,930 & 0:00:03 & Detected Race*
+\\ \hline
+ScalarMultiply & 55 & 3 & 55,712 & 0:00:30 & 2 & No Race & 826 & 0:00:01 & Detected Race*
+\\ \hline
+VectorAdd & 50 & 3 & 17 & 0:00:00 & 4 & No Race & 46,394 & 0:00:19 & No Race
+\\ \hline
+AsyncTest1 & 23 & 51 & 54 & 0:00:00 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+AsyncTest2 & 32 & 3 & 4 & 0:00:00 & 2 & Detected Race & 11,534 & 0:00:04 
+& Detected Race \\ \hline
+FinishTest1 & 32 & 3 & 6 & 0:00:00 & 0 & No Race & 2,354 & 0:00:02 & No Race
+\\ \hline
+FinishTest2 & 33 & 3 & 5 & 0:00:00 & 0 & No Race & 25,243 & 0:00:09 & No Race
+\\ \hline
+FinishTest3 & 44 & 4 & 7 & 0:00:00 & 0 & No Race & 34,459 & 0:00:12 & No Race
+\\ \hline
+ClumpedAccess & 30 & 3 & 15 & 0:00:00 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+\end{tabular}}
+\end{table*}
+

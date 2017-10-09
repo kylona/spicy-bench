@@ -1,0 +1,172 @@
+\section{Implementation and Results}
+\label{sec:res}
+
+The data race detection technique described in this paper has been implemented for Habanero Java. It uses the verification runtime specifically designed to test HJ programs \cite{anderson2014jpf}. The runtime is written in a way to enable JPF to fully verify HJ programs without any modification to JPF.
+JPF is given a new \textit{PropertyListenerAdapter} to create the computation graph, and it is given a new scheduling-factory based on Algorithm \ref{algo:isolated} that implements sequential semantics as defined in \secref{sec:otf} and enumerates all the computation graphs arising from isolation. The resulting computation graphs are analyzed for data-race using \algoref{algo:drd}. 
+
+The results from the JPF implementation have been compared to two other approaches implemented by JPF: \textit{Precise race detector} (PRD) and \textit{Gradual permission regions} (GPR) on benchmarks that cover a wide range of functionality in HJ.  They spawn a wide range of tasks with smaller programs having 3-15 tasks going all the way up to 525 tasks for larger programs. The experiments were run on a machine with an Intel Core i5 processor with 2.6GHz speed and 8GB of RAM. The results show a significant improvement in the time required for verification (see \tableref{tab:results}). 
+
+\begin{table*}
+\centering
+\caption{Benchmarks of HJ programs: Computation graphs vs Permission Regions vs. PreciseRaceDetector}
+\rowcolors{1}{light-gray}{white}
+\label{tab:results}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|m{3.5cm}|c|c|c|c|c|c|c|c|c|c|c|}
+\hiderowcolors
+\hline
+        &      &       & 
+        \multicolumn{3}{c|}{\textbf{\textit{Computation graphs}}} & 
+		 \multicolumn{3}{c|}{\textbf{\textit{Gradual permission regions}}} &
+		\multicolumn{3}{c|}{\textbf{\textit{Precise race detector}}} \\ \hline
+		
+\textbf{Test ID }& \textbf{SLOC} & \textbf{Tasks} 
+& \textbf{States}  & \textbf{Time}  & \textbf{Error Note }
+& \textbf{States}  & \textbf{Time}  & \textbf{Error Note }
+& \textbf{States}  & \textbf{Time}  & \textbf{Error Note }     \\ \hline
+
+\showrowcolors
+
+\textit{Primitive Array Race} & 39 & 3 
+%& 5 & 00:00 & Race
+& 5 & 00:00 & Race
+& 5 & 00:00 & Race
+& 220 & 00:00 & Race \\ \hline
+
+\textit{Substring Search}  & 83 & 59 
+%& 64 & 00:03 & Race
+& 64 & 00:03 & Race
+& 8 & 00:00 & Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Reciprocal Array Sum} & 58 & 2
+%& 12 & 0:00:16 & Race
+& 4 & 00:08 & Race
+& 32 & 00:06 & Race
+& N/A & N/A & N/A \\ \hline
+
+\textit{Primitive Array No Race} & 29 & 3 
+%& 5 & 00:00 & No Race
+& 5 & 00:00 & No Race
+& 5 & 00:00 & No Race 
+& 11,852 & 00:00 & No Race \\ \hline
+
+\textit{Two Dim Arrays }& 30 & 11 
+%& 15 & 00:01 & No Race
+& 15 & 00:00 & No Race
+& 15 & 00:00 & No Race 
+& 597 & 00:00 & Race* \\ \hline
+
+\textit{ForAll With Iterable} & 38 & 2
+%& 9 & 00:00 & No Race
+& 9 & 00:00 & No Race
+& 9 & 00:00 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Integer Counter  Isolated} & 54 & 10
+%& 24 & 00:01 & No Race
+& 24 & 00:01 & No Race
+& 1,013,102 & 05:53 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Pipeline With Futures} & 69 & 5
+%& 34 & 0:00:00 & No Race
+& 34 & 00:00 & No Race
+& 34 & 00:00 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Binary Trees }& 80 & 525 
+%& 632 & 0:00:05 & No Race
+& 630 & 00:25 & No Race
+& 632 & 00:03 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Prime Num Counter} & 51 & 25
+%& 776 & 00:01 & No Race
+& 776 & 00:01 & No Race
+& 3,542,569 & 17:37 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Prime Num  Counter ForAll}  & 52 & 25
+%& 30 & 0:00:02 & Race*
+& 30 & 00:02 & No Race
+& 18 & 00:01 & No Race
+& N/A & N/A & N/A \\ \hline
+
+\textit{Prime Num Counter ForAsync}  & 44 & 11 
+%& 653 & 0:00:01 & No Race
+& 653 & 00:01 & No Race
+& 2,528,064 & 15:44 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\textit{Add}  & 67 & 3 
+%& 11 & 0:00:01 & No Race 
+& 11 & 00:01 & No Race 
+& 62,374 & 00:33 & No Race
+& 4930 & 00:03 & Race* \\ \hline
+
+\textit{Scalar Multiply}  & 55 & 3 
+%& 15 & 0:00:01 & No Race
+& 15 & 00:01 & No Race
+& 55,712 & 00:30 & No Race 
+& 826 & 00:01 & Race* \\ \hline
+
+\textit{Vector Add} & 50 & 3 
+%& 5 & 0:00:01 & No Race
+& 5 & 00:00 & No Race
+& 17 & 00:00 & No Race 
+& 46,394 & 00:19 & No Race \\ \hline
+
+\textit{Clumped Access}  & 30 & 3 
+%& 9 & 0:00:07 & No Race
+& 5 & 00:03 & No Race
+& 15 & 00:00 & No Race 
+& N/A & N/A & N/A \\ \hline
+
+\end{tabular}}
+%\vspace{-1em}
+\end{table*}
+
+In \tableref{tab:results}, the number of states explored by JPF and time required for verification by each method is compared. The tests are run for a maximum of an hour before they are terminated manually. If a test does not finish in the time bound or if it runs out of JVM memory, then it is marked as N/A in the table. The error note column shows the results of verification. The tests that produce erroneous results are marked with an asterisk ($\ast$). The results are not averaged over several runs to account for \emph{luck} in the search order. 
+
+The PRD algorithm is a partial order reduction based on JPF's ability to detect shared memory accesses (e.g., it tracks thread IDs on all heap accesses). With PRD, JPF only considers schedules around shared memory accesses. This partial order is JPF's default search. The PRD algorithm merely flags an error when it sees a conflicting access at a memory location by two different threads.  PRD generally does not complete execution within the stipulated time or runs out of memory even on smaller programs because of the state space explosion. It also reports race for \textit{Two Dimensional Arrays}, \textit{Scalar multiply} and \textit{Vector Add} benchmarks where no data race actually exists in the program. This error is because in PRD, the access on an array object looks like a data race since it is not able to see the difference in the indexes---a shortcoming in the PRD implementation.
+
+GPR uses program annotations to reduce the number of shared locations that need to consider scheduling \cite{mercer2015model}. GPR works better than PRD because GPR groups several bytecodes that access shared locations into a single atomic block of code with read/write indications. For example, if there are two bytecodes that touch shared memory locations, PRD schedules from each of the two locations. In contract, if those two locations are wrapped in a single permission region, then GPR only considers schedules from the start of the region with the region being atomic. GPR is equal to PRD if every bytecode that accesses shared memory is put in its own region.  Both approaches are a form of partial order reduction with GPR outperforming PRD by virtue of considering significantly fewer scheduling points via the user annotated permission regions. As such regardless of how the annotations are indicated (automatic or manual), the approach has to consider schedules at each annotation, which leads quickly to state explosion.
+
+GPR falls behind quickly as the number of regions grow compared to the computation graph solution. The difference in performance is seen in the \textit{Add}, \textit{Scalar multiply} and \textit{Prime number counter} benchmarks which used shared variables that lead to several regions (which are as big as possible without creating a data-race--another issue with GPR in general).  The \textit{Prime number counter} benchmark also has isolated sections and therefore, the state space for \textit{computation graphs} is also large compared to other benchmarks. Of course, in the presence of isolation, the approach in this paper must enumerate all possible computation graphs, so it suffers the same state explosion as other model checking approaches.
+
+We also evaluated our data race detector on some real world benchmarks. The \textit{Crypt-af} and \textit{Crypt-f} benchmarks are implementation of the IDEA encrytion algorithm and \textit{Series-af} and \textit{Series-f} are the Fourier coefficient analysis benchmarks adapted from the JGF suite \cite{bull2000benchmark} using \textbf{async-finish} and \textbf{future} constructs respectively. The \textit{strassen} benchmark is adapted from the  OpenMP version of the program in the Kastors suite \cite{virouleau}. \tableref{tab:results1} shows the results of this evaluation. These are quickly verified free of data-race using computation graphs; whereas, the other two approaches time out. 
+
+\begin{table}
+\centering
+\caption{Evaluation of Computation graphs on real world benchmarks}
+\rowcolors{1}{light-gray}{white}
+\label{tab:results1}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hiderowcolors
+\hline
+
+\textbf{Test ID }& \textbf{SLOC} & \textbf{Tasks} 
+& \textbf{States}  & \textbf{Time}  & \textbf{Error Note }\\ \hline
+
+\showrowcolors
+
+\textit{Crypt-af} & 1010 & 259
+& 260 & 00:17 & No Race  \\ \hline
+
+\textit{Crypt-f}  & 1145 & 387 
+& 775 & 00:46 & No Race \\ \hline
+
+\textit{Series-af} & 730 & 329
+& 750 & 00:36 & No Race \\ \hline
+
+\textit{Series-f} & 830 & 354 
+& 630 & 00:51 & No Race\\ \hline
+
+\textit{Strassen} & 560 & 3
+& 7 & 00:57 & No Race \\ \hline
+
+\end{tabular}
+%\vspace{-1em}
+\end{table}
+%\vspace{-2em}

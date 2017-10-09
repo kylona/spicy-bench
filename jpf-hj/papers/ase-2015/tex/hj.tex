@@ -1,0 +1,79 @@
+\section{Habanero Java}
+\begin{comment}
+\noindent\textbf{Nick} will write this section.
+
+Tight overview of Habanero Java. Motivate the importance of the
+language rather than try to introduce all of the language
+features. Emphasize the guarantees on correctness in the absence of
+data race. Contain to one-page plus figures.
+\end{comment}
+
+The necessity of parallelism for getting performance from software
+is a rising trend in modern computing.
+However, since the majority of programmers are not concurrency experts,
+it becomes important to provide mainstream programmers with the tools
+they need to safely add concurrency as they write new applications.
+Habanero Java (HJ)---a language under development at Rice University---aims
+to address this need by extending the Java language with high-level concurrency
+constructs that have strong safety guarantees \cite{hj-overview}.
+These new constructs are exposed through simple extensions to Java's syntax.
+Alternatively, a pure-library implementation called HJ-lib is also available \cite{hj-lib}.
+HJ-lib applications use Java 8's lambda expressions to succinctly leverage HJ concurrency constructs without the need for syntax extensions and a custom compiler.
+HJV builds upon the HJ-lib API, allowing for easy integration with JPF.
+\lstset{basicstyle=\scriptsize\ttfamily,caption={A naive method using HJ-lib for calculating the $n$th Fibonacci number, where $n \geq 1$.},label=lst:hj-fib}
+\begin{lstlisting}
+long fib(long n) {
+  if (n < 3) return 1;
+  HjFuture<Long> a = future(() -> fib(n-2));
+  HjFuture<Long> b = future(() -> fib(n-1));
+  return a.get() + b.get();
+}
+\end{lstlisting}
+
+
+Listing~\ref{lst:hj-fib} shows a recursive definition of the Fibonacci function.
+%The HJ \hjKwd{finish} construct ensures that all tasks created within its
+%dynamic scope (including transitively created tasks) are complete before the
+%\hjKwd{finish} statement completes.
+The \hjKwd{future} construct creates an asynchronous task, and returns an
+\hjKwd{HjFuture} as a placeholder for the task's return value.
+In this case, \hjCode{a} contains the placeholder for \hjCode{fib(n-2)},
+and \hjCode{b} for \hjCode{fib(n-1)}.
+The calls to \hjCode{a.get()} and \hjCode{b.get()} block until the respective
+tasks have completed, and return the resulting values.
+
+HJ provides safety guarantees for subsets of its features\footnote{
+See \cite{hj-overview} for a more complete discussion of HJ's features
+and its continuum of safety guarantees.}.
+For example, the subset of features used by the code in listing~\ref{lst:hj-fib}
+guarantee that all calls to \hjCode{fib} are deadlock-free, yield deterministic
+results, and have a serializable schedule---but only if the program is also free
+of data races. The \hjCode{fib} method is obviously data-race-free because it
+performs no mutations; however, for general programs that mutate shared variables,
+proving data-race-freedom is usually much more difficult.
+
+Due to the difficulty of statically-proving that a general HJ program is
+data-race-free, \newTerm{gradual permission regions} were added to the HJ
+language \cite{hj-grad-perm}.
+Gradual permission regions allow a programmer to annotate shared objects with
+read or write permissions.
+The permission regions act as run-time assertions that throw a Java exception
+whenever a data-race is detected on the annotated objects.
+The HJ compiler can also automatically insert these annotations.
+However, the compiler cannot distinguish shared from non-shared objects.
+This results in extraneous annotations and unnecessary run-time overhead.
+
+By leveraging existing features of JPF, HJV can be used to insert permission
+regions for all shared objects in an HJ-lib application.
+When an HJ-lib program is verified using HJV, it is proved deadlock-free and
+race-free.
+This is true even when using concurrency features that do not automatically
+have these safety guarantees, such as HJ's phasers.
+
+% What exactly is our contribution?
+% There's already an algorithm for automatically inserting
+% permission regions in Eddie's paper.
+% Am I correct in saying that the static algorithm inserts
+% too many permission regions (and thus adds unnecessary overhead),
+% whereas this algorithm leverages JPF to dynamically check permissions
+% of only the variables that are actually shared?

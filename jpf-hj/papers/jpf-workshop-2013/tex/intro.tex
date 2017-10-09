@@ -1,0 +1,98 @@
+\section{Introduction}
+The Habanero effort at RICE University is intended to address the
+multicore challenge \cite{habanero}.
+%
+It provides a powerful set of task parallel programming constructs that are added as
+simple extensions to existing languages such as Java or C/C++.
+%
+Unique to the Habanero approach is its emphasis on usability and safety
+in the parallel constructs and supporting runtime systems.
+%
+Habanero guarantees properties such as deadlock freedom or determinism over subsets of its language.
+%
+Such an approach may be able to open the promised performance of
+multicore architectures to programmers who are not experts in
+concurrency.
+
+%
+Habanero-Java (HJ) is the implementation of the Habanero paradigm in
+the Java language complete with compiler and runtime support \cite{Cave:2011:HNA:2093157.2093165}. 
+%
+HJ adds to Java new keywords and constructs for task parallel
+programming: \texttt{async} to create tasks, \texttt{finish} to join
+tasks, \texttt{isolated} to give mutual exclusion between tasks, and a
+\texttt{phaser} construct with the \texttt{next} keyword for software
+pipelines and data-flow computation. 
+%
+Habanero, as mentioned previously, guarantees safety properties over subsets of its language. 
+%
+As an example for HJ, programs that only employ the \texttt{async} and
+\texttt{finish} keywords are guaranteed to be deadlock-free,
+serializable, and deterministic if and only if the program is
+data-race free.
+%
+The goal of the work in this paper is to verify that Habanero Java programs are data-race free. 
+
+Safety guarantees in HJ are predicated on data-race free execution. 
+%
+The current HJ distribution provides a tool to detect data-race as a
+program is executed in the HJ runtime system;
+%
+thus, the tool only
+validates a single schedule of the program execution and is only able to
+tell the developer if a data-race occurred in that execution and not that the program is
+data-race free \cite{Westbrook:2012:PPR:2367163.2367201,Westbrook:2011:PRR:2341616.2341627}. 
+%
+Further, the tool requires both compiler and runtime
+support to annotate the source HJ program and track extra data
+structures.
+
+This paper presents a new verification runtime (VR) system for HJ that
+is suitable to use in Java Pathfinder (JPF) to prove an HJ program is
+data-race free in all legal schedules.
+%
+The VR system supports \texttt{async}, \texttt{finish},
+\texttt{isolated}, and future data-driven forms of \texttt{async} and
+is able to run standalone as a new runtime system for HJ.
+%
+The approach in this paper differs from recent efforts for X10 in
+that it creates a new HJ runtime for JPF rather than modify an
+existing HJ runtime, modify JPF to work with that modified runtime, and then
+modify the HJ compiler to better meet JPF's unique needs \cite{conf:icst:GligoricMM12}.
+% 
+Further, the VR system is able to exploit
+nuances in JPF's virtual machine, such as low overhead in thread
+creation, to implement a runtime system that is small enough to manually
+inspect for correctness as it only comprises 992 locations in 12 different classes. 
+
+This paper further presents a new scheduler factory for JPF that is optimized for HJ program semantics. 
+%
+In particular, the new scheduler factory removes choice generators
+from schedules from the normal JPF factory that are not
+interesting. These uninteresting points include thread termination, entering a monitor, thread notification, etc.
+% 
+The new scheduler factory yields a significant reduction in states when compared to the default scheduler. 
+To summarize, the main contributions in this paper are:
+\begin{compactitem}
+\item a new runtime system for HJ small enough to understand through manual inspection and use in JPF; 
+\item a new scheduler factory for JPF; and
+\item results from several benchmark examples showing performance over the HJ the default scheduler.
+\end{compactitem}
+
+\begin{comment}
+The rapid shift to multicore platforms is leading to a programming
+crisis. 
+%
+A typical programmer is not able to exploit the additional
+computation resources because there is no obvious good programming paradigm for concurrency.
+%
+Languages are either exceptionally low level requiring an expert in concurrency or are too abstract to perform adequately on the hardware.
+%
+Bugs in concurrent programs are also especially pernicious and hard to reproduce.
+%
+Unintended (and unexpected) interactions between concurrent elements are usually dependent on external runtime systems outside the control of the developer.
+
+As a result, it is inherently difficult (or impossible) to obtain any
+guarantee on test coverage, and if a test fails, it may fail
+non-deterministically making debugging equally impossible.
+\end{comment}

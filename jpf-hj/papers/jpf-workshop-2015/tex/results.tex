@@ -1,0 +1,32 @@
+\section{Results}
+
+\begin{table*}[t]
+\centering
+\caption{Verification of HJ Micro-benchmarks using CGRaceDetector}
+\label{tab:perf}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+        &        & \multicolumn{3}{c|}{CGRaceDetector} & \multicolumn{3}{c|}{Precise Race Detector}
+ \\ \hline
+Test Case Name & SLOC & Tasks & States  & Time   & Error Info & States  & Time   & Error Info 
+\\ \hline
+Search Count & 50 & 4 & 195 & 0:00:01 & No Race & 145139 & 0:00:45 & No Race 
+ \\ \hline
+Existence of an occurrence & 45 & 4 & 174 & 0:00:01 & Detected Race & 50197 & 0:00:15 & Detected Race 
+\\ \hline
+Index of occurrence & 38 & 4 & 197 & 0:00:01 & Detected Race & 68806 & 0:00:29 & Detected Race 
+\\ \hline
+Existence of occurrence with no task & 45 & 2 & 117 & 0:00:00 & Detected Race & 296 & 0:00:00 & Detected Race
+\\ 
+creation after instance is found & &  &  &  & & & &
+\\ \hline
+Search Index With No task creation & 48  & 2 & 119 & 0:00:00 & Detected Race & 326 & 0:00:00 & Detected Race
+\\
+after Instance is Found &  &  &  & & & & &
+\\ \hline
+\end{tabular}
+\end{table*}
+
+We verified some of the HJ microbenchmarks that make use of only the basic parallel constructs such as async and finish using the CGRaceDetector listener. The CGRaceDetector is able to build computation graphs of the HJ programs by exploring very few states. We compared the output of CGRaceDetector to the output of PreciseRaceDetector and found that CGRaceDetctor was able to correctly identify races in all programs. These micro-benchmarks are variations of a linear search algorithm. The first test finds the count of occurrences of a search string in a given text string. The second test confirms the existence of search string in the given text string. The third test returns the index of occurrence of the search string. In case of multiple occurrences, the output becomes non-deterministic. The fourth test also confirms the existence of the search string in the given text. However, as soon as the search text is found, no more processes are spawned to search the text and the program is terminated. Similarly, in the fifth test, as soon as a process returns the index of occurrence of search text, the program terminates. The results are presented in Table I. The sizes of the programs are indicated by the SLOC column and Tasks columns represents the number of tasks created in every program. The results of CGRaceDetector and Precise Race Detector are compared. The Precise Race Detector systematically explores the entire state space of the program. The CGRaceDetector just uses one thread interleaving to detect data races. Hence, the time required by CGRaceDetector is considerably smaller than the time required by Precise Race Detector to execute.
+
+

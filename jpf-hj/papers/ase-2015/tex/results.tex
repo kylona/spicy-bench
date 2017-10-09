@@ -1,0 +1,175 @@
+\section{Results}
+To verify the correctness of \hjv, test cases were created that utilize specific
+features of the runtime. Each of these test cases are run within \jpf\ with full
+scheduling enabled. Thus, for each case, \jpf\ is used to determine that 
+\hjv is free of deadlock/data-race. In total 22 test cases were created
+consisting of approximately 1000 lines of source code.
+
+For comparison between \jpf's PreciseRaceDetector and permission regions a
+series of measurements is collected that perform work in parallel.
+These benchmarks contain a wide variety of \hj\ features, including: async,
+isolated, finish, futures, and phasers. Many of these benchmarks also include
+the use of shared arrays. 
+
+The Error Note column describes the result of the verification attempt. A note
+accompanied by an * signifies that the operation was incorrect (i.e. race is
+reported for a program that is free of race).
+
+Each benchmark was run for up to 30 minutes. After 30 minutes the program was
+terminated and the result is reported as N/A. As table \ref{tab:perf} shows, \jpf\ was
+unable to complete in time for many of the benchmarks. This highlights the
+challenge of trying to model check all but the most basic of programs. \jpfhj\
+performs exceptionally well on the following classes of programs: programs without
+shared state and programs that use arrays to store shared state, but generally
+access disjoint portions of the array. For the latter case \jpfhj\ performs a
+scheduling optimization. If it can be easily determined by the user that the
+access to the array will be performed on disjoint portions than a modified form
+of the permission regions annotation may be used to signal to the runtime to
+insert just a single scheduling point instead of a scheduling point for each
+array access. If the programmer is incorrect is their assessment then \jpfhj\
+will claim the program contains a race when in reality it may not.
+
+It is challenging to predict how the use of specific concurrency
+primitives will affect the size of the state space. Certainly, shared state
+produces a larger state space, because of the need to schedule on permission
+region boundaries. PrimeNumCounter and its variants highlight the effect of
+shared state on the verification problem as seen in
+listing \ref{lst:prime-num-counter}. Although this program only has a single
+piece of shared state it is shared between all 15 tasks. 
+
+\jpfhj\ also shines when many accesses are performed on a single piece of shared
+state in a row as seen in listing \ref{lst:clumped}. This program is simple case
+for \jpfhj\ to verify because only a single scheduling point is needed for every
+access on shared state. This is in contrast to vanilla \jpf\ which would
+insert a scheduling point at each bytecode access. 
+
+In summary, \jpfhj\ shows a great deal of progress over \jpf\ for a specific
+class of programs. For the programs for which a side-by-side comparison can be
+made, Table \ref{tab:perf} shows that \jpfhj\ 's optimizations reduce the state
+space by at least two orders of magnitude (PrimitiveArrayRace,
+PrimitiveArrayNoRace, VectorAdd, etc).
+
+
+\begin{figure}[t]
+    \begin{center}
+    \begin{lstlisting}
+public class PrimeNumCounter {
+    private final static int COUNT = 17;
+    private static int[] primes = {0};
+    public static boolean isPrime(int num) {
+      //Determine if number is prime
+    }
+    public static void main(String[] args) {
+      launchHabaneroApp(() -> {
+        finish(() -> {
+          for (int i = 2; i < COUNT; i++) {
+            final int j = i;
+            async(() -> {
+              if (isPrime(j)) {
+                isolated(() -> {
+                  acquireW(primes, 0);
+                  primes[0]++;
+                  releaseW(primes, 0);
+                });
+              }
+            });
+          }
+        });
+      });
+    }
+}
+    \end{lstlisting}
+    \end{center}
+    \caption{A Naive Method to Count Prime Numbers in Parallel}
+    \label{lst:prime-num-counter}
+\end{figure}
+
+\begin{figure}[t]
+    \begin{center}
+    \begin{lstlisting}
+public class ClumpedAcess {
+  private static final int[] shared-state = {0};
+  public static void main(String[] args) {
+    launchHabaneroApp(() -> {
+      async(() -> {
+        isolated(() -> {
+          acquireW(shared-state, 0);
+          for (int i = 0; i < 1000; i++) {
+            shared-state[0]++;
+          }
+          releaseW(shared-state, 0);
+        });
+      });
+      async(() -> {
+        isolated(() -> {
+          acquireR(shared-state, 0);
+          for (int i = 0; i < 1000; i++) {
+            System.out.println(shared-state[0]);
+          }
+          releaseR(shared-state, 0);
+        });
+      });
+    });
+  }
+}
+    \end{lstlisting} 
+    \end{center}
+    \caption{Block Access vs. Bytecode Access}
+    \label{lst:clumped}
+\end{figure}
+
+\begin{table*}[h]
+\centering
+\caption{Benchmarks of \hj\ programs: \jpfhj\ vs. PreciseRaceDetector}
+\label{tab:perf}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+        &      &       & \multicolumn{4}{c|}{Permission Regions} &
+\multicolumn{3}{c|}{PreciseRaceDetector} \\ \hline
+Test ID & SLOC & Tasks & States  & Time  & Regions  & Error Note & States      &
+Time      & Error Note     \\ \hline
+PrimitiveArrayNoRace & 29 & 3 & 5 & 0:00:00 & 0 & No Race & 11,852 & 0:00:00 &
+No Race \\ \hline
+PrimitiveArrayRace & 39 & 3 & 5 & 0:00:00 & 2 & No Race & 220 & 0:00:00 &
+Detected Race \\ \hline
+TwoDimArrays & 30 & 11 & 15 & 0:00:00 & 0 & No Race & 597 & 0:00:00 &
+DetectedRace* \\ \hline
+ForAllWithIterable & 38 &  2 & 9 & 0:00:00 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+IntegerCounterIsolated  & 54 & 10 & 1,013,102 & 0:05:53 & 3 & No Race & N/A & N/A 
+& N/A \\ \hline
+PipelineWithFutures & 69 & 5 & 34 & 0:00:00 & 1 & No Race & N/A & N/A & N/A
+\\ \hline
+SubstringSearch & 83 & 59 & 8 & 0:00:00 & 2 & Detected Race & N/A & N/A & N/A
+\\ \hline
+BinaryTrees & 80 & 525 & 632 & 0:00:03 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounter & 51 & 25 & 231,136 & 0:01:08 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounterForAll & 52 & 25 & 6 & 0:00:00 & 2 & Detected Race* & N/A & N/A & N/A
+\\ \hline
+PrimeNumCounterForAsync & 44 & 11 & 449,511 & 0:02:51 & 2 & No Race & N/A & N/A
+& N/A \\ \hline
+ReciprocalArraySum & 58 & 2 & 32 & 0:00:06 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+Add & 67 & 3 & 62,374 & 0:00:33 & 6 & No Race & 4,930 & 0:00:03 & Detected Race*
+\\ \hline
+ScalarMultiply & 55 & 3 & 55,712 & 0:00:30 & 2 & No Race & 826 & 0:00:01 & Detected Race*
+\\ \hline
+VectorAdd & 50 & 3 & 17 & 0:00:00 & 4 & No Race & 46,394 & 0:00:19 & No Race
+\\ \hline
+AsyncTest1 & 23 & 51 & 54 & 0:00:00 & 0 & No Race & N/A & N/A & N/A
+\\ \hline
+AsyncTest2 & 32 & 3 & 4 & 0:00:00 & 2 & Detected Race & 11,534 & 0:00:04 
+& Detected Race \\ \hline
+FinishTest1 & 32 & 3 & 6 & 0:00:00 & 0 & No Race & 2,354 & 0:00:02 & No Race
+\\ \hline
+FinishTest2 & 33 & 3 & 5 & 0:00:00 & 0 & No Race & 25,243 & 0:00:09 & No Race
+\\ \hline
+FinishTest3 & 44 & 4 & 7 & 0:00:00 & 0 & No Race & 34,459 & 0:00:12 & No Race
+\\ \hline
+ClumpedAccess & 30 & 3 & 15 & 0:00:00 & 2 & No Race & N/A & N/A & N/A
+\\ \hline
+\end{tabular}
+\end{table*}
+

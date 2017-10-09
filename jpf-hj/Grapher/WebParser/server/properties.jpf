@@ -1,0 +1,25 @@
+#The program to be analyzed
+target = Dog
+
+#Location where comp graph is created
+Results_directory = 
+
+Contains_isolated_sections = false
+On_the_fly = true
+Data_race_detection = false
+
+#classpath must point to all class files, including jars. Remove any unnecessary lines.
+classpath+=C:/Users/jacob/Desktop/Grapher/WebParser/server/graph/hj_classes/classes;
+classpath+=C:/Users/jacob/Desktop/Grapher/WebParser/server/input_classes;
+
+#native classpath should include jgrapht libraries
+native_classpath+=C:/Users/jacob/Desktop/Grapher/WebParser/server/graph/hj_classes/classes;
+native_classpath+=C:/Users/jacob/Desktop/Grapher/WebParser/server/graph/lib/jgrapht-ext-0.9.1-uber.jar;
+
+
+
+
+JPF.vm=VMListener;
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
+listener+=cg.CGRaceDetector

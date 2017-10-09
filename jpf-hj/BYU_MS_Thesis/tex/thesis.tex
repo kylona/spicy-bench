@@ -1,0 +1,301 @@
+%\documentclass[ms,electronic,twosidetoc,letterpaper,chaptercenter,parttop,lof,lot]{byumsphd}
+\documentclass[ms,electronic,oneside,letterpaper,chaptercenter,parttop,lof,lot]{byumsphd}
+% Author: Chris Monson
+%
+% This document is in the public domain
+%
+% Options for this class include the following (* indicates default):
+%
+%   phd (*) -- produce a dissertation
+%   ms -- produce a thesis
+%
+%   electronic -- default official university option, overrides the following:
+%                 - equalmargins
+%
+%   hardcopy -- overrides the following:
+%                 - no equalmargins
+%                 - twoside
+%
+%   letterpaper -- ignored, but helpful for the Makefile that I use
+%
+%   10pt -- 10 point font size
+%   11pt -- 11 point font size
+%   12pt (*) -- 12 point font size
+%
+%   lof -- produce a list of figures in the preamble (off)
+%   lot -- produce a list of tables in the preamble (off)
+%   lol -- produce a list of listings in the preamble (off)
+%
+%   layout -- show layout lines on the pages, helps with overfull boxes (off)
+%   grid -- show a half-inch grid on every page, helps with printing (off)
+%   separator -- print an extra instruction page between preamble and body (off)
+%
+%   twoside (*) -- two-sided output (margins alternate for odd and even pages,
+%     blank pages inserted to ensure that chapters begin on the right side of a
+%     bound copy, etc.)
+%   oneside -- one-sided output (margins are the same on all pages)
+%   equalmargins -- make all margins equal - ugly for binding, but compliant
+%
+%   twosidetoc - start two-sided margins at the TOC instead of the body.  This
+%     is sometimes (oddly) required, but be aware that it will make the page
+%     numbering seem screwy, e.g., the first four full sheets of paper will
+%     have number i-iv (not shown, though), and the next sheets will each have
+%     two numbers, one for each side.  I suspect that most people don't look at
+%     the roman numerals anyway, but it is a weird requirement.
+%
+%   openright (*) -- force new chapters to start on an odd page
+%   openany -- don't use this, it's ugly
+%
+%   prettyheadings -- make the section/chapter headings look nice
+%   compliantheadings (*) -- make them look ugly, but compliant with standards
+%
+%   chaptercenter -- center the chapter headings horizontally
+%   chapterleft (*) -- place chapter headings on the left
+%
+%   partmiddle -- Part headers are centered vertically, no other text on page
+%   parttop (*) -- Part headers at top of page, other text expected
+%
+%   duplexprinter -- Ensures that the two-sided portion starts on the right
+%     side when printing.  This is not for use in submission, since the best
+%     thing to do there is to print everything out one-sided, then take it down
+%     to the copy store to have them do the rest.  It does help to save trees
+%     when you are printing out copies just to look at them and fiddle with
+%     things.
+%
+%
+% EXAMPLES:
+%
+% The rest is up to you.  To fiddle with margins, use the \settextwidth and
+% \setbindingoffset macros, described below.  I suggest that you
+% \settextwidth{6.0in} for better-looking output (otherwise you'll get 3/4-inch
+% margins after binding, which is sort of weird).  This will depend on the
+% opinions of the various dean/coordinator folks, though, so be sure to ask
+% them before embarking on a major formatting task.
+
+% The following command fixes my particular printer, which starts 0.03 inches
+% too low, shifting the whole page down by that amount.  This shifts the
+% document content up so that it comes out right when printed.
+%
+% Discovering this sort of behavior is best done by specifying the ``grid''
+% option in the class parameters above.  It prints a 1/2 inch grid on every
+% page.  You can then use a ruler to determine exactly what the printer is
+% doing.
+%
+% Uncomment to shift content up (accounting for printer problems)
+%\setlength{\voffset}{-.03in}
+
+% Here we set things up for invisible hyperlinks in the document.  This makes
+% the electronic version clickable without changing the way that the document
+% prints.  It's useful, but optional.
+%
+% NOTE: "driverfallback=ps2pdf" chooses ps2pdf in the case of LaTeX and pdftex
+% in the case of pdflatex. If you use my LaTeX makefile (at
+% http://latex-makefile.googlecode.com/) then pdftex is the default There are
+% many other benefits to using the makefile, too.  This option is not always
+% available, so use with care.
+\usepackage[
+    bookmarks=true,
+    bookmarksnumbered=true,
+    breaklinks=false,
+    raiselinks=true,
+    pdfborder={0 0 0},
+    colorlinks=false,
+    plainpages=false,
+    ]{hyperref}
+
+%\usepackage[pass]{geometry}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{paralist}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{amsmath, listings, amsthm, amssymb, proof, xspace, stmaryrd, times}
+\usepackage{subfigure}
+%\usepackage{cite}
+\usepackage[nounderscore]{syntax}
+\usepackage{newfloat}
+\usepackage{esvect}
+\usepackage{semantic}
+\usepackage{mathpartir}
+\usepackage{pdflscape}
+
+\DeclareFloatingEnvironment[
+  % the file extension for the file used to create the list:
+  fileext   = logr,% don't use log here!
+  % the heading for the list:
+  listname  = {List of Grammars},
+  % the name used in captions:
+  name      = Grammar,
+  % the default floating parameters if the environment is used
+  % without optional argument:
+  placement = htp
+]{Grammar}
+
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\lemmaref}[1]{Lemma~\ref{#1}}
+\newcommand{\tableref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\lineref}[1]{Line~\ref{#1}}
+\newcommand{\corref}[1]{Corollary~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\algoref}[1]{Algorithm~\ref{#1}}
+
+\newcommand{\setof}[1]{\ensuremath{\left \{ #1 \right \}}}
+\newcommand{\tuple}[1]{\ensuremath{\langle #1 \rangle }}
+
+\newcommand{\mystar}{{\fontfamily{lmr}\selectfont$\star$}}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  %basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  %keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  morekeywords={proc, post, await, ewait, var, skip, assume, call, return}
+}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\usepackage{algorithm, algpseudocode}
+
+\input{defs.tex}
+
+% These packages allow the bibliography to be sorted alphabetically and allow references to more than one paper to be sorted and compressed (i.e. instead of [5,2,4,6] you get [2,4-6])
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hypernat}
+
+% Because I use these things in more than one place, I created new commands for
+% them.  I did not use \providecommand because I absolutely want LaTeX to error
+% out if these already exist.
+\newcommand{\Title}{Verification of Task Parallel Programs using Predictive Analysis}
+\newcommand{\Author}{Radha Nakade}
+\newcommand{\GraduationMonth}{August}
+\newcommand{\GraduationYear}{2016}
+
+% Set up the internal PDF information so that it becomes part of the document
+% metadata.  The pdfinfo command will display this.
+\hypersetup{%
+    pdftitle=\Title,%
+    pdfauthor=\Author,%
+    pdfsubject={MS Thesis, BYU CS Department: %
+                Degree Granted \GraduationMonth~\GraduationYear, Document Created \today},%
+    pdfkeywords={BYU, thesis},%
+}
+
+% Rewrite the itemize, description, and enumerate environments to have more
+% reasonable spacing:
+\newcommand{\ItemSep}{\itemsep 0pt}
+\let\oldenum=\enumerate
+\renewcommand{\enumerate}{\oldenum \ItemSep}
+\let\olditem=\itemize
+\renewcommand{\itemize}{\olditem \ItemSep}
+\let\olddesc=\description
+\renewcommand{\description}{\olddesc \ItemSep}
+
+% Important settings for the byumsphd class.
+\title{\Title}
+\author{\Author}
+
+\committeechair{Eric Mercer}
+\committeemembera{Quinn Snell}
+\committeememberb{Parris Egbert}
+
+%\monthgraduated{\GraduationMonth}
+%\yeargraduated{\GraduationYear}
+\yearcopyrighted{\GraduationYear}
+
+\documentabstract{
+\input{abstract}
+}
+
+\documentkeywords{%
+    verification, task parallel programming, data race detection
+}
+
+\acknowledgments{%
+I would like to thank my advisor, Dr. Eric Mercer for his constant motivation and his patience. This work wouldn't have been possible without his help. I would also like to thank Dr. Jay McCarthy and my committee members for their feedback in the project.
+
+I am grateful to my family for their love and support. And finally, I want to thank my wonderful husband, Atul for his support, love and encouragement. 
+}
+
+\department{Computer~Science}
+\graduatecoordinator{Quinn Snell}
+\collegedean{Thomas~W.~Sederberg}
+\collegedeantitle{Associate~Dean}
+
+% Customize the name of the Table of Contents section.
+\renewcommand\contentsname{Table of Contents}
+
+% Remove all widows an orphans.  This is not normally recommended, but in a
+% paper dissertation there is no reasonable way around it; you can't exactly
+% rewrite already-published content to fix the problem.
+\clubpenalty 10000
+\widowpenalty 10000
+
+% Allow pages to have extra blank space at the bottom in order to accommodate
+% removal of widows and orphans.
+\raggedbottom
+
+% Produce nicely formatted paragraphs. There is nothing additional to do.  In
+% case you get some problems, surround your text with
+% \begin{sloppy} ... \end{sloppy}. If that does not work, try
+% \microtypesetup{protrusion=false} ... \microtypesetup{protrusion=true}
+\usepackage{microtype}
+
+\begin{document}
+
+% Produce the preamble
+\microtypesetup{protrusion=false}
+\maketitle
+\microtypesetup{protrusion=true}
+
+\chapter{Introduction}
+\input{introduction}
+
+\chapter{Data Race Detection}
+\input{drd}
+
+\chapter{Computation Graphs}
+\input{cg}
+
+\chapter{Structured Parallel Languages}
+\input{on-the-fly-drd}
+
+\chapter{On-the-fly data race detection}
+\input{otf}
+
+\chapter{Mutual Exclusion}
+\input{mutex}
+
+\chapter{Implementation and Results}
+\input{results}
+
+\chapter{Related Work}
+\input{related-work}
+
+\chapter{Conclusion and Future Work}
+\input{conclusion}
+
+\bibliographystyle{ieeetran}
+\bibliography{../paper}
+
+\end{document}

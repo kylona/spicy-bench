@@ -1,0 +1,13 @@
+Habanero is a task parallel language that provides correctness guarantees. Even
+so, programs can be non-deterministic due to deadlock or data-race. This paper
+presents a verification-specific library for Habanero intended to assist in
+discovering deadlock and data-race. The library has been extensively tested with
+Java Pathfinder (JPF) to give confidence in its correctness. This paper further presents an
+implementation of gradual permission regions in JPF to find deadlock and
+data-race in Habanero programs. JPF detects sharing, and the user annotates such
+sharing with permission regions or isolation. Verification only schedules on
+permission regions or isolation to elicit data-race and deadlock. The approach
+is sound with respect to proving programs free of such behavior. The results
+from an empirical study show significant reductions in verification cost, where
+cost is controlled with the size of the permission regions, at the risk of
+rejecting programs that are actually free of data-race and deadlock.

@@ -1,0 +1,232 @@
+\section{Habanero Java Implementation}
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+public static void main(final String[] argv) {
+  Stack stk = initStack();
+  
+  launchHabaneroApp(() -> {
+    finish(() -> {
+
+      async(() -> {
+        stk.push(5);
+      });
+
+      stk.peek();
+    });
+  });
+}
+\end{lstlisting}
+  \end{center}
+  \caption{An \hj\ program snippet using the \texttt{async} and \texttt{finish} statements and also showing how to start the Habanero environment.}
+  \label{fig:hj-async-finish}
+\end{figure}
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+public static double
+parArraySumFutures(final double[] X) {
+  final HjFuture<Double> sum1 = future(() -> {
+    // Return sum of lower half of array
+    double lowerSum = 0;
+    for (int i = 0; i < X.length/2; i++) {
+      lowerSum += 1 / X[i];}
+    return lowerSum;});
+  
+  final HjFuture<Double> sum2 = future(() -> {
+    // Return sum of upper half of array
+    double upperSum = 0;
+    for (int i = X.length/2; i < X.length; i++) {
+      upperSum += 1 / X[i];}
+	return upperSum;});
+		
+  // Combine sum1 and sum2
+  final double sum = sum1.get() + sum2.get();
+  return sum;
+}
+    \end{lstlisting}
+
+  \end{center}
+  \caption{\hj\ program snippet using the \texttt{future} statement to sum an array in parallel.}
+  \label{fig:hj-future}
+\end{figure}
+
+\begin{figure}
+  \begin{center}
+    \begin{lstlisting}
+ public static void main(String[] args) {
+   launchHabaneroApp(() -> {
+       finish(() -> {
+         final HjPhaser ph = newPhaser(SIG_WAIT);
+         HjPhaserPair mode(ph.inMode(SIG_WAIT));
+         
+         asyncPhased(mode, () -> {
+           char[] buffer = bufferTwo;
+           while (true) {
+             produce(buffer);
+             buffer = toggle(buffer);
+             next();
+           }                                
+         });
+
+         asyncPhased(mode, () ->  {
+           char[] buffer = bufferOne;
+           while (true) {
+             consume(buffer);
+             buffer = toggle(buffer);
+             next();
+           }
+         });
+       });
+   });
+ }
+    \end{lstlisting}
+
+  \end{center}
+  \caption{An \hj\ program snippet using a phaser to synchronize a producer and consumer.}
+  \label{fig:hj-phaser}
+\end{figure}
+
+\hjv\ is a Java library implementation of the Habanero model designed
+specifically for test and validation. It consists of roughly 1,300
+lines of code in 32 classes. Most of the classes address the
+programmer interface rather than the library
+internals. \figref{fig:hj-async-finish} is an example of the interface
+using Java 8 lambdas. The interface in this
+implementation is identical to other Java library implementations of
+the Habanero model \cite{hj-lib}, so this library is interchangeable
+with those libraries.
+
+The \texttt{launchHabaneroApp} call is the entry point into the
+library. Its parameter is a function that defines the Habanero program
+to run.  The \texttt{finish} and \texttt{async} calls have their usual
+meanings, and like the \texttt{launchHabaneroApp} call, they take
+functions as their parameter. In the example in \figref{fig:hj-async-finish}, two tasks are created:
+the main task at the launch, and a child task on the \texttt{async}
+call. Both tasks interact with a shared stack \texttt{stk}. The finish
+call does not complete until both tasks have completed.
+
+The implementation of the \texttt{async} and \texttt{finish}
+constructs uses Java threads and the ability to join those
+threads. Flattening the lambda function in the Java 8 interface to an anonymous inner class elucidates the
+structure of the library. That code for the \texttt{async} call in
+\figref{fig:hj-async-finish} using an anonymous inner-class is shown below:
+\begin{lstlisting}
+  async(new HjRunnable() {
+    public void run() {
+      X.push(5);
+    }
+  });
+\end{lstlisting}
+The parameter for the call is an instance of an \texttt{HjRunnable}
+object, and an \texttt{HjRunnable} is an extension to the standard Java
+thread. The \texttt{run} method for the thread is specialized in the
+anonymous inner-class. A programmer may use either syntax with \hjv: lambda or anonymous inner-class. 
+
+Staying at a high-level view of the implementation, tasks are threads
+with extra information to implement the Habanero model. To support the
+\texttt{finish}-construct, that thread includes the notion of a
+\emph{finish-scope}. A finish-scope holds references to any child
+thread created within a \texttt{finish}-construct, and a stack of
+finish-scopes tracks the nesting of \texttt{finish}-constructs within
+a task. When a task is created, it is added to the current running
+thread's active finish-scope. In this way, when a parent reaches the
+end of a \texttt{finish}-construct, it is able to join on all threads
+in the current finish-scope. After joining, the finish-scope is popped
+from the stack making the next outer finish-scope the active scope.
+
+The program in \figref{fig:hj-async-finish} has a somewhat
+obvious data-race that is unsafe. Data-race intended by the programmer
+is made safe, or protected, using the \texttt{isolated}-construct. For the referenced example program, the access to the \texttt{stk} object by the main task should be wrapped as follows:
+\begin{lstlisting}
+  isolated(() -> {
+    X.peek();
+  });
+\end{lstlisting}
+The access in the child task should be wrapped similarly. The two
+access are now purely sequential being run in mutual exclusion. The
+\texttt{isolated}-construct serializes atomic blocks of code relative
+to other isolated blocks.
+
+The implementation of the \texttt{isolated}-construct is
+trivial. Every task has access to a \texttt{RunTime} object created
+with the call to \texttt{launchHabaneroApp}. That object contains a
+single lock that is used to force \texttt{isolated} constructs to be
+sequential atomic statements. 
+
+\figref{fig:hj-future} is an example of a program using
+\texttt{future}-constructs. The program creates two future tasks to
+sum the lower and upper halves of an array in parallel. The parent
+task uses those future tasks, blocking until they complete, to combine
+the two sums into a final result.
+
+The implementation of the \texttt{future}-construct is again accomplished with
+a thread. The thread is similar to the thread for the
+\texttt{async}-construct only it has the added ability to
+suspend. Suspension is made possible using a condition on a Java
+lock. A caller to the \texttt{get} method blocks if the function
+passed into the \texttt{future}-construct has not yet completed. Once
+the function completes, the lock condition is signaled to free any threads blocked
+in the associated \texttt{get} method.
+
+The example in \figref{fig:hj-phaser} is more complex utilizing a
+phaser to coordinate a producer task and consumer task. Unlike the
+other constructs, the \texttt{asyncPhased} call takes two arguments:
+the mode for the single participating phaser (or a list of modes for each of the
+participating phasers), and a function defining the body of the
+task. The phaser generates the objects to indicate modes using the
+\texttt{inMode} method. There are 3 tasks in this example. The main
+task creates and registers itself with the phaser in the
+\texttt{SIG\_WAIT} mode. It then creates the producer and consumer
+tasks. When the main task reaches the end of the \texttt{finish} call,
+it automatically de-registers with the phaser and blocks for the
+producer and consumer tasks. Each call to \texttt{next()} interacts
+with every phaser passed in on the \texttt{asyncPhased} call, so all
+phasers associated with the task synchronize at the same program location.
+
+As before, the actual task interacting with the phaser is a Java
+thread. Similar to how \texttt{finish}-constructs are implemented, the
+extra information in the thread includes references to the phasers
+for the task. The call to \texttt{next} iterates two times over the
+phasers. The first iteration signals as appropriate, and the
+second iteration waits as appropriate (possibly blocking along the way). The phaser itself
+uses a Java lock with conditions to track threads that signal, threads
+that wait, to block waiting threads as needed, and to keep track of the actual phase.
+
+Other constructs in the Habanero programming model are implemented
+similarly. The direct mapping between tasks and threads in the library
+makes a conventional debugger more feasible for understanding
+computation as well as for debugging deadlock and data-race. The debugger is able
+to directly control the scheduling of concurrent threads on a single
+processor, and because the run-time is relatively small, it is
+possible to step through the run-time to understand its functionality
+if needed. As an observation, there is a significant overhead with
+creating threads for each task, the least of which impacts run-time
+performance. The intent is to debug with \hjv\ and use the performance
+oriented implementations for deployment.
+
+Aside from conventional debugging, the library enables direct model
+checking using \jpf. \jpf\ is an extensible implementation of a Java
+virtual machine written in Java
+\cite{Visser:2003:MCP:641151.641186}. Out of the box \jpf\ is able to
+model check Java programs for exceptions, assertion violations,
+deadlock, and data-race. Model checking brute-force explores all possible thread schedules and reports any violating schedule.  Although model checking is expensive, it
+is effective for reasoning over schedules to harden
+multi-threaded programs. The \hjv\ implementation has been
+extensively model checked by \jpf\ using a set of test input
+programs. The test input programs explore the different constructs in
+the Habanero model in an effort to elicit unexpected behavior. The
+model checking has been extremely helpful in finding bugs, removing
+deadlock, and eliminating data-race both in the library implementation
+itself and the input programs.
+
+Model checking does not scale to larger programs, as expected, and
+\jpf\ is no exception to that rule. A common approach to state
+explosion though is to reduce the number of schedules that need to be
+checked in model checking. This research leverages permission regions
+to define atomic blocks so that \jpf\ does not context switch threads
+at every access to shared memory. Rather, it is restricted to only
+schedule at the entry points of permission regions and
+\texttt{isolated}-constructs.

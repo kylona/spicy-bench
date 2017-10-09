@@ -1,0 +1,248 @@
+\begin{algorithm}
+\caption{Permission Region Informed Search}\label{algo:search}
+\begin{algorithmic}[1]
+  \Function{search}{$t$, $h$, $T$}
+  \State \textbf{loop:}\ ($h$, $T$) $:=$ \texttt{run}($t$, $h$, $T$)\label{loc:run}
+  \State
+  \State \textit{s} $:=$ \texttt{status}($t$, $T$)
+  \State \textit{data-race} = \textbf{false}
+  \If{\textit{s} $=$ PR\_ENTRY} \label{loc:PR}
+  \State ($h$, $T$, \textit{data-race}) $:=$ \texttt{acquire}($t$, $h$, $T$)\label{loc:acquire}
+  \ElsIf{\textit{s} $=$ PR\_EXIT}
+  \State ($h$, $T$) $:=$ \texttt{release}($t$, $h$, $T$)\label{loc:release}
+  \State \textbf{goto} loop
+  \EndIf
+  \State
+  \If{\textit{data-race}}\label{loc:datarace}
+  \State report data-race and exit
+  \EndIf
+  \State
+  \State $R = $ \texttt{runnable}($T$)
+  \If{$R = \emptyset$}
+  \If{blocked($T$) $\neq \emptyset$}\label{loc:deadlock}
+  \State report deadlock and exit
+  \Else
+  \State report any detected sharing and exit\label{loc:term}
+  \EndIf
+  \EndIf
+  \State
+  \If{$(h,T) \not\in S$}\Comment{$S$ is a global variable}\label{loc:visited}
+  \State $S = S \cup \{(h, T)\}$
+  \If{\textit{s} $=$ PR\_ENTRY $\vee$ \textit{s} $=$ ISOLATED}
+  \ForAll{$t_i \in R$}\label{loc:prsched}
+  \State \texttt{search}($t_i$, $h$, $T$)
+  \EndFor
+  \Else
+  \State $t_i$ := \texttt{random}($R$)\label{loc:rand}
+  \State \texttt{search}($t_i$, $h$, $T$)
+  \EndIf
+  \EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Procedure to Validate a Program}\label{algo:validate}
+\begin{algorithmic}[l]
+  \Procedure{validate}{$p$}
+  \State ($h$, $T$) $:=$ init($p$)
+  \State $R := $ runnable($T$)
+  \State $t$ $:=$ random($R$)
+  \State $S := \emptyset$
+  \State search($t$, $h$, $T$)
+  \While{\jpf\ reports sharing}
+  \State Add permissions regions or isolation for sharing
+  \State ($h$, $T$) $=$ init($p$)
+  \State $S := \emptyset$
+  \State search($t$, $h$, $T$)
+  \EndWhile
+  \EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\section{\jpfhj\ Search Algorithm}
+
+The default model checking algorithm in \jpf\ is too fine grained to
+scale beyond small programs even in the specialized
+\hjv\ implementation. The cause of the state explosion is \jpf's
+default scheduling algorithm that interleaves the execution of all
+threads at every thread event and on every access to shared state. For
+example \jpf\ schedules every thread that can run at every lock
+acquire, lock release, thread block, thread unblock, field access on
+shared objects, etc. to exhaustively enumerate the program schedule
+space. As the \hjv\ library relies on locks to synchronize its
+internal data structures, the fact that tasks are mapped directly to
+threads, and the fact that often there are several byte-codes that
+access an object when it is shared, the state explosion is severe.
+
+Permission regions create natural scheduling boundaries for \jpf\ that
+can be leveraged to mitigate state explosion while preserving the
+essential behaviors of the program that lead to deadlock or
+data-race. The intuition is that given a fixed program input, behavior
+is only affected by interactions between tasks on shared memory. As
+such, it is only necessary to preempt running threads at the
+entrance to permission regions and \texttt{isolated}-constructs. If a program has deadlock or
+data-race, such deadlock and data-race exists in one of the
+schedules that is explored from those preemption points.
+
+\algoref{algo:search} is the pseudo-code for the algorithm to explore all thread schedules
+created at entry to permission regions and \texttt{isolated}-constructs. The state of the Java virtual
+machine in the pseudo-code is simplified for clarity; it is
+represented by a heap, $h$, and a set of threads, $T$. The lowercase
+$t$ indicates a thread ID. \lineref{loc:run} updates the heap and pool
+of threads by running thread $t$ until it blocks, exits, reaches a
+permission region boundary (i.e., entry or exit), or reaches an \texttt{isolated}-construct.
+
+At the entry point of the permission region, \lineref{loc:acquire}
+updates the state machine for the acquired object in the heap and
+checks to see if the acquisition signals a data-race. At the exit
+point of the permission region, \lineref{loc:release} updates the
+state machine for the released object in the heap, and the algorithm
+restarts thread $t$ running anew at \lineref{loc:run}.
+
+Data-race is reported on
+\lineref{loc:datarace}. \lineref{loc:deadlock} reports deadlock. A
+deadlock state is indicated when there are no runnable threads (i.e.,
+$R = \emptyset$) and there exists threads that are blocked. A report
+for either data-race or deadlock includes a witness trace for
+validation and debugging. In the absence of deadlock or data-race, and
+when there are simply no more threads to run, \lineref{loc:term} terminates the search
+and reports any detected sharing that was not annotated by a permission region or covered by an \texttt{isolated}-construct.
+
+The set $S$ on \lineref{loc:visited} is a global set to track the
+visited states. \lineref{loc:prsched} does the actual scheduling by
+considering all possible runnable threads, including the currently
+running thread $t$, as a next thread to run. Note that in the current
+state, if the thread $t$ was preempted because it entered a permission
+region, then that state reflects the acquired permissions on that
+region. In the case that thread $t$ has been blocked,
+\lineref{loc:rand} chooses a random runnable thread to schedule next.
+
+\figref{fig:permission-violation-state}, shown previously, is the state space explored by
+the search algorithm for the simple example
+\figref{fig:hj-async-finish-pr}. Recall that the example has two tasks
+that access a shared stack: one reading and the other writing. The
+ovals in the diagram represent scheduling points, and as before, the
+blocks represent the state of the machine tracking permissions. As
+indicated by the pseudo-code, the algorithm only preempts running
+threads at the entrance to permission regions. In this example, it
+schedules the child task after the main task acquires read permissions
+to elicit the violation. By observation, if the permission regions in the annotated program in
+\figref{fig:hj-async-finish-pr} were replaced with \texttt{isolated}-constructs, then the explored state space would no longer include the violation, but it would include another schedule that interleaves the atomic blocks defined by the isolated regions.
+
+\algoref{algo:validate} is a procedural flow describing the process of
+program validation using the new search in
+\algoref{algo:search}. The process leverages \jpf's ability to track
+thread IDs of accesses to heap locations. When the \algoref{algo:search}
+finishes, \jpf\ reports any heap locations that have been accessed by
+more than one distinct thread outside a permission region or an
+\texttt{isolated}-construct with the input program location where that
+access occurred. Using this information, a user is able to
+appropriately annotate that program location, and then repeat the
+search. The process terminates when a deadlock or data-race is
+discovered, or no more sharing outside of permission regions or \texttt{isolated}-constructs exists.
+
+\begin{theorem}
+  The algorithm in \algoref{algo:search} is sound in that it only
+  accepts programs that are deadlock and data-race free for programs
+  that terminate and that have all sharing annotated with permission
+  regions or wrapped in \texttt{isolated}-constructs.
+\end{theorem}
+\begin{proof}
+The soundness proof reasons over a slightly modified version of the
+algorithm that is iterative and takes as an additional input
+a search tree which is similar to \figref{fig:permission-violation-state} that
+captures all possible sequences of release and acquire statements
+explored thus far. The algorithm traverses that input tree and at each
+leaf node tries to extend that node by one generation if
+possible. After the traversal, the algorithm returns the new tree. The
+algorithm is called in an iterative manner until the tree reaches a
+fix-point (which is guaranteed since the program terminates).
+
+Let $P(n)$ be the statement that
+this modified search algorithm returns all interesting sequences of acquire and release
+statements of length $n$ or less for a given input program, where interesting means containing a deadlock or data-race.
+
+\noindent\textbf{Basis Step:} the algorithm produces all interesting
+sequences length $n \leq 1$. This case is trivially established with
+the initial state of the program that represents a sequence of length
+$n \leq 1$ and cannot contain a deadlock or data-race since the program has not yet
+done anything. As such, it includes all interesting sequences.
+
+\noindent\textbf{Inductive Step:} assume the modified algorithm has
+correctly generated a tree representing all interesting sequences of $n$ or less;
+it is necessary to show that from that tree it is able to generate all
+interesting sequences of length $n+1$ or less.  There are three possible outcomes at any
+leaf of the input tree:
+\begin{compactenum}
+\item the leaf cannot be extended because it is already an interesting sequence having a data-race or deadlock;
+\item the leaf cannot be extended because there are no more runnable threads, in which case it is not interesting; or
+\item the leaf is able to be extended with one or more immediate descendants.
+\end{compactenum}
+The first two cases are directly covered by lines 13 through 24 of the
+algorithm; there is no way to have any descendants in those
+situations and the sequences are already classified as interesting or not.
+
+For the third case, first consider line 28 of the algorithm that creates
+the next generation in the tree for permission regions and isolated
+blocks. Every runnable thread is scheduled and each of those threads
+must reach an immediate successor which may be a deadlock or data-race making an interesting sequence, a preemption, a
+block condition, or exit by the constraint that the input program must
+terminate. As such, any $n+1$ length sequence that exists, is
+generated.
+
+Further, any interesting $n+1$ sequence is generated as well. To see
+this outcome, it is important to understand that the order of
+acquisition relative to read or write does not matter in detecting a
+violation. The state machine in \figref{fig:state-machine} is not
+affected by acquisition order; it is only dependent on what read or write
+permissions are held at the time of acquisition. As the algorithm always first acquires a
+permission and then schedules other threads, it generates all the
+interesting $n+1$ sequences if any exist that are interesting due to data-race. If data-race does not exist, then deadlock is detected as usual.
+
+To complete the inductive step, line 32 must be considered, which covers
+a blocked or exited thread. The input program has all sharing
+annotated or isolated by constraint, meaning that any non-determinism
+due to scheduling is covered already by line 28 so all reachable
+program paths are considered. If an interesting sequence exists
+because of deadlock, then it is either found in the $n+1$ step, by
+having selected the correct thread, or in a later step when the
+correct thread is chosen. If the deadlock depends on a particular sequence of
+thread executions, then those sequences are enumerated by line 28. As
+such, the deadlock is either deterministic (i.e., independent of the
+schedule) or non-deterministic (i.e., a product of data-race on some
+shared object). In the former, the choice of thread does not matter,
+and in the latter, line 28 enumerates all possible orders over
+isolated blocks and permission region blocks that do not data-race.
+\end{proof}
+
+\subsection{JPF Implementation}
+The \jpf\ implementation of \algoref{algo:search} exploits another aspect
+of the extensible nature of the tool by providing a new
+\emph{scheduling-factory}.  A scheduling-factory is activated on
+preemption, when a thread is no longer able to run, or if there is
+input non-determinism.  \jpf\ uses scheduling-factories to decide what
+threads are scheduled by having the scheduling factory insert
+\emph{choice-generators} into the state search. The choice-generator
+enumerates the available choices, and the search iterates over those
+choices starting a new search for each choice.
+
+The default scheduling-factory of \jpf\ is replaced with a new factory that
+does not insert any choices on thread actions, locks, synchronization,
+or shared access to objects. Anything related to concurrency is turned
+off by the new scheduling-factory except for forced context switches
+such as a thread exiting or a thread blocking. In those cases, the new
+scheduling-factory inserts a choice generator with a single choice that
+represents a random thread that is runnable.
+
+To insert the preemption points for permission regions and
+\texttt{isolated}-constructs, the byte-code listener from the
+implementation of permission regions is extended to also listen for
+the \texttt{INVOKE}-bytecode calls to \texttt{isolated}. At the
+entrance to permission regions, the permission regions' state-machine for the
+object is updated as before, but after the update, a choice-generator
+is inserted into the search that includes choices for all runnable
+threads. Similarly, a choice-generator is inserted at the
+\texttt{isolated} call. The entire implementation is only a few
+hundred lines of code but has a significantly reduces the verification
+cost.

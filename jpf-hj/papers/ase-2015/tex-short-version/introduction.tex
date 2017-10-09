@@ -1,0 +1,68 @@
+\section{Introduction}
+Despite the explosion in multi-core hardware for general purpose
+computing, writing programs to take advantage of the available
+processing power is often a task reserved for expert
+developers. The first programs from the uninitiated often have
+more in common with sequential execution than parallel performance due
+to excessive synchronization, or worse, those programs are
+fraught with concurrency errors due to an absence of needed
+synchronization.
+
+The Habanero extreme scale software research project intends to bring
+multi-core programming to the masses through languages and frameworks
+for non-experts. Habanero Java itself is a task-parallel programming model
+built around lightweight asynchronous tasks and data transfers \cite{Cave:2011:HNA:2093157.2093165}. The
+programmer in the Habanero framework focuses on the high-level task
+constructs using simple annotations and
+delegates to the Habanero run-time the burden of how to correctly and
+efficiently implement and synchronize those constructs.
+
+The Habanero programming model offers correctness guarantees by defining safe subsets of the
+language that preserve properties over concurrent interactions such as
+determinism, serialization, and deadlock freedom; however many of
+these properties rely on the absence of data races. Regardless of
+using a safe-subset of the language, there is no easy way to determine
+when and if a program is free of data races. As such, the problem of verification
+reduces in practice to \emph{printf}-debugging, inefficient code inspection, and
+run-time failures.
+
+Permission regions are program annotations that announce how a task
+interacts with specific shared objects (i.e., reading or writing), and over what
+region of code that interaction takes place \cite{Westbrook:2011:PRR:2341616.2341627}. During execution,
+auxiliary data structures track accesses at the region on the indicated
+variables and signal an error on any accesses that conflict with the permission annotations. Permission
+regions have been shown effective in dynamically detecting data races
+at run-time, while requiring only a small number of programmer annotations, for a Java implementation of Habanero (\hj)
+\cite{Westbrook:2011:PRR:2341616.2341627,
+  Westbrook:2012:PPR:2367163.2367201}.
+
+This paper presents a sound model checking algorithm to prove a
+program, for a given input, free of data races, deadlocks, failed assertions, and exceptions based on
+permission regions.  The algorithm treats permission regions as atomic
+blocks of read/write operations on shared memory to reduce the number
+of schedules that must be considered in the proof. The algorithm also enumerates all
+outcomes that arise from non-determinism in sequencing isolated atomic
+blocks (i.e., non-determinism that is intended by the programmer) to
+verify user defined assertions and exceptions. This paper includes a proof that the
+algorithm is sound for any Habanero program with a fixed input. As
+such, the cost of model checking a Habanero program is controlled with
+the size and number of the permission regions, at the risk of
+rejecting some programs that are actually free of data races.
+
+The effectiveness of the algorithm is explored using a new
+implementation of \hj\ in the form of a verification library (\hjv) and the Java
+Pathfinder model checker (\jpf). \hjv\ is intended for debugging,
+testing, and verification so it trades performance for simplicity and
+correctness by using Java threads for each task, and using global
+locks with conditions for features of Habanero that require mutual
+exclusion and complex synchronization. The library supports all of the constructs in the Habanero model including phasers. The
+implementation of permission regions with the new model checking
+algorithm is in an extension to \jpf\ named
+\jpfhj. An empirical study over
+several benchmarks comparing the cost of verification between
+\jpf\ and \jpfhj\ both using \hjv\ show a significant reduction in the
+cost when using \jpfhj\ that is dependent on the size and number of
+the permission regions with their interactions. The implementations of both \hjv\ and \jpfhj\ are available 
+at \texttt{http://javapathfinder.org/jpf-hj/}
+
+

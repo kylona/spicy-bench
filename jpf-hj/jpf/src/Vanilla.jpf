@@ -1,0 +1,7 @@
+target = benchmarks.examples.ClumpedAcess
+classpath = /Users/bipsy/NetBeansProjects/jpf-hj/build/classes;
+classpath+=/Users/bipsy/NetBeansProjects/jpf-hj/hj-lib-byu.jar;
+native_classpath = /Users/bipsy/NetBeansProjects/jpf-hj/build/classes;
+test_classpath =/Users/bipsy/NetbeansProjects/jpf-hj/build/test/classes;
+listener+=gov.nasa.jpf.listener.PreciseRaceDetector;
+cg.threads.break_arrays=true

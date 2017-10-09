@@ -1,0 +1,62 @@
+\section{Related Work}
+There is an existing extension for JPF for the X10 Language
+\cite{conf:icst:GligoricMM12,x10}. Habanero is closely related to X10 in many of its constructs. In the extension, JPF operates directly on the actual
+X10 runtime system. To accomplish the integration, JPF is modified, the X10
+runtime is modified, the X10 compiler is extended, and a new static
+analysis is presented to help control state explosion. The extension
+represents a significant effort that affects all aspects of the X10
+framework to enable JPF verification. 
+
+\begin{comment}
+The approach in this paper avoids such an
+invasive approach by creating a new HJ runtime just for
+verification. The X10 extension  does leverage the low overhead of threads
+in JPF to create a thread for each task. The VR runtime system uses
+the same approach.
+\end{comment}
+
+There is a formal model for the Chapel language with an accompanying
+model checker that employs symbolic execution \cite{chapel}. The
+formal model is an intermediate representation (IR) suitable for
+concurrent constructs. The approach compiles Chapel programs into the
+IR and the model checker then verifies the IR for deadlock and
+data-race freedom. Creating a compiler and model checker is a
+significant undertaking beyond the approach in this paper. More
+critically, the verification tool models the runtime including the
+number of available worker threads to service tasks; thus, the
+verification results are dependent on the number of worker threads in
+the configuration rather than the semantics of the Chapel language. 
+
+\begin{comment}
+In this paper, correctness is a property of the HJ language semantics
+with the given HJ program and not any aspect of the runtime
+implementation. Verifying the HJ runtime system implements HJ semantics
+is a verification problem separate from verifying that an HJ program
+is data-race free.
+\end{comment}
+
+Another approach to verifying concurrent languages is to leverage the
+production level language runtime system itself
+\cite{Vakkalanka:2008:DVM:1427782.1427794,Vo:2009:FVP:1594835.1504214,5644885,6113841}. These
+approaches typically require instrumentation of the source program,
+wrappers to intercept calls into the runtime, and a way to control
+runtime behavior. Although they are typically able to generate states
+faster than JPF, verification results are dependent on the employed
+runtime correctly implementing the language semantics. 
+
+\begin{comment}
+Such a
+dependence can be avoided, as in this work, by creating a
+non-performance oriented runtime that is simple enough to manually
+verify for correctness \cite{Morse:2012:MAM:2189257.2189279}. It is
+much easier to access the state and direct behavior, as a model
+checker, in such systems.
+\end{comment}
+
+Recent work proves the problem of state-reachability to be decidable
+and EXPSPACE hard for finite-valued programs in languages such as
+X10/Habanero \cite{Bouajjani:2012:ARP:2103621.2103681}. The result is
+limited to a subset of the powerful task constructs in such languages
+and justifies a model checking effort. The computability and
+complexity of the more advanced constructs such as phasers is yet to
+be determined.

@@ -1,0 +1,63 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Comparison to other languages}
+
+Our analysis operates on a language that is similar to Habanero Java,
+which is itself based on X10. Unlike our language, Habanero Java
+distinguishes between futures and asynchronous procedures. The effect
+is that every wait on a region waits for everything in that region. On
+the other hand, Habanero Java allows asynchronous procedures' return
+value handlers to have side effects, which can create data races.
+
+Cilk has the same ability to post asynchronous threads and wait on all
+of them to terminate with the same nondeterminism in the order that
+threads join. In Cilk, return value handlers are called inlets and can
+combine with nondeterministic thread joining order to create data
+races. Cilk++ and Cilk Plus lack inlets.
+
+Multilisp also includes futures. Its pcall mechanism is equivalent to
+posting the evaluation of each argument and then waiting for them to
+all return.
+
+It is possible to identify data races in side-effecting return value
+handlers by enumerating all possible orderings. However, the number of
+orderings is the factorial of the number of return value handlers.
+
+One alternative approach to this problem is the replacement that
+Cilk++ and Cilk Plus use; instead of allowing return value handlers at
+all, they use associative operations to combine results from their
+child tasks. Enforcing such a restriction on return value handlers
+instead of eliminating them entirely allows programmers to handle
+most tasks naturally with similarly strong results.
+
+Reactive systems, such as ReactJS, keep a collection of tasks to
+execute. At the end of the main function, the eventloop keyword is
+reached and parallel tasks execute atomically in a nondeterministic
+order. Each task may post additional tasks to the work queue. Our
+language could model reactive systems directly with a nondeterministic
+\post\ statement. Because of the structured nature of the parallelism
+in such languages, it is possible to create a computation graph with
+the main function preceding each task and with each task running
+without order with respect to its peers. Tasks that generate others
+(parents) must execute before their children do. However, many
+reactive systems are designed to run indefinitely rather than to
+terminate, which complicates the application of the computation graph
+model.
+
+\subsection{Side effects in return value handlers}
+\label{sec:side-effects-rvhs}
+
+Return value handlers execute in the context of the waiting thread.
+When a thread waits on a region with multiple tasks, the order in
+which they join is nondeterministic. This creates a situation where
+nondeterminism occurs within a single thread. As such, it is possible
+to introduce data races on thread-local variables if the return value
+handlers can create side effects.
+
+Naturally, it is possible to expand the definitions of \rv\ and \wv\
+so that they consider all variables and not just shared variables. In
+order to distinguish between identically-named variables in different
+tasks, \rv\ and \wv\ would need to take the task ID into account. This
+extension would make the language and analysis more general but could
+make the analysis much slower.

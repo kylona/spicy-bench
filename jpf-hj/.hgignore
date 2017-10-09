@@ -1,0 +1,27 @@
+<<<<<<< local
+syntax: glob
+*.bak
+*.ps
+*.log
+**/.DS_Store
+*.txt
+*.swp
+*.aux
+*.bbl
+*.blg
+*.d
+*.out
+dirt
+*~
+*.dot
+build
+nbproject/private
+dist
+*.orig
+*.dvi
+~*
+ence
+Grapher/WebParser/server/input_classes
+*.lof
+*.lot
+*.toc

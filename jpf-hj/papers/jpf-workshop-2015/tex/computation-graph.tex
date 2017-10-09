@@ -1,0 +1,21 @@
+\section{Computation graphs}
+The execution of a task-parallel program can be represented in the form of a computation graph. A computation graph of a program is a directed acyclic graph (DAG) structure that represents the sequence of execution of tasks in the parallel program. A computation graph can be represented as G = $\langle$V, E$\rangle$ where
+\begin{itemize}
+\item V is a set of nodes such that  each node represents a step consisting of an arbitrary sequential computation and
+\item E is a set of directed edges that represent ordering constraints. The various types of edges in a computation graph are:
+%\begin{enumerate}
+\begin{itemize}
+ \item \textbf{Spawn edges:} They connect steps in parent tasks to steps in child async tasks. When an async is created, a spawn edge is inserted between the step that ends with the async in the parent task and the step that starts the async body in the new child task.
+\item \textbf{Join edges:} They connect steps in descendant tasks to steps in the tasks containing their Immediately Enclosing Finish (IEF) instances. When an async terminates, a join edge is inserted from the last step in the async to the step that follows the IEF operation in the task containing the IEF operation.
+\item \textbf{Continue edges:} They capture sequencing of steps within a task - all steps within the same task are connected by a chain of continue edges.
+\item \textbf{Serialization edges:} They connect two isolated nodes S and S' where nodes S and S' are interfering. Two isolated nodes do not interfere only if they have a total ordering in the CG.
+% \end{enumerate} 
+\end{itemize}
+\end{itemize}
+
+Computation graphs provide a visual feedback of the execution of HJ programs. Computation graphs can be used not just to find concurrency bugs in parallel  programs but also to optimize the code. In this work, we concentrate only on data race detection in HJ programs with the help of computation graphs.
+
+\textbf{Implementation Details:}
+The CG builder is implemented using JPF. It uses the VR-lib, specifically designed to run HJ programs using JPF. The HJ program is compiled using the VR and the class files are analyzed using JPF. JPF creates thread choice generators to systematically explore the state-space of the programs. We choose one set of thread interleavings to build a CG for that execution. JPF tracks references to all the variables in the program. It also computes the aliasing information during runtime. These memory references are stored in the CG. The CGs are stored in a DAG data structure. 
+
+Data races can be detected in a CG when two parallel nodes in the graph access a memory location and at least one of the operations tries to modify it. A topological traversal of the graph gives the order of execution of the various tasks. All the nodes that occur between a pair of Finish-start and Finish-end nodes execute in parallel. The global memory accesses by these processes is checked and if conflicting memory-accesses are observed, then a data race is reported.

@@ -1,0 +1,34 @@
+digraph G {
+  1 [ label="SuspendableActivity@17f" ];
+  2 [ label="FinishScope@1c2" ];
+  3 [ label="FinishScope@1c2-end" ];
+  4 [ label="FinishScope@1cb" ];
+  5 [ label="SuspendableActivity@17f" ];
+  6 [ label="Activity@1da" ];
+  7 [ label="SuspendableActivity@17f" ];
+  8 [ label="Activity@1ec" ];
+  9 [ label="SuspendableActivity@17f" ];
+  10 [ label="FinishScope@1cb-end" ];
+  11 [ label="SuspendableActivity@17f" ];
+  12 [ label="Isolated" ];
+  13 [ label="Activity@1ec" ];
+  14 [ label="Isolated" ];
+  15 [ label="Activity@1da" ];
+  2 -> 1 [ color="black" ];
+  1 -> 4 [ color="black" ];
+  4 -> 5 [ color="black" ];
+  5 -> 6 [ color="green" ];
+  5 -> 7 [ color="black" ];
+  7 -> 8 [ color="green" ];
+  7 -> 9 [ color="black" ];
+  9 -> 10 [ color="black" ];
+  10 -> 11 [ color="black" ];
+  8 -> 12 [ color="black" ];
+  12 -> 13 [ color="black" ];
+  13 -> 10 [ color="red" ];
+  6 -> 14 [ color="black" ];
+  12 -> 14 [ color="pink" ];
+  14 -> 15 [ color="black" ];
+  15 -> 10 [ color="red" ];
+  11 -> 3 [ color="black" ];
+}

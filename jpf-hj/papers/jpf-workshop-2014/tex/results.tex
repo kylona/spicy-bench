@@ -1,0 +1,38 @@
+\section{Results}
+For comparison between JPF's PreciseRaceDetector and permission regions we
+collected a series of measurements on benchmarks that perform work in parallel.
+These benchmarks utilize a wide variety of HJ features, including: async,
+isolated, finish, and phasers.  Increasing the complexity level of
+synchronization (finish < isolated < phasers) increased both the state-space
+% NV: When you write your next paper, you might want to use the cleveref
+% package for doing references so that you don't have to type figref, Table, etc.
+and the running time in a significant way (as we descend the rows in Table
+% Does using GPRs reduce the state space, or does your PoR implementation in VR-lib
+% (which leverages GPRs) decrease the state space?
+\ref{tab:perf} we increase synchronization complexity). However, the use of GPRs
+reduces the state-space by as little as one order of magnitude and as much as
+two orders of magnitude. The reduction in overhead can likely be attributed to
+the lack of shared-access choice generators.
+
+\begin{table}
+\caption{Benchmarks of HJ programs: Permission Regions vs. PreciseRaceDetector}
+\begin{center}
+\small
+\begin{tabular}{|c|c||c|c|c|c|}
+\hline
+\multicolumn{2}{|c|}{} & \multicolumn{2}{|c|}{GPR} & \multicolumn{2}{|c|}{PRD} \\
+\hline
+Benchmark & Tasks & States & Time & States & Time \\
+\hline
+ConcReaders & 2 & 168 & 00:00:00 & 1,977 & 00:00:01 \\
+\hline
+PermStackFin & 2 & 248 & 00:00:00 & 3,682 & 00:00:02 \\
+\hline
+PermStackIso & 2 & 1,751 & 00:00:02 & 64,879 & 00:00:18 \\
+\hline
+PhaserTest & 2 & 29,480 & 00:00:16 & 2,240,530 & 00:15:37 \\
+\hline
+\end{tabular}
+\end{center}
+\label{tab:perf}
+\end{table}

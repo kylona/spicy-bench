@@ -1,0 +1,13 @@
+How to run a local server that calls JPF-HJ and Displays the Computation Graph
+-------------------------------------------------------------------------------
+- Download and install MAMP (https://www.mamp.info/en/downloads/) to run a local server
+- Launch the MAMP gui once installed
+- Open MAMP preferences, click on the 'Web Server' tab and set the Document Root to be
+  <path>/jpf-hj/Grapher
+  Click 'OK' to close preferences
+- Click 'Start Servers' in MAMP -- Button should turn Green
+- Point browser to: http://localhost:8888
+
+- Test with <path>/jpf-hj/Grapher/WebParser/server/car.jar
+
+NOTE: the sound input window does not work with HJ programs currently (path problem to finding the HJ library). 

@@ -1,0 +1,44 @@
+\section{Empirical Study}
+\begin{comment}
+Briefly present (1 column) JPFs current strategy for managing
+sharring. Present tables of results showing JPF performance with and
+without permission regions. Include a table showing all the
+benchmarks. Indicate the number of iterations and the number of
+annotations.
+\end{comment}
+
+Currently, JPF inserts scheduling points dynamically as it
+discovers sharing. JPF relies upon the placement of these points to
+correctly detect race conditions. When a shared variable is discovered, JPF will
+insert a scheduling point at the shared variable's location. This scheduling
+point will cause JPF to interleave the execution of all runnable threads. If
+JPF detects simultaneous read/write access of the shared variable it will notify
+the user of a data race. However, if one of the conflicting threads is no longer
+runnable (terminated, blocked, etc) then JPF will not report the error. Thus, in
+some cases JPF's race detection strategy is incomplete. 
+
+The use of gradual permission regions in verification of HJ programs decreases
+the running time by reducing the number of scheduling points that JPF needs to
+explore. Table \ref{table:1} compares the running time of example
+programs from the Computer Science 322 class taught at Rice University. The
+comparison is made between stand-alone JPF, JPF with race detection enable
+through PreciseRaceDetector, and HJ-V with the program annotated with permission
+regions.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table}[h]
+\centering
+\caption{Benchmark Comparison of COMP 322 Programs}
+\label{table:1}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\multirow{2}{*}{Name} & JPF    & JPF(PRD)   & HJ-V(GPR)   \\ \cline{2-4} 
+                      & \multicolumn{3}{c|}{Time (mm:ss)} \\ \hline
+Reciprocal Array Sum  & > (30:00) & > (30:00)  &             \\ \hline
+For All With Iterable & > (30:00) & > (30:00)  & (01:06)     \\ \hline
+Pipeline With Futures &           &            & (00:07) \\ \hline
+Integer Counter Isolated &        &            & (00:47) \\ \hline
+\end{tabular}
+\end{table}
+

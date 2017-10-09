@@ -1,0 +1,80 @@
+\section{Results}
+The HJ Distribution provides 10 small example files that make use of basic HJ constructs. A few of these files have been chosen to illustrate the performance of VR with and without scheduling optimizations. \tableref{tab:char} characterizes the examples. Random initialization of arrays was removed and HJ barriers were replaced with equivalent async/finish statements on a few of the examples. Keywords are represented as async (A), finish (Fn), future (Ft), and isolated (I). Lines of Code (LOC) are also shown in the figure.
+
+Test 1 and Test 2 are modified version of example 1, the difference of the two tests being the size of the array. The test is placing async within a for loop: summing an entry in two different arrays, and storing them into a third array. Test 3 splits an array in half. One future is charged with summing the first half of an array. The second future does the second half. Finally, the two answers are summed together resulting in the total of the array. Test 4 is similar to 3, but the answers are put into a static variable, and the futures are used to make sure the static variables are "safe" to read. Test 5 sums an array, but places the for loop within finish. Each entry is given an async isolated statement to sum the array. Test 6 focuses on asyncs within multiple for loops. All tests were limited to an hour of execution time. Tests that exceeded this limit were considered a "time out".
+
+\begin{table}
+\caption{Characterization of Examples.}
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+Test & File & Keywords & LOC & Tasks \\
+\hline
+\hline
+Test 1 & Example 1 & A & 18 & 12 \\
+Test 2 & Example 1 & A & 18 & 102\\
+Test 3 & Example 2 & A,Ft & 28 & 3\\
+Test 4 & Example 3 & A,Ft & 27 & 3\\
+Test 5 & Example 4 & A,Fn,I & 19 & 11\\
+Test 6 & Example 5 & A & 15 & 45\\
+\hline
+\end{tabular} 
+\end{center}
+\label{tab:char}
+\end{table}
+
+\begin{table}
+\caption{Scheduler performance in JPF.}
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+Example & \multicolumn{2}{|c|}{Optimized} & \multicolumn{2}{|c|}{Default} \\
+\hline
+  & States & Time & States & Time \\
+\hline
+Test 1 & 25 & 00:00:00 & N/A & Time Out \\
+Test 2 & 205 & 00:00:01 & N/A & Time Out \\
+Test 3 & 205 & 00:00:01 & 6133 & 00:00:07 \\
+Test 4 & 718 & 00:00:01 & 9742 & 00:00:07 \\
+Test 5 & 1254396 & 00:07:59 & N/A & Time Out \\
+Test 6 & 93 & 00:00:01 & N/A & Time Out \\
+\hline
+\end{tabular}
+\end{center}
+\label{tab:perf}
+\end{table}
+
+The performance of VR with and without the specialized scheduler is shown in \tableref{tab:perf}. This data shows an average ten-fold reduction in state-space between the scheduled and unscheduled runtimes. In our scheduled runtime we restrict JPF to capture states on three occasions: 1) when threads are created 2) when JPF detects a shared-field access and 3) when JPF detects a shared-array access. The level of fine-tuning is relatively easy with VR compared with modern runtime libraries like HJ.  
+
+
+\begin{comment}
+The \texttt{DataRaceTest} example shown in \figref{fig:dataracetest} illustrates the challenge of attempting to use JPF "out of the box" to check even simple programs. \texttt{DataRaceTest} has an obvious data race between two tasks on line 9 and line 13: concurrent access to a shared array. VR quickly detects this race. However, when the HJ runtime is used within JPF no error is reported. This is the case even when 3 threads are given to the runtime (1:1 ratio of threads to tasks). It is unclear why JPF fails to detect a race in this example and determining the answer to this question would likely require an intimate knowledge of the HJ runtime.
+
+%% Prefer http://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings
+\begin{figure}
+\begin{center}
+{\small
+\begin{verbatim}
+1: public class DataRaceTest {
+2:     public static void main(String [] args) {
+3:         int size = 16;
+4:         int [] array = new int [size];
+5:         for (int x=0; x<size; x++)
+6:             array[x]=0;
+7:         async {
+8:             for (int x=0; x<size; x++)
+9:                 assert array[x]==0;
+10:       }
+11:        async {
+12:            for (int x=0; x<size; x++)
+13:                array[x]=x+1;
+14:        }
+15:    }
+16:}
+\end{verbatim}
+}
+\end{center}
+\caption{A simple case where JPF fails to verify HJ programs using the HJ runtime library.}
+\label{fig:dataracetest}
+\end{figure}
+\end{comment}

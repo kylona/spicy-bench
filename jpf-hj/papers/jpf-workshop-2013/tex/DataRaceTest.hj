@@ -1,0 +1,18 @@
+public class DataRaceTest {
+	public static void main(String [] args) {
+		int size = 16;
+		int [] array = new int [size];
+		for (int x=0; x<size; x++)
+			array[x]=0;
+		
+		async {
+			for (int x=0; x<size; x++)
+				assert array[x]==0;
+		}
+		
+		async {
+			for (int x=0; x<size; x++)
+				array[x]=x+1;
+		}
+	}
+}

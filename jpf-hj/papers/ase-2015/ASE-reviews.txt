@@ -1,0 +1,69 @@
+TODO: Can the approach be used on more realistic
+
+TODO: Does the object-orientedness of Java pose any issues for the approach? I
+would guess not, but it would be helpful to address that explicitly. It
+seems that in terms of the contribution of the paper, Java is just a syntax
+that makes it possible to do tests using JPF.
+
+Section 2:
+
+
+Section 3:
+
+
+Section 4:
+
+
+Section 4a:
+
+
+Algorithm 1:
+
+
+TODO: It would be nice to know what the possible status values are. When one
+gets to line 28, one can see that there is also ISOLATED, but in looking at
+the initial if, one has the impression that the only values are PR_ENTRY
+and PR_EXIT.
+
+
+Section 5a:
+
+
+Section 5:
+
+Section 7:
+
+Section 8:
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Second reviewer's review:
+
+TODO: First, although Table 1 is quite impressive, it is hard to tell a) how
+representative these test cases are of actual Habanero programs, and b) how
+well the results would scale to realistically sized programs. The largest test
+case is only 83 lines of code, but this seems to represent a very simple
+program, with many tasks but only 8 states. A smaller program, of 54 lines, has
+a comparatively large number of states (over 1 million) and takes more than 5
+minutes to check. Exploring how these cases would map to actual realistic uses
+of Habanero, and how these numbers (especially in cases like the latter, which
+already has a significant number of states) would scale, would give a better
+idea of what one could expect in realistic programs.
+
+TODO: Second, there are a couple of "anomalies" in the table where
+PreciseRaceDetector does much better than Permission Regions. Why is that? It
+would be good to explore this further, especially given there are very few
+tasks but a large number of states.
+
+TODO: Although one of the stated goals is to make program debugging easier, this
+isn't evaluated anywhere in the paper. I could easily imagine that this is true
+since the library is much simpler. It may be that this doesn't fit in well with
+the rest of the paper, but it would be a good idea to have some usability study
+backing this up.
+
+TODO: p6: was Figure 8 scaled? it's a bit hard on the eyes in black and white, I
+think because of the white text on grey background and the dotted backgrounds
+for some of the ovals
+
+TODO: References: make sure that case is consistent throughout, so you shouldn't have
+"java", "22Nd", "cilk", etc

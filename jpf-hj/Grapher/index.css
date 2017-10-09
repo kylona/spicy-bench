@@ -1,0 +1,79 @@
+#page {
+    width: 75%;
+    position: fixed;
+    left: 15%;
+    background-color: #deeff5;
+    height: 90%;
+    box-shadow: 0px 1px 5px #888888;
+    padding: 30px;
+    overflow: auto;
+    font:16px/16px Georgia, Garamond, Serif;
+}
+
+.padding-top-10{
+  padding-top:20px;
+}
+
+.padding-top-25{
+  padding-top: 40px;
+}
+
+.standard-font{
+  font:16px/16px Georgia, Garamond, Serif;
+}
+
+h2{
+  text-align: center;
+  padding-bottom: 25px;
+   border-width: 2px;
+   border-bottom-width:2px;
+   border-bottom-color:black;
+   border-bottom-style: solid;
+   width: 100%;
+}
+
+#uploadedJarFile{
+  height: auto;
+  display: 
+}
+
+
+h3{
+  width:100%;
+}
+
+#graph-container {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+}
+
+#get-file{
+  height: 70%;
+}
+
+#titlearea {
+    width: 102.5%;
+    height: 10%;
+    position: relative;
+    background-color: cornflowerblue;
+    margin: -10px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+.padding-10 {
+    padding: 10px;
+}
+
+#input-text-area {
+    display: none;
+    overflow: auto;
+    position: relative;
+    padding: 5px;
+    height: 60%;
+    margin: 10px;
+    width: 75%;
+}

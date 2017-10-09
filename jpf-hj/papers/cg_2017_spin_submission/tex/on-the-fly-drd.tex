@@ -1,0 +1,86 @@
+\section{A Deterministic Fragment of the Model}
+\label{sec:otf-drd}
+This section defines a deterministic fragment of the task parallel language such that a computation graph from a single execution is sufficient to prove or disprove data-race. In other words, data-race detection using \algoref{algo:drd} on the computation graph from an single execution of a program in this fragment is both sound and complete meaning that it neither under-approximates (sound) nor over-approximates (complete) the set of data-race free programs. The fragment is defined by the following language restrictions:
+\begin{compactitem}
+\item Passing ownership of tasks from a parent to a child task is not allowed. 
+\item Tasks whose return value handlers side effect can be posted in single-task regions only (i.e., regions that contain only a single task). A side-effect of a return value handler can be a change in the state of either the local variable or a region variable. 
+\item All the tasks are joined to the main task at the end of the program execution. This is ensured by having the initial program configuration as \tuple{$T[\textbf{post} $ r_0 \leftarrow p_0~e~\varepsilon~\vec{r}~\vec{r}~\lambda$v.v; $\textbf{await}~r_0; \textbf{await}~r_1; \ldots], m_0} on some procedure $p_0$, $\vec{r}$ is the region sequence containing all regions and $\forall r \in \mathtt{Regs},$ $m_0(r) = \emptyset$
+\end{compactitem}
+\figref{fig:hj-async-fin} is an example, with a data-race, from the equivalent fragment in the Habanero model to show the relationship to real-world programming languages. 
+
+In Habanero, the \textbf{async} construct creates a new asynchronous task that runs in parallel with the parent task. The \textbf{finish} construct is used to collectively synchronize children tasks with their parent task. The \textbf{finish} $s$ statement causes the parent task to execute $s$ and then wait until all tasks created inside the finish-block have completed. The future construct lets tasks return values to other tasks with the operation \texttt{f.get()} that blocks until the task associated with $f$ completes. 
+
+\begin{figure}
+  \begin{center}
+\begin{lstlisting}
+public class Example1{
+   static int x = 0;
+   public static void main(String[] args) {
+      finish {
+         async { //Task1
+           x = x + 1;
+         }
+         finish{
+            async { //Task2
+              x = x + 2;
+            }
+         }
+      }
+      future f = async { //Task3
+                    return 5;
+                 }
+      x = f.get();
+   }
+}
+\end{lstlisting}
+  \end{center}
+%  \vspace{-2em}
+  \caption{An example of a Habanero Java Program.}
+%   \vspace{-2em}
+  \label{fig:hj-async-fin}
+\end{figure}
+
+\begin{figure}
+  \begin{center}
+\begin{lstlisting}[mathescape=true]
+  proc $main$ (var n : int)
+  	$\texttt{l}(r_1) := 0;$
+	post $r_1 \leftarrow p_1~0~\varepsilon~\vec{r}~\vec{r}~\lambda n.n$;
+	post $r_2 \leftarrow p_2~0~\varepsilon~\vec{r}~\vec{r}~\lambda n.n$;
+	await $r_2$;
+	await $r_1$;
+	post $r_3 \leftarrow p_3~0~\varepsilon~\vec{r}~\vec{r}~\lambda n. \texttt{l}(r_1) := 5$;
+	ewait $r_3$;	
+  proc $p_1$ (var n : int)
+  	$\texttt{l}(r_1) := \texttt{l}(r_1) + 1$
+  proc $p_2$ (var n : int)
+  	$\texttt{l}(r_1) := \texttt{l}(r_1) + 2$
+  proc $p_3$ (var n : int)
+  	return 5
+\end{lstlisting}
+  \end{center}
+%    \vspace{-2em}
+  \caption{Converted version of the Habanero Java program from \figref{fig:hj-async-fin}.}
+%        \vspace{-1em}
+  \label{fig:hj-async-fin-converted}
+\end{figure}
+
+\figref{fig:hj-async-fin-converted} is the equivalent program in the model in this presentation. The procedure $main$ posts task from the outer finish block to region $r_1$ and tasks from the inner finish block to region $r_2$. Since, the inner finish block completes execution first, \textbf{await} on region $r_2$ is called before $r_1$. The future posts a task to region $r_3$ followed by an \textbf{ewait} on $r_3$.
+
+Let $\mathcal{G}( P )$ return the set of computation graphs from all possible schedules of the program $P$ from the deterministic fragment of the model, and let $\mathrm{DRF}( G )$ return true if \algoref{algo:drd} reports the graph to be data race free. 
+
+\begin{lemma} 
+\label{lem:drf}
+ $(\exists G \in \mathcal{G}( P ),\ \mathrm{DRF}( G )) \rightarrow (\forall G \in \mathcal{G}( P ),\ \mathrm{DRF}( G ))$ 
+\end{lemma}
+
+The proof is omitted for space (as are the other non-trivial proofs), but the lemma states that if data-race is not detected in an observed execution of a program from the deterministic fragment, then all other possible executions are data-race free as well; in other words, programs from the fragment are deterministic.
+Habanero makes this same claim but does not prove it \cite{cave2011habanero}. The corollary regarding data-race programs and the following theorem are trivial from \lemmaref{lem:drf}.
+
+\begin{corollary}\label{cor:drf}
+$(\exists G \in \mathcal{G}( P ),\ \neg\mathrm{DRF}( G )) \rightarrow (\forall G \in \mathcal{G}( P ),\ \mathrm{DRF}( G ))$ 
+\end{corollary}
+
+\begin{theorem} \label{thm:strcutured-par-progs}
+Using the tree semantics with Algorithm \ref{algo:drd} to detect data-race in the resulting computation graph is sound and complete for a task parallel program with a given input when that program is in the deterministic fragment of the language.
+\end{theorem}

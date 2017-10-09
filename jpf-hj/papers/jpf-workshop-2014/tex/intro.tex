@@ -1,0 +1,55 @@
+\section{Introduction}
+
+Currently, writing correct and efficient concurrent programs is a challenge
+that requires a programmer with expertise in concurrency. The Habanero project
+at Rice University aims to remedy this situation by developing programming and
+execution models that enable a programmer to utilize the performance benefits
+of multi-core processors without directly using low-level primitives. Habanero
+Java (HJ), a mid-level concurrency language, is an implementation of
+one such programming model that
+provides concurrency constructs such as asynchronous tasking, message passing,
+and point-to-point synchronization in addition to safety guarantees, such as
+deadlock freedom, determinism, and serializability for well-defined subsets of
+the HJ language \cite{Cave:2011:HNA:2093157.2093165}.
+
+However, the determinism guarantee is contingent on the program being free of
+data races. Thus providing a guarantee that a HJ program is data race free also
+provides many other important guarantees. In previous
+work\cite{Anderson:2014:JVH:2557833.2560582} we introduced VR, a custom
+verification runtime to run in Java Pathfinder (JPF). VR supported a subset of
+the primitives that HJ provides. Since then Habanero group at Rice has released
+HJ-lib, a pure library implementation of HJ using Java 8. Any programs written using HJ-lib
+are fully legal Java programs, and as such can take advantage of the Java
+compiler, debugger, etc. In as a result, we have modified VR to produce VR-lib
+which supports HJ-lib. In addition, VR-lib supports the phaser construct.
+
+VR-lib works out of the box with JPF's PreciseDataListener to detect race
+conditions in HJ programs. For small programs this approach works well,
+producing results in a relatively short time period. However, for large
+programs, or even small programs with significant shared state, this approach is
+often intractable.
+
+Gradual permission regions (GPRs) \cite{Westbrook:2011:PRR:2341616.2341627,
+Westbrook:2012:PPR:2367163.2367201} show promise as an alternative to using
+JPF's PreciseDataListener. With GPRs, a programmer (or static tool) can signal
+to the runtime that a specific region of shared state is intended to be
+accessed with read/write permission levels in specific sections of the code.
+Simultaneous read/write access or write/write access to a GPR is illegal and
+should generate an exception in the runtime. Satisfying read/write permissions
+is a sufficient (but not necessary) condition for data race freedom; if a
+% NV: What? How is this true? If you use JPF, then you've explored all
+% schedules, so this is kind of a silly statement. If you don't use JPF,
+% then all you know is that you didn't get a violation on the current run.
+% This is obvious from the state machine, since you only get a violation
+% if two threads are requesting conflicting permissions at the same time,
+% but not if they don't run concurrently.
+program execution (within JPF) terminates without throwing a permission
+exception for a given input, then all executions of the program are guaranteed
+to terminate with the same result, regardless of any scheduling decisions.
+
+Section 2 of this paper presents an brief overview of HJ-lib, and Section 3
+summarizes GPRs. Section 4 describes our use of JPF to implement
+verification of HJ programs that contain GPRs. Section 5 shows our preliminary
+results verifying programs using GPRs over explicit race detection via
+PreciseDataListener. Section 6 concludes this paper and highlights opportunities
+for future work in this area.

@@ -1,0 +1,26 @@
+\section{Conclusions \& Future Work}
+This paper presents a model checking algorithm to prove when a
+Habanero program does not contain any data races, deadlocks, assertion
+violations, or exceptions for a given program input. The algorithm,
+based on permission regions, only considers scheduling points in the
+search tree at the boundaries of permission regions and {\tt
+  isolated}-constructs. The paper includes a proof of soundness for
+the algorithm, meaning that the algorithm may reject a correct program
+due to the size of the permission regions.
+
+The effectiveness of the algorithm is shown in several benchmark
+programs that cover many of the Habanero concurrency constructs. The
+analysis is done using a new Java library implementation of the Habanero
+runtime that is intended for debugging and verification. The new algorithm, with permission regions,
+is implemented as an extension to the \jpf\ model checker. The results
+from the benchmark programs indicate a significant cost reduction when
+using the new algorithm.
+
+Future work includes automating the annotation of permission regions
+based on the sharing detection in \jpf; automating the validation of any
+counter-example; developing techniques to automatically refine
+permission regions from counter-examples when needed; a partial order
+reduction over permission regions; static-analysis to prevent
+scheduling on regions that cannot race; applying symbolic techniques to reason over input; and studying
+benchmarks that are representative of real world Habanero programs.
+
