@@ -20,8 +20,8 @@ public class DoAll1OrigNo {
           @Override
           public void run() throws SuspendableException {
 
-            forAll(0, 100-1, new HjProcedure<Integer>() {
-              public void apply(Integer i) {
+            forAll(0, 100-1, new HjSuspendingProcedure<Integer>() {
+              public void apply(Integer i) throws SuspendableException {
                 a[i] = a[i]+1;
               }
             });

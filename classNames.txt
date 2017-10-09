@@ -1,6 +1,0 @@
-Antidep2OrigYes
-Antidep1OrigYes
-Antidep1VarYes
-DoAll1OrigNo
-DoAll2OrigNo
-fprintfOrigNo

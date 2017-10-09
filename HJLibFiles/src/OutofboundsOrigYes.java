@@ -10,16 +10,16 @@ Translated at Brigham Young University by Lincoln Bergeson
 
 /* The outmost loop is parallelized.
    But the inner level loop has out of bound access for b[i][j]
-   when j==0. 
+   when j==0.
    This will case memory access of a previous row's last element.
-  For example, an array of 4x4: 
+  For example, an array of 4x4:
       j=0 1 2 3
    i=0  x x x x
      1  x x x x
      2  x x x x
      3  x x x x
-     
-    outer loop: i=2, 
+
+    outer loop: i=2,
     inner loop: j=0
     array element accessed b[i][j-1] becomes b[2][-1], which in turn is b[1][3]
     due to linearized row-major storage of the 2-D array.
@@ -57,4 +57,3 @@ public class OutofboundsOrigYes {
         System.out.println("b[50][50]=" + b[50][50]);
     }
 }
-

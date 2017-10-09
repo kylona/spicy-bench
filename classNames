@@ -1,1 +1,10 @@
-test1
+Antidep1OrigYes
+Antidep1VarYes
+Antidep2OrigYes
+Antidep2VarYes
+DoAll1OrigNo
+DoAll2OrigNo
+fprintfOrigNo
+OutofboundsOrigYes
+OutputdepOrigYes
+OutputdepVarYes

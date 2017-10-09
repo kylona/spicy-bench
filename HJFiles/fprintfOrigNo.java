@@ -40,8 +40,8 @@ public class fprintfOrigNo {
                 System.err.println("Error opening File()\n");
               }
 
-              forAll(0, len-1, new HjProcedure<Integer>() {
-                public void apply(Integer i) {
+              forAll(0, len-1, new HjSuspendingProcedure<Integer>() {
+                public void apply(Integer i) throws SuspendableException {
                   try {
                     pfile.write(Integer.toString(A[i]) + "\n");
                   } catch (IOException ignore) { }
