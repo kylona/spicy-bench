@@ -2,42 +2,41 @@ Time taken for each test file:
 
 
 Testing: Antidep1OrigYes
-Native Running Time: 1.20 seconds
-Test Running Time: 30.97 seconds
+Native Running Time: 2.14 seconds
+Test Running Time: 47.49 seconds
 
 Testing: Antidep1VarYes
-Native Running Time: 0.26 seconds
-Test Running Time: 2.29 seconds
+Native Running Time: 2.00 seconds
+Test Running Time: 4.76 seconds
 
 Testing: Antidep2OrigYes
-Native Running Time: 0.28 seconds
-Test Running Time: 2.54 seconds
+Native Running Time: 0.48 seconds
+Test Running Time: 3.44 seconds
 
 Testing: Antidep2VarYes
-Native Running Time: 1.29 seconds
-Test Running Time: 30.05 seconds
+Native Running Time: 1.73 seconds
+Test Running Time: 44.84 seconds
 
 Testing: DoAll1OrigNo
-Native Running Time: 0.34 seconds
-Test Running Time: 3.45 seconds
+Native Running Time: 0.66 seconds
+Test Running Time: 4.08 seconds
 
 Testing: DoAll2OrigNo
-Native Running Time: 0.40 seconds
-Test Running Time: 5.49 seconds
+Native Running Time: 0.49 seconds
+Test Running Time: 7.85 seconds
 
 Testing: fprintfOrigNo
-Native Running Time: 1.33 seconds
-Command exited with non-zero status 1
-Test Running Time: 93.01 seconds
+Native Running Time: 2.46 seconds
+Test Running Time: 135.90 seconds
 
 Testing: OutofboundsOrigYes
-Native Running Time: 0.95 seconds
-Test Running Time: 2.77 seconds
+Native Running Time: 7.13 seconds
+Test Running Time: 5.71 seconds
 
 Testing: OutputdepOrigYes
-Native Running Time: 0.45 seconds
-Test Running Time: 3.31 seconds
+Native Running Time: 0.76 seconds
+Test Running Time: 6.51 seconds
 
 Testing: OutputdepVarYes
-Native Running Time: 0.53 seconds
-Test Running Time: 3.60 seconds
+Native Running Time: 0.96 seconds
+Test Running Time: 7.56 seconds
