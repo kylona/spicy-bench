@@ -3,13 +3,13 @@
 #reads in class names form classNames.txt in same directory
 #searches for source code, compiles and creates .jpf
 #it then times each of the classes nativly and in the datarace detector
-
+rm -r Classes
 TimeStoreFile=TimesRecorded.txt
-FindClassNames=classNames
+FindClassNames=classNames.txt
 PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 #PathToHJlib='HJLibFiles/lib/hj-lib-byu.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
-NativeClassPath="jpf-hj/build/classes"
+NativeClassPath="/home/kylona/workspace/spicy-bench/jpf-hj/build/classes;/home/kylona/workspace/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
 PathToClasses='Classes'
 mkdir -p $PathToClasses
 
@@ -33,7 +33,8 @@ while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
       echo vm.scheduler.sharedness.class=extensions.HjSharednessPolicy >> $PathToClasses/$name.jpf
       echo vm.scheduler.sync.class=extensions.HjSyncPolicy >> $PathToClasses/$name.jpf
       echo listener+=extensions.HjListener, >> $PathToClasses/$name.jpf
-      echo listener+=extensions.StateGraphListener >> $PathToClasses/$name.jpf
+      echo listener+=extensions.StateGraphListener, >> $PathToClasses/$name.jpf
+      echo listener+=cg.CGRaceDetector >> $PathToClasses/$name.jpf
       echo vm.max_transition_length=MAX >> $PathToClasses/$name.jpf
     fi
 done < $FindClassNames
