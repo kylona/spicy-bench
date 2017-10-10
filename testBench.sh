@@ -11,7 +11,7 @@ PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
 NativeClassPath="jpf-hj/build/classes"
 PathToClasses='Classes'
-mkdir $PathToClasses
+mkdir -p $PathToClasses
 
 while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
     FoundJava=$(find -name "$name.java" -print -quit)
@@ -32,6 +32,7 @@ while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
       echo native_classpath=$NativeClassPath >> $PathToClasses/$name.jpf
       echo vm.scheduler.sharedness.class=extensions.HjSharednessPolicy >> $PathToClasses/$name.jpf
       echo vm.scheduler.sync.class=extensions.HjSyncPolicy >> $PathToClasses/$name.jpf
+      echo vm.max_transition_length=MAX >> $PathToClasses/$name.jpf
       echo listener+=extensions.HjListener >> $PathToClasses/$name.jpf
 
     fi
