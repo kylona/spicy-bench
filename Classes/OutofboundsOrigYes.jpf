@@ -1,0 +1,8 @@
+target=OutofboundsOrigYes
+classpath=Classes:HJLibFiles/lib/byu-hjlib.jar
+sourcepath=./HJLibFiles/src
+native_classpath=jpf-hj/build/classes
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
+listener+=extensions.HjListener,
+listener+=extensions.StateGraphListener

@@ -20,7 +20,7 @@ while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
     continue
     fi
     if [ ! -f $PathToClasses/$name.class ]; then
-      echo "Compliling: $FoundJava"
+      echo "Compiling: $FoundJava"
       if ! javac -cp $PathToClasses:$PathToHJlib -d $PathToClasses $FoundJava; then
         echo 'Compile Step Failed'
         exit 1
@@ -32,7 +32,8 @@ while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
       echo native_classpath=$NativeClassPath >> $PathToClasses/$name.jpf
       echo vm.scheduler.sharedness.class=extensions.HjSharednessPolicy >> $PathToClasses/$name.jpf
       echo vm.scheduler.sync.class=extensions.HjSyncPolicy >> $PathToClasses/$name.jpf
-      echo listener+=extensions.HjListener >> $PathToClasses/$name.jpf
+      echo listener+=extensions.HjListener, >> $PathToClasses/$name.jpf
+      echo listener+=extensions.StateGraphListener >> $PathToClasses/$name.jpf
 
     fi
 done < $FindClassNames

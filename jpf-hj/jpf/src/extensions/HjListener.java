@@ -43,6 +43,7 @@ public class HjListener extends PropertyListenerAdapter implements Property {
         super();
         permissionError = false;
         permissionExplanation = "";
+        System.out.println("Started HjListener");
     }
 
     protected ThreadInfo[] getTimeoutRunnables(VM vm,
@@ -102,7 +103,7 @@ public class HjListener extends PropertyListenerAdapter implements Property {
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG,
             ThreadInfo currentThread, Instruction executedInstruction) {
-        System.out.println(nextCG.getId());
+        System.out.println("Line 105 of HjListener prints: " + nextCG.getId());
     }
 
     private boolean isPermissionMethod(String methodName) {

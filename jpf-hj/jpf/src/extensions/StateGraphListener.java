@@ -45,6 +45,7 @@ public class StateGraphListener extends ListenerAdapter {
     private static final String INVALID_SELECTION_TEXT = "INVALID_SOURCE_SELECTION";
 
     public StateGraphListener(Config conf, JPF jpf) {
+        System.out.println("Started StateGraphListener");
         VM vm = jpf.getVM();
         String delims = "[ .]+";
         String[] parts = vm.getSUTName().split(delims);
@@ -60,6 +61,8 @@ public class StateGraphListener extends ListenerAdapter {
         } catch (IOException ex) {
             Logger.getLogger(StateGraphListener.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("SEARCH STARTED");
+
     }
 
     @Override
@@ -69,10 +72,13 @@ public class StateGraphListener extends ListenerAdapter {
         } catch (IOException ex) {
             Logger.getLogger(StateGraphListener.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("SEARCH FINISHED");
     }
 
     @Override
     public void stateAdvanced(Search search) {
+      System.out.println("STATE ADVANCED");
+
         int id = search.getStateId();
         boolean has_next = search.hasNextState();
         boolean is_new = search.isNewState();
