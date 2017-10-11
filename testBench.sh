@@ -5,7 +5,7 @@
 #it then times each of the classes nativly and in the datarace detector
 rm -r Classes
 TimeStoreFile=TimesRecorded.txt
-FindClassNames=classNames.txt
+FindClassNames=classNames
 PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 #PathToHJlib='HJLibFiles/lib/hj-lib-byu.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
@@ -27,13 +27,18 @@ while fileOfClassNames='' read -r name || [[ -n "$name" ]]; do
       fi
       echo "Making $name.jpf"
       echo target=$name > $PathToClasses/$name.jpf
+      echo Results_directory =$PathToClasses/Results/ >> $PathToClasses/$name.jpf
+      echo Contains_isolated_sections = true >> $PathToClasses/$name.jpf
+      echo On_the_fly = false >> $PathToClasses/$name.jpf
+      echo Data_race_detection = true >> $PathToClasses/$name.jpf
       echo classpath=$PathToClasses:$PathToHJlib >> $PathToClasses/$name.jpf
       echo sourcepath=$(dirname $FoundJava) >> $PathToClasses/$name.jpf
-      echo native_classpath=$NativeClassPath >> $PathToClasses/$name.jpf
+      echo native_classpath+=$NativeClassPath >> $PathToClasses/$name.jpf
+      echo JPF.vm=VMListener >> $PathToClasses/$name.jpf
       echo vm.scheduler.sharedness.class=extensions.HjSharednessPolicy >> $PathToClasses/$name.jpf
       echo vm.scheduler.sync.class=extensions.HjSyncPolicy >> $PathToClasses/$name.jpf
-      echo listener+=extensions.HjListener, >> $PathToClasses/$name.jpf
-      echo listener+=extensions.StateGraphListener, >> $PathToClasses/$name.jpf
+      #echo listener+=extensions.HjListener, >> $PathToClasses/$name.jpf
+      #echo listener+=extensions.StateGraphListener, >> $PathToClasses/$name.jpf
       echo listener+=cg.CGRaceDetector >> $PathToClasses/$name.jpf
       echo vm.max_transition_length=MAX >> $PathToClasses/$name.jpf
     fi
