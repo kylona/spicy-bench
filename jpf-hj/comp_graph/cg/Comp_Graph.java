@@ -23,11 +23,16 @@ import org.jgrapht.ext.IntegerNameProvider;
 
 public class Comp_Graph {
 
+    public void finalize() {
+      System.out.println("NumReports: " + numReports);
+    }
+
     private static HashMap threads;
     private static AtomicInteger threadCounter;
+    private static int numReports = 0;
 
     static int GRAPH_ITER = 0;
-    
+
     public static boolean analyzeFinishBlock(DirectedAcyclicGraph<Node, DefaultEdge> graph, String finishID, boolean otf) {
         List<activityNode> tasks = getTasksFromFinishBlock(finishID, graph);
 
@@ -186,7 +191,7 @@ public class Comp_Graph {
                             return true;
                         }
                     }
-                    //intended race with isolated write array 
+                    //intended race with isolated write array
                     if (tasks.get(j).array_write_isolated != null) {
                         if (DetectDataRaceArrayIsolated(tasks.get(i).array_read_isolated, tasks.get(j).array_write_isolated)) {
                             return true;
@@ -270,8 +275,10 @@ public class Comp_Graph {
 
         for (Elements ae1 : var1) {
             for (Elements ae2 : var2) {
+              System.out.println("AE2 outside Loop: " + ae2.ei);
                 if (ae1.ei.toString().equals(ae2.ei.toString()) && ae1.fi.toString().equals(ae2.fi.toString())) {
-                    System.out.print("Intended race for field ");
+                    numReports++;
+                    System.out.print("(" + numReports + ")Intended race for field ");
                     System.out.print(ae1.ei);
                     System.out.print('.');
                     System.out.println(ae1.fi.getName());
@@ -585,7 +592,7 @@ public class Comp_Graph {
             end_thread = true;
             ti=ti.split("-end")[0];
         }
-        
+
         if (threads == null) {
             threads = new HashMap();
             threadCounter = new AtomicInteger(0);
@@ -599,7 +606,7 @@ public class Comp_Graph {
             threads.put(properThreadName, newThread);
             output+= "" + newThread;
         }
-        
+
         if(end_thread){
             output+="-end";
         }

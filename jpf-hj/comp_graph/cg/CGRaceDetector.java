@@ -83,6 +83,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		}
 
 		Node n = currentNodes.get(currentThread);
+
 		if(n != null){
 			if(instructionToExecute instanceof ArrayElementInstruction){
 				ElementInfo ei = ((ArrayElementInstruction) instructionToExecute).peekArrayElementInfo(currentThread);
@@ -283,7 +284,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
                 //add edge to master fin end
             	Node activity = currentNodes.get(currentThread);
             	addContinuationEdge(activity, masterFinEnd, graph);
-
             	createGraph(graph, dir, vm);
             	if(drd){
             		race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
@@ -298,7 +298,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
         String methodName = extractMethodName(enteredMethod);
         if (methodName.startsWith("startIsolation")) {
-
             activityNode currentActivity = (activityNode) currentNodes.get(currentThread);
             String [] s = currentActivity.id.split("-");
   		  	int next_num = Integer.parseInt(s[1]) + 1;

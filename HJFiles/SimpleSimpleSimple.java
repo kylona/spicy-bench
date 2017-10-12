@@ -19,7 +19,7 @@ public class SimpleSimpleSimple {
                 });
                 async(new HjRunnable() {
                   public void run() {
-                    i = i * 2;;
+                    i = i * 2;
                   }
                 });
               }
