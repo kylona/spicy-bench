@@ -1,7 +1,11 @@
 Time taken for each test file: 
 
 
-Testing: IsolatedBlockNo
-Native Running Time: 0.41 seconds
+Testing: DataRaceIsolateSimple
+Native Running Time: 0.27 seconds
+Test Running Time: 6.52 seconds
+
+Testing: DataRaceIsolateSimple1
+Native Running Time: 0.25 seconds
 Command exited with non-zero status 130
-Test Running Time: 50.45 seconds
+Test Running Time: 5.50 seconds

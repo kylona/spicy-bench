@@ -5,7 +5,7 @@
 #it then times each of the classes nativly and in the datarace detector
 rm -r Classes
 TimeStoreFile=TimesRecorded.txt
-FindClassNames=classNames
+FindClassNames=testNames
 PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 #PathToHJlib='HJLibFiles/lib/hj-lib-byu.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"

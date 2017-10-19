@@ -91,6 +91,7 @@ public class HjListener extends PropertyListenerAdapter implements Property {
             String choiceType;
             if (isIsolatedMethod(baseName)) {
                 choiceType = "ISOLATED";
+                throw new Throwable();
                 ChoiceGenerator<ThreadInfo> cg
                         = getRunnableCG(choiceType, currentThread, vm);
                 vm.getSystemState().setNextChoiceGenerator(cg);

@@ -70,13 +70,14 @@ public class Edges {
     }
 
     public static void addJoinEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
+            e1.setAttributes(JoinEdgeAttributes());
         } catch (CycleFoundException e) {
             e.printStackTrace();
         }
-        e1.setAttributes(JoinEdgeAttributes());
     }
 
     public static void addContinuationEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -101,6 +102,8 @@ public class Edges {
     }
 
     public static void addIsolatedEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+      StackTraceElement currentStackFrame = Thread.currentThread().getStackTrace()[2]; //gets current stack frame
+      System.out.println(currentStackFrame.getMethodName()+"::"+currentStackFrame.getLineNumber());
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
