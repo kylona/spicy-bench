@@ -29,20 +29,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	private String future = "hj.lang.Future";
 	private String futureGet = "hj.lang.Future.get";
 
-	private isolatedNode previousIsolatedNode = null;
-
-	private Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
-	private Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
-
-	private Map<String, Node> finishScope = new HashMap<String, Node>();
-
-	private Map<String, Node> futureJoinNode = new HashMap<String, Node>();
-
 	private boolean race = false;
-	private finishNode masterFinEnd = null;
-	private finishNode masterFin = null;
 
-	private Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
 
 	public CGRaceDetector (Config conf, JPF jpf) {
 		dir = conf.getString("Results_directory");
@@ -79,7 +67,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				}
 			}
 
-			Node n = currentNodes.get(currentThread);
+			Node n = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 
 			if(n != null){
 				if(instructionToExecute instanceof ArrayElementInstruction){
@@ -124,14 +112,14 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			}
 
 			//update currentNodes map
-			currentNodes.put(startedThread, n);
+			RaceGraph.getCurrentGraph().currentNodes.put(startedThread, n);
 
 			//add finishStack
 			Stack<finishNode> stk = new Stack<finishNode>();
 
 			//add task's current finishscope to stack
-			stk.push((finishNode) finishScope.get(threadID));
-			finishBlocks.put(startedThread, stk);
+			stk.push((finishNode) RaceGraph.getCurrentGraph().finishScope.get(threadID));
+			RaceGraph.getCurrentGraph().finishBlocks.put(startedThread, stk);
 			//createGraph(getGraph(vm, startedThread), dir, vm, "Line138");
 
 		}
@@ -142,12 +130,12 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			String threadID = extractThreadName(startedThread);
 
 			if (thread_object.startsWith(future)) {
-				Node currentNode = currentNodes.get(startedThread);
+				Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(startedThread);
 
-				if(futureJoinNode.containsKey(threadID)){
-					addJoinEdge(currentNode, futureJoinNode.get(threadID), getGraph(vm, startedThread));
+				if(RaceGraph.getCurrentGraph().futureJoinNode.containsKey(threadID)){
+					addJoinEdge(currentNode, RaceGraph.getCurrentGraph().futureJoinNode.get(threadID), getGraph(vm, startedThread));
 				}else{
-					futureJoinNode.put(threadID, currentNode);
+					RaceGraph.getCurrentGraph().futureJoinNode.put(threadID, currentNode);
 				}
 			}
 			//createGraph(getGraph(vm, startedThread), dir, vm, "Line156");
@@ -201,7 +189,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			if(newObject.toString().startsWith(runtime) || newObject.toString().startsWith(future)){
 				String newObjectID = getObjectId(newObject.toString());
-				activityNode currentNode = (activityNode) currentNodes.get(currentThread);
+				activityNode currentNode = (activityNode) RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 
 				if(newObjectID.contains("Activity") || newObjectID.contains("Future")){
 
@@ -211,7 +199,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					getGraph(vm, currentThread).addVertex(child);
 
 					if(!newObjectID.contains("Suspendable")){
-						addSpawnEdge(currentNodes.get(currentThread), child, getGraph(vm, currentThread));
+						addSpawnEdge(RaceGraph.getCurrentGraph().currentNodes.get(currentThread), child, getGraph(vm, currentThread));
 
 						//create next node for parent task
 						activityNode nextNode = createNextNode(currentThread);
@@ -219,10 +207,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						addContinuationEdge(currentNode, nextNode, getGraph(vm, currentThread));
 
 						//update current nodes map
-						currentNodes.put(currentThread, nextNode);
+						RaceGraph.getCurrentGraph().currentNodes.put(currentThread, nextNode);
 
 						//update child's finish scope
-						finishScope.put(newObjectID, finishBlocks.get(currentThread).peek());
+						RaceGraph.getCurrentGraph().finishScope.put(newObjectID, RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).peek());
 					}
 
 				}else if(newObjectID.contains("FinishScope")){
@@ -238,10 +226,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						getGraph(vm, currentThread).addVertex(nextNode);
 						addContinuationEdge(fin, nextNode, getGraph(vm, currentThread));
 
-						currentNodes.put(currentThread, nextNode);
+						RaceGraph.getCurrentGraph().currentNodes.put(currentThread, nextNode);
 
 						//add finish node to the finish stack
-						finishBlocks.get(currentThread).push(fin);
+						RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).push(fin);
 					}else{
 						Node activity = null;
 						Set<Node> nodes = getGraph(vm, currentThread).vertexSet();
@@ -255,20 +243,20 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						finishNode fin = new finishNode(newObjectID, currentThread);
 						fin.setDisplay_name(makeLabel(currentThread,newObjectID));
 						getGraph(vm, currentThread).addVertex(fin);
-						masterFin = fin;
+						RaceGraph.getCurrentGraph().masterFin = fin;
 
 						//Master Finish end
 						finishNode fin_end = new finishNode(newObjectID+"-end", currentThread);
 						fin_end.setDisplay_name(makeLabel(currentThread,newObjectID+"-end"));
 						getGraph(vm, currentThread).addVertex(fin_end);
-						masterFinEnd = fin_end;
+						RaceGraph.getCurrentGraph().masterFinEnd = fin_end;
 
 						//add edge from finish start to suspendable activity
 						addContinuationEdge(fin, activity, getGraph(vm, currentThread));
 
 						//add finishScope of suspendable activity
 						String susActID = activity.id.split("-")[0];
-						finishScope.put(susActID, masterFin);
+						RaceGraph.getCurrentGraph().finishScope.put(susActID, RaceGraph.getCurrentGraph().masterFin);
 					}
 				}
 			}
@@ -284,11 +272,11 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				String objectName = extractObjectName(releasedObject);
 				if (objectName.startsWith("SuspendableActivity")) {
 					//add edge to master fin end
-					Node activity = currentNodes.get(currentThread);
-					addContinuationEdge(activity, masterFinEnd, getGraph(vm, currentThread));
+					Node activity = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
+					addContinuationEdge(activity, RaceGraph.getCurrentGraph().masterFinEnd, getGraph(vm, currentThread));
 					//createGraph(getGraph(vm, currentThread), dir, vm, "Line292");
 					if(drd){
-						race = analyzeFinishBlock(getGraph(vm, currentThread), masterFin.id, on_the_fly);
+						race = analyzeFinishBlock(getGraph(vm, currentThread), RaceGraph.getCurrentGraph().masterFin.id, on_the_fly);
 					}
 				}
 			}
@@ -301,61 +289,61 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			String methodName = extractMethodName(enteredMethod);
 			if (methodName.startsWith("startIsolation")) {
-				activityNode currentActivity = (activityNode) currentNodes.get(currentThread);
+				activityNode currentActivity = (activityNode) RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 				String [] s = currentActivity.id.split("-");
 				int next_num = Integer.parseInt(s[1]) + 1;
 
 				isolatedNode isolNode = new isolatedNode("Isolated_" + s[0] + "-" + next_num, currentThread);
 				isolNode.setDisplay_name(makeLabel(currentThread,"Isolated@" + next_num));
-				currentNodes.put(currentThread, isolNode);
+				RaceGraph.getCurrentGraph().currentNodes.put(currentThread, isolNode);
 
 				getGraph(vm, currentThread).addVertex(isolNode);
 				addContinuationEdge(currentActivity, isolNode, getGraph(vm, currentThread));
 
 
-				if(previousIsolatedNode != null){
-					addIsolatedEdge(previousIsolatedNode, isolNode, getGraph(vm, currentThread));
+				if(RaceGraph.getCurrentGraph().previousIsolatedNode != null){
+					addIsolatedEdge(RaceGraph.getCurrentGraph().previousIsolatedNode, isolNode, getGraph(vm, currentThread));
 				}
-				previousIsolatedNode = isolNode;
+				RaceGraph.getCurrentGraph().previousIsolatedNode = isolNode;
 
 			} else if (methodName.startsWith("stopIsolation")) {
 
-				Node isolatedNode = currentNodes.get(currentThread);
+				Node isolatedNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 				activityNode nextNode = createNextNode(currentThread);
 				getGraph(vm, currentThread).addVertex(nextNode);
 				addContinuationEdge(isolatedNode, nextNode, getGraph(vm, currentThread));
 
-				currentNodes.put(currentThread, nextNode);
+				RaceGraph.getCurrentGraph().currentNodes.put(currentThread, nextNode);
 
 			} else if (methodName.startsWith("stopFinish")) {
 				String threadID = extractThreadName(currentThread);
 
-				if(finishBlocks.get(currentThread).size() == 1){
+				if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() == 1){
 					if(!threadID.contains("Suspendable")){
-						Node currentNode = currentNodes.get(currentThread);
-						Node fin = finishScope.get(threadID);
+						Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
+						Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
 						String finishJoin = fin.id;
 						Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
 						addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
 					}
-				}else if(finishBlocks.get(currentThread).size() > 1){
+				}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
 					createFinEndNode(currentThread, vm);
 				}
 			} else if(enteredMethod.getBaseName().equals(futureGet)){
 
 				String futureThreadName = extractCalleeName(currentThread);
 
-				Node oldActNode = currentNodes.get(currentThread);
+				Node oldActNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 				Node newActNode = createNextNode(currentThread);
 				getGraph(vm, currentThread).addVertex(newActNode);
 				addContinuationEdge(oldActNode, newActNode, getGraph(vm, currentThread));
 
-				currentNodes.put(currentThread, newActNode);
+				RaceGraph.getCurrentGraph().currentNodes.put(currentThread, newActNode);
 
-				if(!futureJoinNode.containsKey(futureThreadName)){
-					futureJoinNode.put(futureThreadName, newActNode);
+				if(!RaceGraph.getCurrentGraph().futureJoinNode.containsKey(futureThreadName)){
+					RaceGraph.getCurrentGraph().futureJoinNode.put(futureThreadName, newActNode);
 				}else{
-					addJoinEdge(futureJoinNode.get(futureThreadName), newActNode, getGraph(vm, currentThread));
+					addJoinEdge(RaceGraph.getCurrentGraph().futureJoinNode.get(futureThreadName), newActNode, getGraph(vm, currentThread));
 				}
 
 			}
@@ -367,7 +355,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			if(enteredMethod.getName().contains("stopFinish")){
 				if(on_the_fly && drd){
-					race = analyzeFinishBlock(getGraph(vm, currentThread), finishBlocks.get(currentThread).pop().id, on_the_fly);
+					race = analyzeFinishBlock(getGraph(vm, currentThread), RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).pop().id, on_the_fly);
 				}
 			}
 		}
@@ -385,7 +373,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	private activityNode createNextNode(ThreadInfo currentThread){
 
 		String threadID = extractThreadName(currentThread);
-		activityNode currentNode = (activityNode) currentNodes.get(currentThread);
+		activityNode currentNode = (activityNode) RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 		int next_num = Integer.parseInt(currentNode.id.split("-")[1]) + 1;
 		activityNode nextNode = new activityNode(threadID + "-" + next_num, currentThread);
 		nextNode.setDisplay_name(makeLabel(currentThread,threadID));
@@ -394,22 +382,22 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private void createFinEndNode(ThreadInfo currentThread, VM vm){
 
-		activityNode currentNode = (activityNode) currentNodes.get(currentThread);
+		activityNode currentNode = (activityNode) RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
 
-		finishNode start = finishBlocks.get(currentThread).pop();
+		finishNode start = RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).pop();
 
 		finishNode end = new finishNode(start.id + "-end", currentThread);
 		end.setDisplay_name(makeLabel(currentThread,start.id+"-end") );
 		getGraph(vm, currentThread).addVertex(end);
 		addContinuationEdge(currentNode, end, getGraph(vm, currentThread));
 
-		currFinNode.put(currentThread, start);
+		RaceGraph.getCurrentGraph().currFinNode.put(currentThread, start);
 
 		//create next node for the task
 		activityNode nextNode = createNextNode(currentThread);
 		getGraph(vm, currentThread).addVertex(nextNode);
 
-		currentNodes.put(currentThread, nextNode);
+		RaceGraph.getCurrentGraph().currentNodes.put(currentThread, nextNode);
 		addContinuationEdge(end, nextNode, getGraph(vm, currentThread));
 
 	}
@@ -443,7 +431,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				String graphName = ("Finish." + check.getGraphNumber());
 				//createGraph(check, dir, search.getVM(), graphName);
 				if(drd){
-					race = analyzeFinishBlock(check.graph, masterFin.id, on_the_fly);
+					race = analyzeFinishBlock(check.graph, check.masterFin.id, on_the_fly);
 					if (race) break; //stop if we have found a datarace
 				}
 				check(search, search.getVM());
