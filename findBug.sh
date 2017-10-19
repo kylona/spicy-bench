@@ -3,7 +3,7 @@
 rm -r Classes
 PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
-NativeClassPath="/home/kylona/workspace/spicy-bench/jpf-hj/build/classes;/home/kylona/workspace/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
+NativeClassPath="$SPICY_BENCH_ROOT/jpf-hj/build/classes;$SPICY_BENCH_ROOT/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
 PathToClasses='Classes'
 mkdir -p $PathToClasses
 name=DataRaceIsolateSimple
@@ -37,7 +37,7 @@ if [ ! -f $PathToClasses/$name.class ]; then
 fi
 
 echo "Compiling Data Race Tool"
-if ! javac -d ~/workspace/spicy-bench/jpf-hj/build/classes/ -cp ~/workspace/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar:/home/kylona/workspace/spicy-bench/jpf-hj/lib/jpf.jar ~/workspace/spicy-bench/jpf-hj/comp_graph/cg/*.java
+if ! javac -d $SPICY_BENCH_ROOT/jpf-hj/build/classes/ -cp $SPICY_BENCH_ROOT/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar:$SPICY_BENCH_ROOT/jpf-hj/lib/jpf.jar $SPICY_BENCH_ROOT/jpf-hj/comp_graph/cg/*.java
 then
   echo "Compile of Tool Failed"
   exit 1
