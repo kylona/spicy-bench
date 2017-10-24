@@ -44,4 +44,4 @@ then
 fi
 /usr/bin/time -f "Native Running Time: %e seconds" java -cp $PathToClasses:$PathToHJlib $name
 echo "----------------------------------------------"
-java -jar $PathTORunJPF $PathToClasses/$name.jpf
+java -ea -jar $PathTORunJPF $PathToClasses/$name.jpf

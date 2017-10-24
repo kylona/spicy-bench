@@ -102,8 +102,7 @@ public class Edges {
     }
 
     public static void addIsolatedEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
-      StackTraceElement currentStackFrame = Thread.currentThread().getStackTrace()[2]; //gets current stack frame
-      System.out.println(currentStackFrame.getMethodName()+"::"+currentStackFrame.getLineNumber());
+      
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);

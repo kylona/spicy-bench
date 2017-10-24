@@ -9,7 +9,8 @@ import gov.nasa.jpf.vm.choice.ThreadChoiceFromSet;
 import gov.nasa.jpf.vm.*;
 
 public class RaceGraph {
-  private static RaceGraph currentGraph = null;
+
+  private static RaceGraph currentGraph = null;//new RaceGraph("blah", new DirectedAcyclicGraph<Node,DefaultEdge>(DefaultEdge.class)); //start with a blank graph
   private static Set<RaceGraph> allGraphs = new HashSet<RaceGraph>(); //stores all graphs created for analisis
   private static int graphCount = 0;
   private int graphNumber;
@@ -41,7 +42,14 @@ public class RaceGraph {
     graphNumber = graphCount;
     graphCount++;
     graph = new DirectedAcyclicGraph(DefaultEdge.class);
-    Graphs.addGraph(graph, inputGraph); //copy the given graph into graph
+    Graphs.addGraph(graph, inputGraph.graph); //copy the given graph into graph
+    this.currentNodes = new HashMap<ThreadInfo, Node>(inputGraph.currentNodes);
+    this.finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>(inputGraph.finishBlocks);
+    this.finishScope = new HashMap<String, Node>(inputGraph.finishScope);
+    this.futureJoinNode = new HashMap<String, Node>(inputGraph.futureJoinNode);
+    this.masterFinEnd = inputGraph.masterFinEnd;
+    this.masterFin = inputGraph.masterFin;
+    this.currFinNode = new HashMap<ThreadInfo, finishNode>(inputGraph.currFinNode);
     allGraphs.add(this);
   }
 
@@ -63,6 +71,13 @@ public class RaceGraph {
 
   public static Set<RaceGraph> getGraphSet() {
     return allGraphs;
+  }
+
+  public static void printAllGraphs() {
+    for (RaceGraph rg : allGraphs) {
+      System.out.println("\n\nGraph Number " + rg.graphNumber + ":\n");
+      Comp_Graph.printGraph(rg.graph);
+    }
   }
 
 }

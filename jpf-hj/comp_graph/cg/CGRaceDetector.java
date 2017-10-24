@@ -324,7 +324,12 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
 						String finishJoin = fin.id;
 						Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
-						addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+						try {
+							addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+						}
+						catch (Exception ex ){
+							//ex.printStackTrace();
+						}
 					}
 				}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
 					createFinEndNode(currentThread, vm);
@@ -420,7 +425,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				&& timeoutRunnables[0] == tiCurrent) {
 			return null;
 		} else {
-			return new SeperateGraphChoiceGenerator(id, timeoutRunnables, true, getGraph(vm, tiCurrent));
+			return new SeperateGraphChoiceGenerator(id, timeoutRunnables, true, getRaceGraph(vm, tiCurrent));
 		}
 	}
 	/** TODO have tool analize all of the created graphs */
@@ -432,7 +437,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				//createGraph(check, dir, search.getVM(), graphName);
 				if(drd){
 					race = analyzeFinishBlock(check.graph, check.masterFin.id, on_the_fly);
-					if (race) break; //stop if we have found a datarace
 				}
 				check(search, search.getVM());
 			}
@@ -447,12 +451,16 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				return RaceGraph.getCurrentGraph();
 			}
 			else {
-				createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:NonSeperateCG");
+				createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:JPFcg:" + RaceGraph.getCurrentGraph().getGraphNumber());
 				return RaceGraph.getCurrentGraph();
 			}
 		}
 
 		static DirectedAcyclicGraph<Node, DefaultEdge> getGraph(VM vm, ThreadInfo ti) {
+			if (getRaceGraph(vm,ti).getGraphNumber() == 5) {
+				StackTraceElement currentStackFrame = Thread.currentThread().getStackTrace()[2]; //gets current stack frame
+	      System.out.println(currentStackFrame.getMethodName()+"::"+currentStackFrame.getLineNumber());
+			}
 			return getRaceGraph(vm,ti).graph;
 		}
 }

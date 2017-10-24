@@ -17,7 +17,7 @@ public class SeperateGraphChoiceGenerator extends ThreadChoiceFromSet {
 
 
 
-  public SeperateGraphChoiceGenerator(String id, ThreadInfo[] set, boolean isSchedulingPoint, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+  public SeperateGraphChoiceGenerator(String id, ThreadInfo[] set, boolean isSchedulingPoint, RaceGraph graph) {
     super(id,set,isSchedulingPoint);
     numberOfChoices = this.getTotalNumberOfChoices();
     graphMap = new HashMap<ThreadInfo, RaceGraph>();
