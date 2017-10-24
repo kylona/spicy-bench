@@ -317,23 +317,34 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			} else if (methodName.startsWith("stopFinish")) {
 				String threadID = extractThreadName(currentThread);
+                RaceGraph graph = RaceGraph.getCurrentGraph();
+                Node fin = graph.finishScope.get(threadID);
+                Node finishJoinNode = searchGraph(fin.id+"-end", getGraph(vm, currentThread));
+                if (finishJoinNode == null) {
+                    createFinEndNode(currentThread, vm);
+                } else {
+                    if (!threadID.contains("Suspendable")) {
+                        Node currentNode = graph.currentNodes.get(currentThread);
+                        addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+                    }
+                }
 
-				if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() == 1){
-					if(!threadID.contains("Suspendable")){
-						Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
-						Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
-						String finishJoin = fin.id;
-						Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
-						try {
-							addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
-						}
-						catch (Exception ex ){
-							//ex.printStackTrace();
-						}
-					}
-				}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
-					createFinEndNode(currentThread, vm);
-				}
+				//if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() == 1){
+				//	if(!threadID.contains("Suspendable")){
+				//		Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
+				//		Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
+				//		String finishJoin = fin.id;
+				//		Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
+				//		try {
+				//			addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+				//		}
+				//		catch (Exception ex ){
+				//			ex.printStackTrace();
+				//		}
+				//	}
+				//}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
+				//	createFinEndNode(currentThread, vm);
+				//}
 			} else if(enteredMethod.getBaseName().equals(futureGet)){
 
 				String futureThreadName = extractCalleeName(currentThread);
@@ -432,9 +443,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 		public void searchFinished(Search search) {
 			for (RaceGraph check : RaceGraph.getGraphSet()) {
-				System.out.println("Checking Graph number " + check.getGraphNumber());
-				String graphName = ("Finish." + check.getGraphNumber());
-				//createGraph(check, dir, search.getVM(), graphName);
+				String graphName = "Finish." + check.getGraphNumber();
+				createGraph(check.graph, dir, search.getVM(), graphName);
 				if(drd){
 					race = analyzeFinishBlock(check.graph, check.masterFin.id, on_the_fly);
 				}
@@ -447,20 +457,16 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			if (SeperateGraphChoiceGenerator.class.isInstance(vm.getChoiceGenerator())) {
 				SeperateGraphChoiceGenerator cg = (SeperateGraphChoiceGenerator) vm.getChoiceGenerator();
 				RaceGraph.setCurrentGraph(cg.getGraph(ti));
-				createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:" + cg.getGraph(ti).getGraphNumber());
+				//createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:" + cg.getGraph(ti).getGraphNumber());
 				return RaceGraph.getCurrentGraph();
 			}
 			else {
-				createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:JPFcg:" + RaceGraph.getCurrentGraph().getGraphNumber());
+				//createGraph(RaceGraph.getCurrentGraph().graph, dir, vm, "getGraph:JPFcg:" + RaceGraph.getCurrentGraph().getGraphNumber());
 				return RaceGraph.getCurrentGraph();
 			}
 		}
 
 		static DirectedAcyclicGraph<Node, DefaultEdge> getGraph(VM vm, ThreadInfo ti) {
-			if (getRaceGraph(vm,ti).getGraphNumber() == 5) {
-				StackTraceElement currentStackFrame = Thread.currentThread().getStackTrace()[2]; //gets current stack frame
-	      System.out.println(currentStackFrame.getMethodName()+"::"+currentStackFrame.getLineNumber());
-			}
 			return getRaceGraph(vm,ti).graph;
 		}
 }

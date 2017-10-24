@@ -44,7 +44,26 @@ public class RaceGraph {
     graph = new DirectedAcyclicGraph(DefaultEdge.class);
     Graphs.addGraph(graph, inputGraph.graph); //copy the given graph into graph
     this.currentNodes = new HashMap<ThreadInfo, Node>(inputGraph.currentNodes);
-    this.finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>(inputGraph.finishBlocks);
+
+    HashMap<ThreadInfo, Stack<finishNode>> newBlocks = new HashMap<>();
+    HashMap<ThreadInfo, Stack<finishNode>> blocksCopy = new HashMap<>();
+    for (Map.Entry<ThreadInfo, Stack<finishNode>> entry : inputGraph.finishBlocks.entrySet()) {
+      newBlocks.put(entry.getKey(), new Stack<finishNode>());
+      blocksCopy.put(entry.getKey(), new Stack<finishNode>());
+      Stack<finishNode> stackToCopy = entry.getValue();
+      List<finishNode> stackCopy = new LinkedList<>();
+      while (!stackToCopy.isEmpty()) {
+        finishNode elem = stackToCopy.pop();
+        stackCopy.add(0, elem);
+      }
+      for (finishNode node : stackCopy) {
+        newBlocks.get(entry.getKey()).push(node);
+        blocksCopy.get(entry.getKey()).push(node);
+      }
+    }
+    this.finishBlocks = newBlocks;
+    inputGraph.finishBlocks = blocksCopy;
+
     this.finishScope = new HashMap<String, Node>(inputGraph.finishScope);
     this.futureJoinNode = new HashMap<String, Node>(inputGraph.futureJoinNode);
     this.masterFinEnd = inputGraph.masterFinEnd;
