@@ -7,33 +7,30 @@ import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.Graphs;
 import java.util.*;
 
+import static cg.Edges.*;
+import static cg.Comp_Graph.*;
+
 
 public class SeperateGraphChoiceGenerator extends ThreadChoiceFromSet {
   private int numberOfChoices;
-  private Map<ThreadInfo, DirectedAcyclicGraph<Node, DefaultEdge>> graphMap;
-  private Map<ThreadInfo, Integer> debugMap;
-  private int currentGraphDebug = -1;
+  private DirectedAcyclicGraph graph;
+  private Node inodeFirst;
+  private Node inodeSecond;
 
-  public SeperateGraphChoiceGenerator(String id, ThreadInfo[] set, boolean isSchedulingPoint, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+  public SeperateGraphChoiceGenerator(String id, ThreadInfo[] set, boolean isSchedulingPoint,DirectedAcyclicGraph<Node, DefaultEdge> graph, Node inodeFirst, Node inodeSecond) {
     super(id,set,isSchedulingPoint);
+    System.out.println("created SeperateGraphChoiceGenerator");
     numberOfChoices = this.getTotalNumberOfChoices();
-    graphMap = new HashMap<ThreadInfo,  DirectedAcyclicGraph<Node, DefaultEdge>>();
-    debugMap = new HashMap<ThreadInfo,  Integer>();
-
-    for (int i = 0; i < numberOfChoices; i++) {
-      DirectedAcyclicGraph baby = new DirectedAcyclicGraph(DefaultEdge.class);
-      Graphs.addGraph(baby, graph); //copy the given graph into the baby
-      graphMap.put(set[i],baby); //assosiate the new copy with a specific choice
-      debugMap.put(set[i],i);
-    }
+    System.out.println(numberOfChoices);
+    this.graph = graph;
+    addIsolatedEdge(inodeFirst, inodeSecond,graph);
   }
 
-  public DirectedAcyclicGraph<Node, DefaultEdge> getGraph(ThreadInfo ti) {
-    if (currentGraphDebug != debugMap.get(ti)) {
-      currentGraphDebug = debugMap.get(ti);
-      System.out.println("Switching to Graph number:" + debugMap.get(ti));
-    }
-
-    return graphMap.get(ti);
+  @Override
+  public void advance() {
+    System.out.println("Count:" +count);
+    graph.removeEdge(graph.getEdge(inodeFirst,inodeSecond));
+    addIsolatedEdge(inodeSecond, inodeFirst,graph);
+    super.advance();
   }
 }

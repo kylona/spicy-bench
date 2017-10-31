@@ -66,6 +66,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 		public void executeInstruction(VM vm, ThreadInfo currentThread,
 				Instruction instructionToExecute) {
+					createGraph(graph, dir, vm, "Line114");
 
 			//scheduler for isolated
 			if(drd){
@@ -73,6 +74,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
 					String baseName = mi.getBaseName();
 					if (isIsolatedMethod(baseName)) {
+						System.out.println("Executed Instruction");
 						ChoiceGenerator<ThreadInfo> cg
 							= getRunnableCG("ISOLATED", currentThread, vm);
 						vm.getSystemState().setNextChoiceGenerator(cg);
@@ -111,7 +113,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					}
 				}
 			}
-			createGraph(getGraph(vm, currentThread), dir, vm, "Line114");
 		}
 
 	@Override
@@ -122,7 +123,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			Node n = null;
 			if (thread_object.startsWith(runtime) || thread_object.startsWith(future)) {
-				n = searchGraph(threadID+"-1", getGraph(vm, startedThread));
+				n = searchGraph(threadID+"-1", graph);
 				n.setThreadInfo(startedThread);
 			}
 
@@ -135,7 +136,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			//add task's current finishscope to stack
 			stk.push((finishNode) finishScope.get(threadID));
 			finishBlocks.put(startedThread, stk);
-			createGraph(getGraph(vm, startedThread), dir, vm, "Line138");
+			//createGraph(graph, dir, vm, "Line138");
 
 		}
 
@@ -148,12 +149,12 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				Node currentNode = currentNodes.get(startedThread);
 
 				if(futureJoinNode.containsKey(threadID)){
-					addJoinEdge(currentNode, futureJoinNode.get(threadID), getGraph(vm, startedThread));
+					addJoinEdge(currentNode, futureJoinNode.get(threadID), graph);
 				}else{
 					futureJoinNode.put(threadID, currentNode);
 				}
 			}
-			createGraph(getGraph(vm, startedThread), dir, vm, "Line156");
+			//createGraph(graph, dir, vm, "Line156");
 		}
 
 	public String makeLabel(ThreadInfo currentThread, String objectID){
@@ -211,15 +212,15 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					//create child node
 					activityNode child = new activityNode(newObjectID + "-1");
 					child.setDisplay_name(makeLabel(currentThread,newObjectID));
-					getGraph(vm, currentThread).addVertex(child);
+					graph.addVertex(child);
 
 					if(!newObjectID.contains("Suspendable")){
-						addSpawnEdge(currentNodes.get(currentThread), child, getGraph(vm, currentThread));
+						addSpawnEdge(currentNodes.get(currentThread), child, graph);
 
 						//create next node for parent task
 						activityNode nextNode = createNextNode(currentThread);
-						getGraph(vm, currentThread).addVertex(nextNode);
-						addContinuationEdge(currentNode, nextNode, getGraph(vm, currentThread));
+						graph.addVertex(nextNode);
+						addContinuationEdge(currentNode, nextNode, graph);
 
 						//update current nodes map
 						currentNodes.put(currentThread, nextNode);
@@ -233,13 +234,13 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					if(currentThread.getGlobalId() != 0){
 						finishNode fin = new finishNode(newObjectID, currentThread);
 						fin.setDisplay_name(makeLabel(currentThread,newObjectID));
-						getGraph(vm, currentThread).addVertex(fin);
-						addContinuationEdge(currentNode, fin, getGraph(vm, currentThread));
+						graph.addVertex(fin);
+						addContinuationEdge(currentNode, fin, graph);
 
 						//create next node for the task
 						activityNode nextNode = createNextNode(currentThread);
-						getGraph(vm, currentThread).addVertex(nextNode);
-						addContinuationEdge(fin, nextNode, getGraph(vm, currentThread));
+						graph.addVertex(nextNode);
+						addContinuationEdge(fin, nextNode, graph);
 
 						currentNodes.put(currentThread, nextNode);
 
@@ -247,7 +248,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						finishBlocks.get(currentThread).push(fin);
 					}else{
 						Node activity = null;
-						Set<Node> nodes = getGraph(vm, currentThread).vertexSet();
+						Set<Node> nodes = graph.vertexSet();
 						for(Node n : nodes){
 							if(n.id.startsWith("SuspendableActivity") && n.id.endsWith("-1")){
 								activity = n;
@@ -257,17 +258,17 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						//Master Finish Start
 						finishNode fin = new finishNode(newObjectID, currentThread);
 						fin.setDisplay_name(makeLabel(currentThread,newObjectID));
-						getGraph(vm, currentThread).addVertex(fin);
+						graph.addVertex(fin);
 						masterFin = fin;
 
 						//Master Finish end
 						finishNode fin_end = new finishNode(newObjectID+"-end", currentThread);
 						fin_end.setDisplay_name(makeLabel(currentThread,newObjectID+"-end"));
-						getGraph(vm, currentThread).addVertex(fin_end);
+						graph.addVertex(fin_end);
 						masterFinEnd = fin_end;
 
 						//add edge from finish start to suspendable activity
-						addContinuationEdge(fin, activity, getGraph(vm, currentThread));
+						addContinuationEdge(fin, activity, graph);
 
 						//add finishScope of suspendable activity
 						String susActID = activity.id.split("-")[0];
@@ -275,7 +276,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					}
 				}
 			}
-			createGraph(getGraph(vm, currentThread), dir, vm, "Line278");
+			//createGraph(graph, dir, vm, "Line278");
 		}
 
 	@Override
@@ -288,14 +289,14 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				if (objectName.startsWith("SuspendableActivity")) {
 					//add edge to master fin end
 					Node activity = currentNodes.get(currentThread);
-					addContinuationEdge(activity, masterFinEnd, getGraph(vm, currentThread));
-					createGraph(getGraph(vm, currentThread), dir, vm, "Line292");
+					addContinuationEdge(activity, masterFinEnd, graph);
+					createGraph(graph, dir, vm, "Line292");
 					if(drd){
-						race = analyzeFinishBlock(getGraph(vm, currentThread), masterFin.id, on_the_fly);
+						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}
 				}
 			}
-			createGraph(getGraph(vm, currentThread), dir, vm, "Line298");
+			//createGraph(graph, dir, vm, "Line298");
 		}
 
 	@Override
@@ -304,6 +305,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			String methodName = extractMethodName(enteredMethod);
 			if (methodName.startsWith("startIsolation")) {
+				System.out.println(methodName);
+
 				activityNode currentActivity = (activityNode) currentNodes.get(currentThread);
 				String [] s = currentActivity.id.split("-");
 				int next_num = Integer.parseInt(s[1]) + 1;
@@ -312,26 +315,27 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				isolNode.setDisplay_name(makeLabel(currentThread,"Isolated@" + next_num));
 				currentNodes.put(currentThread, isolNode);
 
-				getGraph(vm, currentThread).addVertex(isolNode);
-				if (getGraph(vm, currentThread).containsVertex(currentActivity)) {
-					addContinuationEdge(currentActivity, isolNode, getGraph(vm, currentThread));
-				}
-				else {
-					System.out.println("Skipped adding edge");
-				}
+				graph.addVertex(isolNode);
+				addContinuationEdge(currentActivity, isolNode, graph);
+				System.out.println("isolNode: " + isolNode);
 
 
 				if(previousIsolatedNode != null){
-					addIsolatedEdge(previousIsolatedNode, isolNode, getGraph(vm, currentThread));
+					addIsolatedEdge(isolNode, previousIsolatedNode, graph);
+
+					//ChoiceGenerator<ThreadInfo> cg
+					//	= getIsolateCG("ISOLATED", currentThread, vm, previousIsolatedNode, isolNode);
+					//vm.getSystemState().setNextChoiceGenerator(cg);
 				}
 				previousIsolatedNode = isolNode;
+				System.out.println("previousIsolatedNode: " + previousIsolatedNode);
 
 			} else if (methodName.startsWith("stopIsolation")) {
 
 				Node isolatedNode = currentNodes.get(currentThread);
 				activityNode nextNode = createNextNode(currentThread);
-				getGraph(vm, currentThread).addVertex(nextNode);
-				addContinuationEdge(isolatedNode, nextNode, getGraph(vm, currentThread));
+				graph.addVertex(nextNode);
+				addContinuationEdge(isolatedNode, nextNode, graph);
 
 				currentNodes.put(currentThread, nextNode);
 
@@ -343,8 +347,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						Node currentNode = currentNodes.get(currentThread);
 						Node fin = finishScope.get(threadID);
 						String finishJoin = fin.id;
-						Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
-						addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+						Node finishJoinNode = searchGraph(finishJoin+"-end", graph);
+						addJoinEdge(currentNode, finishJoinNode, graph);
 					}
 				}else if(finishBlocks.get(currentThread).size() > 1){
 					createFinEndNode(currentThread, vm);
@@ -355,19 +359,19 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 				Node oldActNode = currentNodes.get(currentThread);
 				Node newActNode = createNextNode(currentThread);
-				getGraph(vm, currentThread).addVertex(newActNode);
-				addContinuationEdge(oldActNode, newActNode, getGraph(vm, currentThread));
+				graph.addVertex(newActNode);
+				addContinuationEdge(oldActNode, newActNode, graph);
 
 				currentNodes.put(currentThread, newActNode);
 
 				if(!futureJoinNode.containsKey(futureThreadName)){
 					futureJoinNode.put(futureThreadName, newActNode);
 				}else{
-					addJoinEdge(futureJoinNode.get(futureThreadName), newActNode, getGraph(vm, currentThread));
+					addJoinEdge(futureJoinNode.get(futureThreadName), newActNode, graph);
 				}
 
 			}
-			createGraph(getGraph(vm, currentThread), dir, vm, "Line366");
+			//createGraph(graph, dir, vm, "Line366");
 		}
 
 	@Override
@@ -375,7 +379,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			if(enteredMethod.getName().contains("stopFinish")){
 				if(on_the_fly && drd){
-					race = analyzeFinishBlock(getGraph(vm, currentThread), finishBlocks.get(currentThread).pop().id, on_the_fly);
+					race = analyzeFinishBlock(graph, finishBlocks.get(currentThread).pop().id, on_the_fly);
 				}
 			}
 		}
@@ -387,7 +391,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	@Override
 		public boolean check(Search search, VM vm) {
-			createGraph(graph, dir, vm, "Line386");
+			//createGraph(graph, dir, vm, "Line386");
 
 			return (!race);
 		}
@@ -410,17 +414,17 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 		finishNode end = new finishNode(start.id + "-end", currentThread);
 		end.setDisplay_name(makeLabel(currentThread,start.id+"-end") );
-		getGraph(vm, currentThread).addVertex(end);
-		addContinuationEdge(currentNode, end, getGraph(vm, currentThread));
+		graph.addVertex(end);
+		addContinuationEdge(currentNode, end, graph);
 
 		currFinNode.put(currentThread, start);
 
 		//create next node for the task
 		activityNode nextNode = createNextNode(currentThread);
-		getGraph(vm, currentThread).addVertex(nextNode);
+		graph.addVertex(nextNode);
 
 		currentNodes.put(currentThread, nextNode);
-		addContinuationEdge(end, nextNode, getGraph(vm, currentThread));
+		addContinuationEdge(end, nextNode, graph);
 
 	}
 
@@ -442,10 +446,24 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				&& timeoutRunnables[0] == tiCurrent) {
 			return null;
 		} else {
-			return new SeperateGraphChoiceGenerator(id, timeoutRunnables, true, getGraph(vm, tiCurrent));
+			return new ThreadChoiceFromSet(id, timeoutRunnables, true);
 		}
 	}
-	/** TODO have tool analize all of the created graphs */
+
+	static ChoiceGenerator<ThreadInfo> getIsolateCG(String id, ThreadInfo tiCurrent, VM vm, Node inodeFirst, Node inodeSecond) {
+		ThreadInfo[] timeoutRunnables
+			= getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
+			System.out.println(timeoutRunnables);
+		if (timeoutRunnables.length == 0) {
+			return null;
+		} else if (timeoutRunnables.length == 1
+				&& timeoutRunnables[0] == tiCurrent) {
+			return null;
+		} else {
+			return new SeperateGraphChoiceGenerator(id, timeoutRunnables, true,graph,inodeFirst,inodeSecond);
+		}
+	}
+
 	@Override
 		public void searchFinished(Search search) {
 			createGraph(graph, dir, search.getVM(), "Line447");
@@ -455,15 +473,4 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			check(search, search.getVM());
 		}
 
-
-		static DirectedAcyclicGraph<Node, DefaultEdge> getGraph(VM vm, ThreadInfo ti) {
-			if (SeperateGraphChoiceGenerator.class.isInstance(vm.getChoiceGenerator())) {
-				SeperateGraphChoiceGenerator cg = (SeperateGraphChoiceGenerator) vm.getChoiceGenerator();
-				graph = cg.getGraph(vm.getCurrentThread());
-				return graph;
-			}
-			else {
-				return graph;
-			}
-		}
 }
