@@ -17,12 +17,13 @@ import static cg.Comp_Graph.*;
 
 public class CGRaceDetector extends PropertyListenerAdapter {
 
-	private String dir = null;
+	private static String dir = null;
 	private boolean on_the_fly = false;
 	private boolean drd = true;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
 	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
+	private static VM currentVM;
 
 
 	private String runtime = "hj.runtime.wsh";
@@ -42,8 +43,11 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		new DirectedAcyclicGraph<Node, DefaultEdge>(DefaultEdge.class);
 
 	private boolean race = false;
+	private boolean test = false;
 	private finishNode masterFinEnd = null;
 	private finishNode masterFin = null;
+
+
 
 	private Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
 
@@ -66,23 +70,24 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 		public void executeInstruction(VM vm, ThreadInfo currentThread,
 				Instruction instructionToExecute) {
-					createGraph(graph, dir, vm, "Line114");
+					currentVM = vm;
 
 			//scheduler for isolated
-			if(drd){
-				if (instructionToExecute instanceof JVMInvokeInstruction) {
-					MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
-					String baseName = mi.getBaseName();
-					if (isIsolatedMethod(baseName)) {
-						System.out.println("Executed Instruction");
-						ChoiceGenerator<ThreadInfo> cg
-							= getRunnableCG("ISOLATED", currentThread, vm);
-						vm.getSystemState().setNextChoiceGenerator(cg);
-					}else{
-						return;
-					}
-				}
-			}
+			//if(drd){
+			//	if (instructionToExecute instanceof JVMInvokeInstruction) {
+			//		MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
+			//		String baseName = mi.getBaseName();
+			//		if (isIsolatedMethod(baseName)) {
+			//			test = true;
+			//			System.out.println("Executed Instruction");
+			//			ChoiceGenerator<ThreadInfo> cg
+			//				= getRunnableCG("ISOLATED", currentThread, vm);
+			//			vm.getSystemState().setNextChoiceGenerator(cg);
+			//		}else{
+			//			return;
+			//		}
+			//	}
+			//}
 
 			Node n = currentNodes.get(currentThread);
 
@@ -290,7 +295,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					//add edge to master fin end
 					Node activity = currentNodes.get(currentThread);
 					addContinuationEdge(activity, masterFinEnd, graph);
-					createGraph(graph, dir, vm, "Line292");
+					createGraph(graph, dir, vm, "ObjectReleasedFinish");
 					if(drd){
 						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}
@@ -304,8 +309,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 				MethodInfo enteredMethod) {
 
 			String methodName = extractMethodName(enteredMethod);
+
+
 			if (methodName.startsWith("startIsolation")) {
-				System.out.println(methodName);
+
 
 				activityNode currentActivity = (activityNode) currentNodes.get(currentThread);
 				String [] s = currentActivity.id.split("-");
@@ -317,18 +324,15 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 				graph.addVertex(isolNode);
 				addContinuationEdge(currentActivity, isolNode, graph);
-				System.out.println("isolNode: " + isolNode);
 
 
-				if(previousIsolatedNode != null){
-					addIsolatedEdge(isolNode, previousIsolatedNode, graph);
-
-					//ChoiceGenerator<ThreadInfo> cg
-					//	= getIsolateCG("ISOLATED", currentThread, vm, previousIsolatedNode, isolNode);
-					//vm.getSystemState().setNextChoiceGenerator(cg);
+				if(previousIsolatedNode != null && isolNode != null){
+					ChoiceGenerator<Boolean> cg = new SeperateGraphChoiceGenerator("ISOLATED",graph,previousIsolatedNode, isolNode);
+					vm.getSystemState().setNextChoiceGenerator(cg);
 				}
+
+
 				previousIsolatedNode = isolNode;
-				System.out.println("previousIsolatedNode: " + previousIsolatedNode);
 
 			} else if (methodName.startsWith("stopIsolation")) {
 
@@ -379,6 +383,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			if(enteredMethod.getName().contains("stopFinish")){
 				if(on_the_fly && drd){
+					dumpGraph("stopFinish");
 					race = analyzeFinishBlock(graph, finishBlocks.get(currentThread).pop().id, on_the_fly);
 				}
 			}
@@ -450,23 +455,13 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		}
 	}
 
-	static ChoiceGenerator<ThreadInfo> getIsolateCG(String id, ThreadInfo tiCurrent, VM vm, Node inodeFirst, Node inodeSecond) {
-		ThreadInfo[] timeoutRunnables
-			= getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
-			System.out.println(timeoutRunnables);
-		if (timeoutRunnables.length == 0) {
-			return null;
-		} else if (timeoutRunnables.length == 1
-				&& timeoutRunnables[0] == tiCurrent) {
-			return null;
-		} else {
-			return new SeperateGraphChoiceGenerator(id, timeoutRunnables, true,graph,inodeFirst,inodeSecond);
-		}
+	public static void dumpGraph(String message) {
+		createGraph(graph, dir, currentVM, message);
 	}
 
 	@Override
 		public void searchFinished(Search search) {
-			createGraph(graph, dir, search.getVM(), "Line447");
+			createGraph(graph, dir, search.getVM(), "SearchFinished");
 			if(drd){
 				race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 			}

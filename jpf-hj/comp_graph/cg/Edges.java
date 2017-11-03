@@ -106,6 +106,7 @@ public class Edges {
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
         } catch (CycleFoundException e) {
+            CGRaceDetector.dumpGraph("CYCLE FOUND");
             e.printStackTrace();
         }
         e1.setAttributes(IsolatedEdgeAttributes());

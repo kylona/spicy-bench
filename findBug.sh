@@ -1,12 +1,14 @@
 #!/bin/bash
-
+rm -r saveDotTmp
+mkdir saveDotTmp
+cp Classes/Results/* saveDotTmp
 rm -r Classes
 PathToHJlib='HJLibFiles/lib/byu-hjlib.jar'
 PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
 NativeClassPath="/home/kylona/workspace/spicy-bench/jpf-hj/build/classes;/home/kylona/workspace/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
 PathToClasses='Classes'
 mkdir -p $PathToClasses
-name=DataRaceIsolateSimple
+name=DataRaceIsolateSimple1
 FoundJava=$(find -name "$name.java" -print -quit)
 if [ -z $FoundJava ]; then
   echo 'Could Not find source for' $name
@@ -18,6 +20,7 @@ if [ ! -f $PathToClasses/$name.class ]; then
     echo 'Compile Step Failed'
     exit 1
   fi
+
   echo "Making $name.jpf"
   echo target=$name > $PathToClasses/$name.jpf
   echo Results_directory =$PathToClasses/Results/ >> $PathToClasses/$name.jpf
@@ -45,3 +48,7 @@ fi
 /usr/bin/time -f "Native Running Time: %e seconds" java -cp $PathToClasses:$PathToHJlib $name
 echo "----------------------------------------------"
 java -jar $PathTORunJPF $PathToClasses/$name.jpf
+//rdfind -deleteduplicates true Classes/Results/
+
+echo Diff of files:
+diff -r saveDotTmp Classes/Results
