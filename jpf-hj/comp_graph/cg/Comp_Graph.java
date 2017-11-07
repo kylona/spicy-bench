@@ -305,7 +305,7 @@ public class Comp_Graph {
         return false;
     }
 
-    static void createGraph(DirectedAcyclicGraph<Node, DefaultEdge> graph, String targetDirectory, VM vm) {
+    static void createGraph(DirectedAcyclicGraph<Node, DefaultEdge> graph, String targetDirectory, VM vm, String message) {
         IntegerNameProvider<Node> p1 = new IntegerNameProvider<Node>();
         ComponentAttributeProvider<Node> p2 = new ComponentAttributeProvider<Node>() {
             @Override
@@ -350,7 +350,7 @@ public class Comp_Graph {
         new File(targetDirectory).mkdirs();
         TransitiveReduction.closeSimpleDirectedGraph(graph);
         try {
-            exporter.export(new FileWriter(targetDirectory + vm.getSUTName() + "-" + ++GRAPH_ITER + ".dot"), graph);
+            exporter.export(new FileWriter(targetDirectory + vm.getSUTName() + "-" + ++GRAPH_ITER + "-" + message + ".dot"), graph);
         } catch (IOException e) {
             e.printStackTrace();
         }

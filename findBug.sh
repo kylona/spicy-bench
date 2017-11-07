@@ -6,7 +6,7 @@ PathTORunJPF="HJLibFiles/lib/RunJPF.jar"
 NativeClassPath="/home/kylona/workspace/spicy-bench/jpf-hj/build/classes;/home/kylona/workspace/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
 PathToClasses='Classes'
 mkdir -p $PathToClasses
-name=IsolatedBlockNo
+name=DataRaceIsolateSimple
 FoundJava=$(find -name "$name.java" -print -quit)
 if [ -z $FoundJava ]; then
   echo 'Could Not find source for' $name

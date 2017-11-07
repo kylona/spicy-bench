@@ -79,7 +79,7 @@ public class Edges {
         e1.setAttributes(JoinEdgeAttributes());
     }
 
-    public static void addContinuationEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+    public static DefaultEdge addContinuationEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
@@ -88,6 +88,7 @@ public class Edges {
         }
         if(e1!=null)
         	e1.setAttributes(ContinuationEdgeAttributes());
+          return e1;
     }
 
     public static void addFutureEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -100,7 +101,7 @@ public class Edges {
         e1.setAttributes(FutureEdgeAttributes());
     }
 
-    public static void addIsolatedEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+    public static DefaultEdge addIsolatedEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
@@ -108,6 +109,7 @@ public class Edges {
             e.printStackTrace();
         }
         e1.setAttributes(IsolatedEdgeAttributes());
+        return e1;
     }
 
     public static void addSignalEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {

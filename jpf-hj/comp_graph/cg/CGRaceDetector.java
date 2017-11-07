@@ -67,21 +67,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	public void executeInstruction(VM vm, ThreadInfo currentThread,
 			Instruction instructionToExecute) {
 
-		//scheduler for isolated
-		if(drd){
-			if (instructionToExecute instanceof JVMInvokeInstruction) {
-				MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
-				String baseName = mi.getBaseName();
-				if (isIsolatedMethod(baseName)) {
-					ChoiceGenerator<ThreadInfo> cg
-						= getRunnableCG("ISOLATED", currentThread, vm);
-					vm.getSystemState().setNextChoiceGenerator(cg);
-				}else{
-					return;
-				}
-			}
-		}
-
 		Node n = currentNodes.get(currentThread);
 
 		if(n != null){
@@ -152,7 +137,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
         }
 	}
 
-        public String makeLabel(ThreadInfo currentThread, String objectID){
+        static String makeLabel(ThreadInfo currentThread, String objectID){
             String [] theadSplit = objectID.split("@");
             String output = theadSplit[0]+"T:"+getThreadName(theadSplit[1]);
             String trace;
@@ -284,7 +269,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
                 //add edge to master fin end
             	Node activity = currentNodes.get(currentThread);
             	addContinuationEdge(activity, masterFinEnd, graph);
-            	createGraph(graph, dir, vm);
+            	createGraph(graph, dir, vm, "ObjectReleased");
             	if(drd){
             		race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
             	}
@@ -298,23 +283,14 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
         String methodName = extractMethodName(enteredMethod);
         if (methodName.startsWith("startIsolation")) {
-            activityNode currentActivity = (activityNode) currentNodes.get(currentThread);
-            String [] s = currentActivity.id.split("-");
-  		  	int next_num = Integer.parseInt(s[1]) + 1;
-
-            isolatedNode isolNode = new isolatedNode("Isolated_" + s[0] + "-" + next_num, currentThread);
-            isolNode.setDisplay_name(makeLabel(currentThread,"Isolated@" + next_num));
-            graph.addVertex(isolNode);
-
-            currentNodes.put(currentThread, isolNode);
-
-            addContinuationEdge(currentActivity, isolNode, graph);
 
 
-            if(previousIsolatedNode != null){
-            	addIsolatedEdge(previousIsolatedNode, isolNode, graph);
-            }
-            previousIsolatedNode = isolNode;
+						//scheduler for isolated
+						if(drd){
+									ChoiceGenerator<ThreadInfo> cg
+										= getRunnableCG("ISOLATED", currentThread, vm);
+									vm.getSystemState().setNextChoiceGenerator(cg);
+						}
 
         } else if (methodName.startsWith("stopIsolation")) {
 
@@ -420,7 +396,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			}
 	  }
 
-	  static ChoiceGenerator<ThreadInfo> getRunnableCG(String id, ThreadInfo tiCurrent, VM vm) {
+	  private ChoiceGenerator<ThreadInfo> getRunnableCG(String id, ThreadInfo tiCurrent, VM vm) {
 			ThreadInfo[] timeoutRunnables
 					= getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
 			if (timeoutRunnables.length == 0) {
@@ -429,13 +405,17 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					&& timeoutRunnables[0] == tiCurrent) {
 				return null;
 			} else {
-				return new ThreadChoiceFromSet(id, timeoutRunnables, true);
+				return new IsolateChoiceGenerator(id, timeoutRunnables, true, currentNodes, graph);
 			}
 	  }
 
+		public void stateBacktracked(Search search) {
+			createGraph(graph, dir, search.getVM(), "Backtrack");
+		}
+
 	  @Override
 	  public void searchFinished(Search search) {
-		createGraph(graph, dir, search.getVM());
+		createGraph(graph, dir, search.getVM(), "SearchFinished");
 		if(drd){
 			race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 		}
