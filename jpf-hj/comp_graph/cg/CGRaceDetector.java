@@ -317,34 +317,34 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			} else if (methodName.startsWith("stopFinish")) {
 				String threadID = extractThreadName(currentThread);
-                RaceGraph graph = RaceGraph.getCurrentGraph();
-                Node fin = graph.finishScope.get(threadID);
-                Node finishJoinNode = searchGraph(fin.id+"-end", getGraph(vm, currentThread));
-                if (finishJoinNode == null) {
-                    createFinEndNode(currentThread, vm);
-                } else {
-                    if (!threadID.contains("Suspendable")) {
-                        Node currentNode = graph.currentNodes.get(currentThread);
-                        addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
-                    }
-                }
+                //RaceGraph graph = RaceGraph.getCurrentGraph();
+                //Node fin = graph.finishScope.get(threadID);
+                //Node finishJoinNode = searchGraph(fin.id+"-end", getGraph(vm, currentThread));
+                //if (finishJoinNode == null) {
+                //    createFinEndNode(currentThread, vm);
+                //} else {
+                //    if (!threadID.contains("Suspendable")) {
+                //        Node currentNode = graph.currentNodes.get(currentThread);
+                //        addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+                //    }
+                //}
 
-				//if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() == 1){
-				//	if(!threadID.contains("Suspendable")){
-				//		Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
-				//		Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
-				//		String finishJoin = fin.id;
-				//		Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
-				//		try {
-				//			addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
-				//		}
-				//		catch (Exception ex ){
-				//			ex.printStackTrace();
-				//		}
-				//	}
-				//}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
-				//	createFinEndNode(currentThread, vm);
-				//}
+				if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() == 1){
+					if(!threadID.contains("Suspendable")){
+						Node currentNode = RaceGraph.getCurrentGraph().currentNodes.get(currentThread);
+						Node fin = RaceGraph.getCurrentGraph().finishScope.get(threadID);
+						String finishJoin = fin.id;
+						Node finishJoinNode = searchGraph(finishJoin+"-end", getGraph(vm, currentThread));
+						try {
+							addJoinEdge(currentNode, finishJoinNode, getGraph(vm, currentThread));
+						}
+						catch (Exception ex ){
+							ex.printStackTrace();
+						}
+					}
+				}else if(RaceGraph.getCurrentGraph().finishBlocks.get(currentThread).size() > 1){
+					createFinEndNode(currentThread, vm);
+				}
 			} else if(enteredMethod.getBaseName().equals(futureGet)){
 
 				String futureThreadName = extractCalleeName(currentThread);
