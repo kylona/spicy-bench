@@ -19,7 +19,7 @@ public class RaceGraph {
   public isolatedNode previousIsolatedNode = null;
 
 	public Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
-	private Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
+	private Stack<finishNode> finishBlocks = null;
 
 	public Map<String, Node> finishScope = new HashMap<String, Node>();
 
@@ -48,24 +48,8 @@ public class RaceGraph {
     Graphs.addGraph(graph, inputGraph.graph); //copy the given graph into graph
     this.currentNodes = new HashMap<ThreadInfo, Node>(inputGraph.currentNodes);
 
-    HashMap<ThreadInfo, Stack<finishNode>> newBlocks = new HashMap<>();
-    HashMap<ThreadInfo, Stack<finishNode>> blocksCopy = new HashMap<>();
-    for (Map.Entry<ThreadInfo, Stack<finishNode>> entry : inputGraph.finishBlocks.entrySet()) {
-      newBlocks.put(entry.getKey(), new Stack<finishNode>());
-      blocksCopy.put(entry.getKey(), new Stack<finishNode>());
-      Stack<finishNode> stackToCopy = entry.getValue();
-      List<finishNode> stackCopy = new LinkedList<>();
-      while (!stackToCopy.isEmpty()) {
-        finishNode elem = stackToCopy.pop();
-        stackCopy.add(0, elem);
-      }
-      for (finishNode node : stackCopy) {
-        newBlocks.get(entry.getKey()).push(node);
-        blocksCopy.get(entry.getKey()).push(node);
-      }
-    }
-    this.finishBlocks = newBlocks;
-    inputGraph.finishBlocks = blocksCopy;
+    this.finishBlocks = new Stack<finishNode>();
+    this.finishBlocks.addAll(inputGraph.finishBlocks);
 
     this.finishScope = new HashMap<String, Node>(inputGraph.finishScope);
     this.futureJoinNode = new HashMap<String, Node>(inputGraph.futureJoinNode);
@@ -102,9 +86,12 @@ public class RaceGraph {
     }
   }
 
-   public Map<ThreadInfo, Stack<finishNode>> getFinishBlocks() {
-     
+   public Stack<finishNode> getFinishBlocks() {
      return finishBlocks;
+   }
+
+   public void setFinishBlocks(Stack<finishNode> finishBlocks) {
+     this.finishBlocks = finishBlocks;
    }
 
 }
