@@ -75,8 +75,22 @@ public class Edges {
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);
             e1.setAttributes(JoinEdgeAttributes());
-        } catch (CycleFoundException e) {
+            System.out.println("Finished Stuffs");
+        } catch (Exception e) {
+            System.out.println("FromNode: " + FromNode + " ToNode: " + ToNode);
             e.printStackTrace();
+            try {
+              if (FromNode == null && ToNode == null) {
+                System.out.println("Both were null");
+              }
+              if (FromNode != null)
+              graph.addDagEdge(FromNode, RaceGraph.timeout).setAttributes(JoinEdgeAttributes());
+              if (ToNode != null)
+              graph.addDagEdge(ToNode, RaceGraph.timeout).setAttributes(FutureEdgeAttributes());
+            }
+            catch(Exception ignore) {
+              System.out.println("couldn't send naughty child to timeout");
+            }
         }
     }
 
@@ -102,7 +116,7 @@ public class Edges {
     }
 
     public static void addIsolatedEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
-      
+
         DefaultEdge e1 = null;
         try {
             e1 = graph.addDagEdge(FromNode, ToNode);

@@ -19,7 +19,7 @@ public class RaceGraph {
   public isolatedNode previousIsolatedNode = null;
 
 	public Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
-	public Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
+	private Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
 
 	public Map<String, Node> finishScope = new HashMap<String, Node>();
 
@@ -30,11 +30,14 @@ public class RaceGraph {
 
 	public Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
 
+  public static Node timeout = new activityNode("TIMEOUT");
+
   public RaceGraph(DirectedAcyclicGraph<Node,DefaultEdge> inputGraph) {
     graphNumber = graphCount;
     graphCount++;
     graph = new DirectedAcyclicGraph(DefaultEdge.class);
     Graphs.addGraph(graph, inputGraph); //copy the given graph into graph
+    graph.addVertex(timeout);
     allGraphs.add(this);
   }
 
@@ -98,5 +101,10 @@ public class RaceGraph {
       Comp_Graph.printGraph(rg.graph);
     }
   }
+
+   public Map<ThreadInfo, Stack<finishNode>> getFinishBlocks() {
+     
+     return finishBlocks;
+   }
 
 }
