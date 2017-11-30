@@ -15,37 +15,41 @@ import gov.nasa.jpf.vm.choice.ThreadChoiceFromSet;
 import static cg.Edges.*;
 import static cg.Comp_Graph.*;
 
+
 public class CGRaceDetector extends PropertyListenerAdapter {
 
-	private String dir = null;
-	private boolean on_the_fly = false;
-	private boolean drd = true;
+	private static String dir = null;
+	private static boolean on_the_fly = false;
+	private static boolean drd = true;
 
-        private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
-        private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
+  private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
+  private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
 
 
-	private String runtime = "hj.runtime.wsh";
-	private String future = "hj.lang.Future";
-	private String futureGet = "hj.lang.Future.get";
+	private static final String runtime = "hj.runtime.wsh";
+	private static final String future = "hj.lang.Future";
+	private static final String futureGet = "hj.lang.Future.get";
 
-	private isolatedNode previousIsolatedNode = null;
+	isolatedNode previousIsolatedNode = null;
 
-	private Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
-	private Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
+	Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
+	Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
 
-	private Map<String, Node> finishScope = new HashMap<String, Node>();
+	Map<String, Node> finishScope = new HashMap<String, Node>();
 
-	private Map<String, Node> futureJoinNode = new HashMap<String, Node>();
+	Map<String, Node> futureJoinNode = new HashMap<String, Node>();
 
-	private DirectedAcyclicGraph<Node, DefaultEdge> graph =
+	static DirectedAcyclicGraph<Node, DefaultEdge> graph =
 			new DirectedAcyclicGraph<Node, DefaultEdge>(DefaultEdge.class);
 
-	private boolean race = false;
-	private finishNode masterFinEnd = null;
-	private finishNode masterFin = null;
+	boolean race = false;
+	finishNode masterFinEnd = null;
+	finishNode masterFin = null;
 
-	private Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
+	Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
+
+	public static Node timeoutBox = new activityNode("TimeoutBox");
+
 
 	public CGRaceDetector (Config conf, JPF jpf) {
 		dir = conf.getString("Results_directory");
@@ -61,6 +65,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		if(data_race_detect.equalsIgnoreCase("false")){
 			drd = false;
 		}
+
+		graph.addVertex(timeoutBox);
+		timeoutBox.setDisplay_name("TimeoutBox");
+
 	}
 
 	@Override
@@ -284,6 +292,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
                 //add edge to master fin end
             	Node activity = currentNodes.get(currentThread);
             	addContinuationEdge(activity, masterFinEnd, graph);
+							DoLaterEdgePack.tryPackAgain();
             	createGraph(graph, dir, vm);
             	if(drd){
             		race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
@@ -310,13 +319,13 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
             addContinuationEdge(currentActivity, isolNode, graph);
 
-
-            if(previousIsolatedNode != null){
+						//TODO: catch vertex allready added exception and run it again just before analyzeFinishBlock calls
+            if(previousIsolatedNode != null) {
             	addIsolatedEdge(previousIsolatedNode, isolNode, graph);
             }
             previousIsolatedNode = isolNode;
 
-        } else if (methodName.startsWith("stopIsolation")) {
+        } else if (false && methodName.startsWith("stopIsolation")) {
 
         	Node isolatedNode = currentNodes.get(currentThread);
         	activityNode nextNode = createNextNode(currentThread);
@@ -333,6 +342,9 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					Node currentNode = currentNodes.get(currentThread);
 					Node fin = finishScope.get(threadID);
 					String finishJoin = fin.id;
+					System.out.println(finishJoin);
+					Comp_Graph.printGraph(graph);
+					//TODO: catch vertex allready added exception and run it again just before analyzeFinishBlock calls
 					Node finishJoinNode = searchGraph(finishJoin+"-end", graph);
 					addJoinEdge(currentNode, finishJoinNode, graph);
 				}
@@ -376,7 +388,11 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	  @Override
 	  public boolean check(Search search, VM vm) {
-		  return (!race);
+		  return true;
+			//disabled for testing
+			//return (!race);
+
+
 	  }
 
 	  private activityNode createNextNode(ThreadInfo currentThread){
@@ -420,7 +436,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			}
 	  }
 
-	  static ChoiceGenerator<ThreadInfo> getRunnableCG(String id, ThreadInfo tiCurrent, VM vm) {
+	  ChoiceGenerator<ThreadInfo> getRunnableCG(String id, ThreadInfo tiCurrent, VM vm) {
 			ThreadInfo[] timeoutRunnables
 					= getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
 			if (timeoutRunnables.length == 0) {
@@ -429,16 +445,25 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					&& timeoutRunnables[0] == tiCurrent) {
 				return null;
 			} else {
-				return new ThreadChoiceFromSet(id, timeoutRunnables, true);
+				return new IsolateChoiceGenerator(this, id, timeoutRunnables, true, dir, vm);
 			}
 	  }
 
 	  @Override
 	  public void searchFinished(Search search) {
+		DoLaterEdgePack.tryPackAgain();
 		createGraph(graph, dir, search.getVM());
 		if(drd){
 			race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 		}
       	check(search, search.getVM());
 	  }
+
+		public static void setGraph(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+			CGRaceDetector.graph = graph;
+		}
+
+		public static DirectedAcyclicGraph<Node, DefaultEdge> getGraph() {
+			return graph;
+		}
 }
