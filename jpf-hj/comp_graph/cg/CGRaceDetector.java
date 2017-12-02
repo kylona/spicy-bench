@@ -22,8 +22,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	private static boolean on_the_fly = false;
 	private static boolean drd = true;
 
-  private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
-  private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
+	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
+	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
 
 
 	private static final String runtime = "hj.runtime.wsh";
@@ -321,7 +321,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
             }
             previousIsolatedNode = isolNode;
 
-        } else if (false && methodName.startsWith("stopIsolation")) {
+        } else if (methodName.startsWith("stopIsolation")) {
 
         	Node isolatedNode = currentNodes.get(currentThread);
         	activityNode nextNode = createNextNode(currentThread);

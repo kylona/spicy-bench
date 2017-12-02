@@ -348,7 +348,7 @@ public class Comp_Graph {
 
         DOTExporter<Node, DefaultEdge> exporter = new DOTExporter<Node, DefaultEdge>(p1, null, null, p2, p3);
         new File(targetDirectory).mkdirs();
-        //TransitiveReduction.closeSimpleDirectedGraph(graph);
+        TransitiveReduction.closeSimpleDirectedGraph(graph);
         try {
             exporter.export(new FileWriter(targetDirectory + vm.getSUTName() + "-" + ++GRAPH_ITER + ".dot"), graph);
         } catch (IOException e) {
