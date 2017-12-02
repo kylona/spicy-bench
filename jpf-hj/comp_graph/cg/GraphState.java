@@ -18,7 +18,7 @@ public class GraphState {
 
   public Map<String, Node> futureJoinNode = new HashMap<String, Node>();
 
-  public static DirectedAcyclicGraph<Node, DefaultEdge> graph =
+  public DirectedAcyclicGraph<Node, DefaultEdge> graph =
       new DirectedAcyclicGraph<Node, DefaultEdge>(DefaultEdge.class);
 
   public boolean race = false;

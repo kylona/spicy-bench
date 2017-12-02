@@ -47,8 +47,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	finishNode masterFin = null;
 
 	Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
+	List<ReTrySearchEdge> reTryAddEdge = new LinkedList<>();
 
-	public static Node timeoutBox = new activityNode("TimeoutBox");
 
 
 	public CGRaceDetector (Config conf, JPF jpf) {
@@ -65,10 +65,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		if(data_race_detect.equalsIgnoreCase("false")){
 			drd = false;
 		}
-
-		graph.addVertex(timeoutBox);
-		timeoutBox.setDisplay_name("TimeoutBox");
-
 	}
 
 	@Override
@@ -292,7 +288,15 @@ public class CGRaceDetector extends PropertyListenerAdapter {
                 //add edge to master fin end
             	Node activity = currentNodes.get(currentThread);
             	addContinuationEdge(activity, masterFinEnd, graph);
-							DoLaterEdgePack.tryPackAgain();
+							for( ReTrySearchEdge attempt : reTryAddEdge) {
+								try {
+									attempt.retry();
+									reTryAddEdge.remove(attempt);
+								}
+								catch (Exception ignored) {
+									System.out.println("Failed to add edge befor analysis!!!!!!!!!");
+								}
+							}
             	createGraph(graph, dir, vm);
             	if(drd){
             		race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
@@ -319,7 +323,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
             addContinuationEdge(currentActivity, isolNode, graph);
 
-						//TODO: catch vertex allready added exception and run it again just before analyzeFinishBlock calls
             if(previousIsolatedNode != null) {
             	addIsolatedEdge(previousIsolatedNode, isolNode, graph);
             }
@@ -342,11 +345,14 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					Node currentNode = currentNodes.get(currentThread);
 					Node fin = finishScope.get(threadID);
 					String finishJoin = fin.id;
-					System.out.println(finishJoin);
-					Comp_Graph.printGraph(graph);
-					//TODO: catch vertex allready added exception and run it again just before analyzeFinishBlock calls
-					Node finishJoinNode = searchGraph(finishJoin+"-end", graph);
-					addJoinEdge(currentNode, finishJoinNode, graph);
+					try {
+						Node finishJoinNode = searchGraph(finishJoin+"-end", graph);
+						addJoinEdge(currentNode, finishJoinNode, graph);
+					}
+					catch (Exception exception) {
+						reTryAddEdge.add(new ReTrySearchEdge(currentNode,finishJoin,graph));
+					}
+
 				}
 			}else if(finishBlocks.get(currentThread).size() > 1){
 				createFinEndNode(currentThread);
@@ -376,6 +382,15 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 		if(enteredMethod.getName().contains("stopFinish")){
 			if(on_the_fly && drd){
+				for( ReTrySearchEdge attempt : reTryAddEdge) {
+					try {
+						attempt.retry();
+						reTryAddEdge.remove(attempt);
+					}
+					catch (Exception ignored) {
+						System.out.println("Failed to add edge befor analysis!!!!!!!!!");
+					}
+				}
 				race = analyzeFinishBlock(graph, finishBlocks.get(currentThread).pop().id, on_the_fly);
 			}
 		}
@@ -388,11 +403,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	  @Override
 	  public boolean check(Search search, VM vm) {
-		  return true;
-			//disabled for testing
-			//return (!race);
-
-
+			return (!race);
 	  }
 
 	  private activityNode createNextNode(ThreadInfo currentThread){
@@ -451,7 +462,15 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	  @Override
 	  public void searchFinished(Search search) {
-		DoLaterEdgePack.tryPackAgain();
+			for( ReTrySearchEdge attempt : reTryAddEdge) {
+				try {
+					attempt.retry();
+					reTryAddEdge.remove(attempt);
+				}
+				catch (Exception ignored) {
+					System.out.println("Failed to add edge befor analysis!!!!!!!!!");
+				}
+			}
 		createGraph(graph, dir, search.getVM());
 		if(drd){
 			race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);

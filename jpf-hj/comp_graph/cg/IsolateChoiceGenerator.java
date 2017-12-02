@@ -19,12 +19,11 @@ public class IsolateChoiceGenerator extends ThreadChoiceFromSet {
     this.resetState = new GraphState(owner);
     this.dir = dir;
     this.vm = vm;
-    System.out.println("make ChoiceGenerator");
   }
 
   @Override
   public void advance() {
-    System.out.println("Reset Graph");
+    System.out.println("Reseting Graph To Check Next Scheduling");
     resetState.resetGraphState(owner);
     super.advance();
   }
