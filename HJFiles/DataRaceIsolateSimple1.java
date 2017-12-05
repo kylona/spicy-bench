@@ -26,7 +26,7 @@ public class DataRaceIsolateSimple1 {
                                 		}
                                 	});
                                 }
-                    	});
+                    	});	
                        	async(new HjRunnable() {
                             public void run() {
                             	p();
@@ -34,7 +34,7 @@ public class DataRaceIsolateSimple1 {
                        	});
                 	}
                 });
-
+                
         	}
         });
     }
@@ -44,9 +44,9 @@ public class DataRaceIsolateSimple1 {
     		public void run() {
     			System.out.println("Isolated: p");
     			DataRaceIsolateSimple1.shared = 0;
-    		}
-    	});
+    		}	
+    	});	
     	DataRaceIsolateSimple1.shared = 0;
     }
-
+  
 }

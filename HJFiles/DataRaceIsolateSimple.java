@@ -21,7 +21,7 @@ public class DataRaceIsolateSimple {
                                 public void run() {
                                 	p();
                                 }
-                    	});
+                    	});	
                     	isolated(new HjRunnable() {
                     		public void run() {
                     			System.out.println("Isolated: m");
@@ -30,7 +30,7 @@ public class DataRaceIsolateSimple {
                     	});
                 	}
                 });
-
+                
         	}
         });
     }
@@ -39,9 +39,9 @@ public class DataRaceIsolateSimple {
     	isolated(new HjRunnable() {
     		public void run() {
     			System.out.println("Isolated: p");
-    		}
-    	});
+    		}	
+    	});	
     	DataRaceIsolateSimple.g = 2;
     }
-
+  
 }
