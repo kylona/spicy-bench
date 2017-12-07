@@ -26,8 +26,8 @@ public class Antidep2OrigYes {
               }
             }
 
-            forAll(0, len-2, new HjProcedure<Integer>() {
-              public void apply(Integer i) {
+            forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
+              public void apply(Integer i) throws SuspendableException {
                 for (j = 0; j < len; j += 1) {
                   a[i][j] += a[i+1][j];
                 }

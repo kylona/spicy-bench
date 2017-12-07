@@ -69,7 +69,6 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 	public void executeInstruction(VM vm, ThreadInfo currentThread,
 			Instruction instructionToExecute) {
-
 		//scheduler for isolated
 		if(drd){
 			if (instructionToExecute instanceof JVMInvokeInstruction) {

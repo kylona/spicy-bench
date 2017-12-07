@@ -634,13 +634,12 @@ public class Comp_Graph {
     static boolean isValidFieldInstruction(Instruction instructionToExecute, VM vm) {
         String class_name = extractClassName(instructionToExecute);
         String insn = instructionToExecute.toString();
-
         if ((instructionToExecute instanceof InstanceFieldInstruction
-                && !insn.contains("java") && !insn.contains("hj") && !insn.contains("edu") && !class_name.contains("$"))
-                || (instructionToExecute instanceof StaticFieldInstruction
-                && insn.toString().split(" ")[1].startsWith(vm.getSUTName()))) {
+                && !insn.contains("java") && !insn.contains("hj") && !insn.contains("edu"))
+                || (instructionToExecute instanceof StaticFieldInstruction)) {
+
             return true;
         }
         return false;
-    }
+    } 
 }
