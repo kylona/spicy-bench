@@ -647,8 +647,7 @@ public class Comp_Graph {
 
 
     static boolean isValidFieldInstruction(Instruction instructionToExecute, VM vm) {
-        return (instructionToExecute instanceof InstanceFieldInstruction ||
-                instructionToExecute instanceof StaticFieldInstruction) &&
+        return instructionToExecute instanceof FieldInstruction &&
             !isLibraryInstruction(instructionToExecute);
     }
 }
