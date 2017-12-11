@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mkdir temp
-mkdir temp/array.PrimitiveArrayRace
 mkdir temp/PrimitiveArrayRaceless
 mkdir temp/array.PrimitiveArrayRaceless
 mkdir temp/permission.conference.StringTest
@@ -21,7 +20,6 @@ mkdir temp/benchmarks.matrix.VectorAdd
 mkdir temp/benchmarks.examples.ClumpedAcess
 
 
-./runOne.sh array.PrimitiveArrayRace temp/array.PrimitiveArrayRace > temp/array.PrimitiveArrayRace/output.txt
 ./runOne.sh array.PrimitiveArrayRaceless temp/array.PrimitiveArrayRaceless > temp/array.PrimitiveArrayRaceless/output.txt
 ./runOne.sh permission.conference.StringTest temp/permission.conference.StringTest > temp/permission.conference.StringTest/output.txt
 ./runOne.sh benchmarks.examples.ReciprocalArraySum temp/benchmarks.examples.ReciprocalArraySum > temp/benchmarks.examples.ReciprocalArraySum/output.txt 
