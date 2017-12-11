@@ -1,8 +1,8 @@
 #!/bin/bash
 
 RESULTS_FOLDER="$2"
-mkdir "$RESULTS_FOLDER/build"
-mkdir "$RESULTS_FOLDER/results"
+mkdir -p "$RESULTS_FOLDER/build"
+mkdir -p "$RESULTS_FOLDER/results"
 
 # some prereqs for jpf & hjlib
 PathToHJLib="HJLibFiles/lib/byu-hjlib.jar"

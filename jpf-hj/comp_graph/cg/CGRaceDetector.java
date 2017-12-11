@@ -366,10 +366,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 	public void methodExited(VM vm, ThreadInfo currentThread, MethodInfo enteredMethod) {
 
-		if(enteredMethod.getName().contains("stopFinish")){
-			if(on_the_fly && drd){
-				race = analyzeFinishBlock(graph, finishBlocks.get(currentThread).pop().id, on_the_fly);
-			}
+		if(enteredMethod.getName().contains("stopFinish") && on_the_fly &&
+				drd) {
+			race = analyzeFinishBlock(graph,
+					finishBlocks.get(currentThread).pop().id, on_the_fly);
 		}
 	}
 
