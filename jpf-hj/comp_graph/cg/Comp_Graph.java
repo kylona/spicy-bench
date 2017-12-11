@@ -631,15 +631,24 @@ public class Comp_Graph {
         return false;
     }
 
-    static boolean isValidFieldInstruction(Instruction instructionToExecute, VM vm) {
-        String class_name = extractClassName(instructionToExecute);
-        String insn = instructionToExecute.toString();
-        if ((instructionToExecute instanceof InstanceFieldInstruction
-                && !insn.contains("java") && !insn.contains("hj") && !insn.contains("edu"))
-                || (instructionToExecute instanceof StaticFieldInstruction)) {
+    static boolean isLibraryInstruction(Instruction insn) {
+        String className = ((FieldInstruction) insn).getClassName();
+        return className.startsWith("java") || className.startsWith("hj") ||
+            (className.startsWith("edu") &&
+             !(className == "edu.rice.hj.api.HjActor" ||
+               className == "edu.rice.hj.api.HjDataDrivenFuture" ||
+               className == "edu.rice.hj.api.HjFinishAccumulator" ||
+               className == "edu.rice.hj.api.HjFuture" ||
+               className == "edu.rice.hj.api.HjLambda" ||
+               className == "edu.rice.hj.api.HjRunnable" ||
+               className == "edu.rice.hj.api.HjSuspendable" ||
+               className == "edu.rice.hj.api.HjSuspendingCallable"));
+    }
 
-            return true;
-        }
-        return false;
-    } 
+
+    static boolean isValidFieldInstruction(Instruction instructionToExecute, VM vm) {
+        return (instructionToExecute instanceof InstanceFieldInstruction ||
+                instructionToExecute instanceof StaticFieldInstruction) &&
+            !isLibraryInstruction(instructionToExecute);
+    }
 }
