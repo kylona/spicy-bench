@@ -635,14 +635,14 @@ public class Comp_Graph {
         String className = ((FieldInstruction) insn).getClassName();
         return className.startsWith("java") || className.startsWith("hj") ||
             (className.startsWith("edu") &&
-             !(className == "edu.rice.hj.api.HjActor" ||
-               className == "edu.rice.hj.api.HjDataDrivenFuture" ||
-               className == "edu.rice.hj.api.HjFinishAccumulator" ||
-               className == "edu.rice.hj.api.HjFuture" ||
-               className == "edu.rice.hj.api.HjLambda" ||
-               className == "edu.rice.hj.api.HjRunnable" ||
-               className == "edu.rice.hj.api.HjSuspendable" ||
-               className == "edu.rice.hj.api.HjSuspendingCallable"));
+             !(className.startsWith("edu.rice.hj.api.HjActor") ||
+               className.startsWith("edu.rice.hj.api.HjDataDrivenFuture") ||
+               className.startsWith("edu.rice.hj.api.HjFinishAccumulator") ||
+               className.startsWith("edu.rice.hj.api.HjFuture") ||
+               className.startsWith("edu.rice.hj.api.HjLambda") ||
+               className.startsWith("edu.rice.hj.api.HjRunnable") ||
+               className.startsWith("edu.rice.hj.api.HjSuspendable") ||
+               className.startsWith("edu.rice.hj.api.HjSuspendingCallable")));
     }
 
 
