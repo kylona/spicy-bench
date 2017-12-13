@@ -1,0 +1,65 @@
+JavaPathfinder core system v8.0 (rev 32) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+scale.external.strassen.Main.main()
+
+====================================================== search started: 12/12/17 4:35 PM
+Matrix Size: 32
+time = 2865.65 msec
+time = 1741.14 msec
+time = 1683.67 msec
+time = 1615.45 msec
+time = 1620.25 msec
+time = 1749.73 msec
+time = 1941.46 msec
+time = 1641.31 msec
+time = 1501.1 msec
+time = 1494.04 msec
+time = 1470.54 msec
+time = 1895.73 msec
+time = 1482.18 msec
+time = 1526.24 msec
+time = 1486.49 msec
+time = 1541.42 msec
+time = 1499.99 msec
+time = 1512.05 msec
+time = 1501.63 msec
+time = 2147.12 msec
+time = 1480.87 msec
+time = 1459.7 msec
+time = 1499.29 msec
+time = 1519.18 msec
+time = 1461.33 msec
+time = 1493.5 msec
+time = 1480.12 msec
+time = 1488.08 msec
+time = 1640.4 msec
+time = 1499.03 msec
+time = 1501.1 msec
+Execution - Summary: 
+            strassen            Best Time:  1459.700 ms 
+            strassen           Worst Time:  2147.124 ms 
+            strassen     Arith. Mean Time:  1585.805 ms 
+            strassen       Geo. Mean Time:  1578.494 ms 
+            strassen        Std. Dev Time:   161.192 ms 
+            strassen     Lower Confidence:  1528.123 ms 
+            strassen    Higher Confidence:  1643.487 ms 
+            strassen                Error:    57.682 ms 
+
+Mean execution time = 1585.8 msec
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:00:52
+states:             new=2,visited=0,backtracked=2,end=1
+search:             maxDepth=2,constraints=0
+choice generators:  thread=2 (signal=0,lock=1,sharedRef=0,threadApi=0,reschedule=1), data=0
+heap:               new=2208,released=1666,maxLive=443,gcCycles=2
+instructions:       23276776
+max memory:         558MB
+loaded code:        classes=108,methods=2487
+
+====================================================== search finished: 12/12/17 4:35 PM

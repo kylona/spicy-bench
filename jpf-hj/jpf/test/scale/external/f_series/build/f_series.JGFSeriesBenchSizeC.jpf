@@ -1,0 +1,13 @@
+target=f_series.JGFSeriesBenchSizeC
+Results_directory=results/
+Contains_isolated_sections=true
+On_the_fly=false
+Data_race_detection=true
+classpath=build:/home/lincoln/spicy-bench/HJLibFiles/lib/byu-hjlib.jar:/home/lincoln/spicy-bench/HJLibFiles/lib/jpf-extras.jar:/home/lincoln/spicy-bench/HJLibFiles/lib/junit-4.12.jar:/home/lincoln/spicy-bench/HJLibFiles/lib/jpf-classes.jar
+sourcepath=/home/lincoln/spicy-bench/jpf-hj/jpf/test/scale/external/f_series
+native_classpath+=/home/lincoln/spicy-bench/jpf-hj/build/classes;/home/lincoln/spicy-bench/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar
+JPF.vm=VMListener
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
+listener+=cg.CGRaceDetector
+vm.max_transition_length=MAX

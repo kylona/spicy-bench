@@ -1,0 +1,4 @@
+Iterations=1
+Java Grande Forum Benchmark Suite - Version 2.0 - Section 2 - Size C
+
+Section2:Crypt(0):Kernel:SizeB	0.054 (s) 	 37.037037	 (Kbyte/s)

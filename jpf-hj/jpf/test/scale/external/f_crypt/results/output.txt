@@ -1,0 +1,338 @@
+JavaPathfinder core system v8.0 (rev 32) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+f_crypt.JGFCryptBenchSizeC.main()
+
+====================================================== search started: 12/12/17 4:59 PM
+Iterations=1
+Java Grande Forum Benchmark Suite - Version 2.0 - Section 2 - Size C
+
+
+====================================================== error 1
+gov.nasa.jpf.vm.NoUncaughtExceptionsProperty
+java.lang.ArrayIndexOutOfBoundsException: 1500
+	at f_crypt.IDEATest.lambda$cipher_idea$0(IDEATest.java:579)
+	at f_crypt.IDEATest$$Lambda$0.apply
+	at edu.rice.hj.Module1$5$1.run(Module1.java:111)
+	at hj.runtime.wsh.Activity.run(Activity.java:71)
+
+
+====================================================== snapshot #1
+thread hj.runtime.wsh.SuspendableActivity:{id:1,name:Thread-1,status:WAITING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  waiting on: hj.runtime.wsh.Activity@232
+  call stack:
+	at java.lang.Thread.join(Thread.java)
+	at hj.runtime.wsh.Activity.stopFinish(Activity.java:99)
+	at edu.rice.hj.Module0.finish(Module0.java:93)
+	at edu.rice.hj.Module1.forAll(Module1.java:102)
+	at f_crypt.IDEATest.cipher_idea(IDEATest.java:541)
+	at f_crypt.JGFCryptBench.cipher_idea(JGFCryptBench.java:44)
+	at f_crypt.IDEATest.Do(IDEATest.java:131)
+	at f_crypt.JGFCryptBench.JGFkernel(JGFCryptBench.java:90)
+	at f_crypt.JGFCryptBench.JGFrun(JGFCryptBench.java:149)
+	at f_crypt.JGFCryptBenchSizeC.lambda$main$0(JGFCryptBenchSizeC.java:91)
+	at f_crypt.JGFCryptBenchSizeC$$Lambda$0.run(pc 5)
+	at hj.runtime.wsh.SuspendableActivity.run(SuspendableActivity.java:23)
+
+thread hj.runtime.wsh.Activity:{id:2,name:Thread-2,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:6,name:Thread-6,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:7,name:Thread-7,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:8,name:Thread-8,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:12,name:Thread-12,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:14,name:Thread-14,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:15,name:Thread-15,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:17,name:Thread-17,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:20,name:Thread-20,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:22,name:Thread-22,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:23,name:Thread-23,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:26,name:Thread-26,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:28,name:Thread-28,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:29,name:Thread-29,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:30,name:Thread-30,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:32,name:Thread-32,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:34,name:Thread-34,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:35,name:Thread-35,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:36,name:Thread-36,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:38,name:Thread-38,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:40,name:Thread-40,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:45,name:Thread-45,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:48,name:Thread-48,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:49,name:Thread-49,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:52,name:Thread-52,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:54,name:Thread-54,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:57,name:Thread-57,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:58,name:Thread-58,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:60,name:Thread-60,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:61,name:Thread-61,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:65,name:Thread-65,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:66,name:Thread-66,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:68,name:Thread-68,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:71,name:Thread-71,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:72,name:Thread-72,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:73,name:Thread-73,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:75,name:Thread-75,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:76,name:Thread-76,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:77,name:Thread-77,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:78,name:Thread-78,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:81,name:Thread-81,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:84,name:Thread-84,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:85,name:Thread-85,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:95,name:Thread-95,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:96,name:Thread-96,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:97,name:Thread-97,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:98,name:Thread-98,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:101,name:Thread-101,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:102,name:Thread-102,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:104,name:Thread-104,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:106,name:Thread-106,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:107,name:Thread-107,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:110,name:Thread-110,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:112,name:Thread-112,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:116,name:Thread-116,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:117,name:Thread-117,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:120,name:Thread-120,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:122,name:Thread-122,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:123,name:Thread-123,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:124,name:Thread-124,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:125,name:Thread-125,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:126,name:Thread-126,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:127,name:Thread-127,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:128,name:Thread-128,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:129,name:Thread-129,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:130,name:Thread-130,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:131,name:Thread-131,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:132,name:Thread-132,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:135,name:Thread-135,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:136,name:Thread-136,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:139,name:Thread-139,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:140,name:Thread-140,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:144,name:Thread-144,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:146,name:Thread-146,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:147,name:Thread-147,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:148,name:Thread-148,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:151,name:Thread-151,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:152,name:Thread-152,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:154,name:Thread-154,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:157,name:Thread-157,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:158,name:Thread-158,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:160,name:Thread-160,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:161,name:Thread-161,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:162,name:Thread-162,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:163,name:Thread-163,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:170,name:Thread-170,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:172,name:Thread-172,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:175,name:Thread-175,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:177,name:Thread-177,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:180,name:Thread-180,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:182,name:Thread-182,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:183,name:Thread-183,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:184,name:Thread-184,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:185,name:Thread-185,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+
+thread hj.runtime.wsh.Activity:{id:189,name:Thread-189,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+	at hj.runtime.wsh.Activity.run(Activity.java:75)
+
+
+====================================================== results
+error #1: gov.nasa.jpf.vm.NoUncaughtExceptionsProperty "java.lang.ArrayIndexOutOfBoundsException: 1500  at..."
+
+====================================================== statistics
+elapsed time:       00:00:06
+states:             new=96,visited=0,backtracked=0,end=0
+search:             maxDepth=96,constraints=0
+choice generators:  thread=96 (signal=0,lock=1,sharedRef=0,threadApi=1,reschedule=94), data=0
+heap:               new=3233,released=720,maxLive=2492,gcCycles=95
+instructions:       243380
+max memory:         204MB
+loaded code:        classes=109,methods=2150
+
+====================================================== search finished: 12/12/17 4:59 PM

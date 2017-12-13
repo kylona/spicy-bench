@@ -1,0 +1,43 @@
+Matrix Size: 32
+time = 8.87 msec
+time = 0.11 msec
+time = 0.09 msec
+time = 0.09 msec
+time = 0.1 msec
+time = 0.09 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.11 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.09 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.11 msec
+time = 0.1 msec
+time = 0.1 msec
+time = 0.09 msec
+time = 0.09 msec
+time = 0.1 msec
+time = 0.12 msec
+time = 0.11 msec
+time = 0.15 msec
+time = 0.09 msec
+time = 0.12 msec
+Execution - Summary: 
+            strassen            Best Time:     0.091 ms 
+            strassen           Worst Time:     0.152 ms 
+            strassen     Arith. Mean Time:     0.102 ms 
+            strassen       Geo. Mean Time:     0.101 ms 
+            strassen        Std. Dev Time:     0.012 ms 
+            strassen     Lower Confidence:     0.098 ms 
+            strassen    Higher Confidence:     0.106 ms 
+            strassen                Error:     0.004 ms 
+
+Mean execution time = 0.1 msec

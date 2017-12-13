@@ -1,15 +1,10 @@
-#javac *.java
-#hjc -rt c   Main.hj
-#echo "Strassen parallel execution"
-#hj   -J-Xmx60g -places 1:16 Main
-
 mkdir build
 mkdir results
 PathToHJLib="$SPICY_BENCH_ROOT/HJLibFiles/lib/byu-hjlib.jar"
 PathToOther="$SPICY_BENCH_ROOT/HJLibFiles/lib/jpf-extras.jar:$SPICY_BENCH_ROOT/HJLibFiles/lib/junit-4.12.jar:$SPICY_BENCH_ROOT/HJLibFiles/lib/jpf-classes.jar"
 javac -cp $PathToHJLib:$PathToOther -d build $(find . -name "*.java")
 
-name="scale.external.strassen.Main"
+name="af_crypt.JGFCryptBenchSizeC"
 NativeClassPath="$SPICY_BENCH_ROOT/jpf-hj/build/classes;$SPICY_BENCH_ROOT/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
 PathToRunJPF="$SPICY_BENCH_ROOT/HJLibFiles/lib/RunJPF.jar"
 

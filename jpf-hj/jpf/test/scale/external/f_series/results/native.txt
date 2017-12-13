@@ -1,0 +1,60 @@
+Iterations=2
+Java Grande Forum Benchmark Suite - Version 2.0 - Section 2 - Size C
+
+Validation failed for coefficient 0,0
+Computed value = 0.0
+Reference value = 2.8729524964837996
+Validation failed for coefficient 0,1
+Computed value = 2.8729524964837996
+Reference value = 1.1161046676147888
+Validation failed for coefficient 1,1
+Computed value = 2.8729524964837996
+Reference value = -1.8819691893398025
+Validation failed for coefficient 0,2
+Computed value = 2.8729524964837996
+Reference value = 0.34429060398168704
+Validation failed for coefficient 1,2
+Computed value = 2.8729524964837996
+Reference value = -1.1645642623320958
+Validation failed for coefficient 0,3
+Computed value = 2.8729524964837996
+Reference value = 0.15238898702519288
+Validation failed for coefficient 1,3
+Computed value = 2.8729524964837996
+Reference value = -0.8143461113044298
+Section2:Series(0):Kernel	0.036 (s) 	 5527.778	 (coefficients/s)
+time = 51.92 msec
+Validation failed for coefficient 0,0
+Computed value = 0.0
+Reference value = 2.8729524964837996
+Validation failed for coefficient 0,1
+Computed value = 2.8729524964837996
+Reference value = 1.1161046676147888
+Validation failed for coefficient 1,1
+Computed value = 2.8729524964837996
+Reference value = -1.8819691893398025
+Validation failed for coefficient 0,2
+Computed value = 2.8729524964837996
+Reference value = 0.34429060398168704
+Validation failed for coefficient 1,2
+Computed value = 2.8729524964837996
+Reference value = -1.1645642623320958
+Validation failed for coefficient 0,3
+Computed value = 2.8729524964837996
+Reference value = 0.15238898702519288
+Validation failed for coefficient 1,3
+Computed value = 2.8729524964837996
+Reference value = -0.8143461113044298
+Section2:Series(1):Kernel	0.042 (s) 	 4738.095	 (coefficients/s)
+time = 46.23 msec
+Mean execution time = 46.23 msec
+Execution - Summary: 
+              series            Best Time:    46.234 ms 
+              series           Worst Time:    46.234 ms 
+              series     Arith. Mean Time:    46.234 ms 
+              series       Geo. Mean Time:    46.234 ms 
+              series        Std. Dev Time:     0.000 ms 
+              series     Lower Confidence:    46.234 ms 
+              series    Higher Confidence:    46.234 ms 
+              series                Error:     0.000 ms 
+

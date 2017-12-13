@@ -1,0 +1,22 @@
+Iterations=1
+Java Grande Forum Benchmark Suite - Version 2.0 - Section 2 - Size C
+
+Validation failed
+Original Byte 1496 = -40
+Encrypted Byte 1496 = 0
+Decrypted Byte 1496 = 0
+Validation failed
+Original Byte 1497 = -39
+Encrypted Byte 1497 = 0
+Decrypted Byte 1497 = 0
+Validation failed
+Original Byte 1498 = -38
+Encrypted Byte 1498 = 0
+Decrypted Byte 1498 = 0
+Validation failed
+Original Byte 1499 = -37
+Encrypted Byte 1499 = 0
+Decrypted Byte 1499 = 0
+Section2:Crypt(0):Kernel:SizeC	0.089 (s) 	 33.707867	 (Kbyte/s)
+time = 98.77 msec
+Mean execution time = � msec
