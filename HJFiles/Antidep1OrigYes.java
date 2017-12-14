@@ -13,7 +13,7 @@ import edu.rice.hj.api.*;
 
 public class Antidep1OrigYes {
   static int i;
-  static int len = 10;
+  static int len = 1000;
   static int[] a = new int[len];
   public static void main(String[] args) throws SuspendableException {
       launchHabaneroApp(new HjSuspendable() {
@@ -31,7 +31,7 @@ public class Antidep1OrigYes {
               }
             });
 
-            System.out.println("a[5]=" + a[5]);
+            System.out.println("a[500]=" + a[500]);
 
           }
 
