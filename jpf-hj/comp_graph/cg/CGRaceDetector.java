@@ -102,7 +102,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			}else if (instructionToExecute instanceof FieldInstruction) {
 				ElementInfo ei = ((FieldInstruction) instructionToExecute).peekElementInfo(currentThread);
 				FieldInfo fi = ((FieldInstruction) instructionToExecute).getFieldInfo();
-				Elements var = new Elements(ei, fi);
+				String filePos = instructionToExecute.getFilePos();
+				Elements var = new Elements(ei, fi, filePos);
 
 				if(isValidFieldInstruction(instructionToExecute, vm)){
 					Boolean isReadInsn = ((ReadOrWriteInstruction) instructionToExecute).isRead();

@@ -73,6 +73,7 @@ class Elements {
 
     ElementInfo ei;
     FieldInfo fi;
+    String filePos;
 
     public ElementInfo getElementInfo() {
         return ei;
@@ -90,9 +91,10 @@ class Elements {
         this.fi = fi;
     }
 
-    public Elements(ElementInfo ei, FieldInfo fi) {
+    public Elements(ElementInfo ei, FieldInfo fi, String filePos) {
         this.ei = ei;
         this.fi = fi;
+	this.filePos = filePos;
     }
 }
 

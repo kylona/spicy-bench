@@ -243,10 +243,9 @@ public class Comp_Graph {
         for (ArrayElements ae1 : var1) {
             for (ArrayElements ae2 : var2) {
                 if (ae1.ei.toString().equals(ae2.ei.toString()) && (ae1.idx == ae2.idx)) {
-                    System.out.print("race for array element at ");
-                    System.out.print(ae1.filePos );
-                    System.out.print( " for index " );
+                    System.out.print("race for array element at index ");
                     System.out.println(ae1.idx);
+		    System.out.println("Non-deterministic access between " + ae1.filePos + " and " + ae2.filePos);
                     return true;
                 }
             }
@@ -263,6 +262,7 @@ public class Comp_Graph {
                     System.out.print(ae1.ei);
                     System.out.print('.');
                     System.out.println(ae1.fi.getName());
+		    System.out.println("Non-deterministic access between " + ae1.filePos + " and " + ae2.filePos);
                     return true;
                 }
             }
@@ -281,6 +281,7 @@ public class Comp_Graph {
                     System.out.print(ae1.ei);
                     System.out.print('.');
                     System.out.println(ae1.fi.getName());
+		    System.out.println("Non-deterministic access between " + ae1.filePos + " and " + ae2.filePos);
                     //return true;
                 }
             }
@@ -292,10 +293,9 @@ public class Comp_Graph {
         for (ArrayElements ae1 : var1) {
             for (ArrayElements ae2 : var2) {
                 if (ae1.ei.toString().equals(ae2.ei.toString()) && (ae1.idx == ae2.idx)) {
-                    System.out.print("Intended race for array element at ");
-                    System.out.print(ae1.filePos );
-                    System.out.print( " for index " );
+                    System.out.print("Intended race for array element at index ");
                     System.out.println(ae1.idx);
+		    System.out.println("Non-deterministic access between " + ae1.filePos + " and " + ae2.filePos);
                     //return true;
                 }
             }
