@@ -90,8 +90,9 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			if(instructionToExecute instanceof ArrayElementInstruction){
 				ElementInfo ei = ((ArrayElementInstruction) instructionToExecute).peekArrayElementInfo(currentThread);
 				int idx = ((ArrayElementInstruction) instructionToExecute).peekIndex(currentThread);
+				String filePos = instructionToExecute.getFilePos();
 				if(isValidArrayInstruction(instructionToExecute, currentThread)){
-					ArrayElements ae = new ArrayElements(ei, idx);
+					ArrayElements ae = new ArrayElements(ei, idx, filePos);
 					Boolean isReadInsn = ((ArrayElementInstruction) instructionToExecute).isRead();
 					Boolean isIsolatedNode = false;
 					if(n instanceof isolatedNode)

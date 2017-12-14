@@ -44,6 +44,7 @@ class ArrayElements {
 
     ElementInfo ei;
     int idx;
+    String filePos;
 
     public ElementInfo getElementInfo() {
         return ei;
@@ -61,9 +62,10 @@ class ArrayElements {
         this.idx = index;
     }
 
-    public ArrayElements(ElementInfo ei, int idx) {
+    public ArrayElements(ElementInfo ei, int idx, String filePos) {
         this.ei = ei;
         this.idx = idx;
+	this.filePos = filePos;
     }
 }
 

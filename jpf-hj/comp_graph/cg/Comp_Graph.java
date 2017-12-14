@@ -243,11 +243,10 @@ public class Comp_Graph {
         for (ArrayElements ae1 : var1) {
             for (ArrayElements ae2 : var2) {
                 if (ae1.ei.toString().equals(ae2.ei.toString()) && (ae1.idx == ae2.idx)) {
-                    System.out.print("race for array element ");
-                    System.out.print(ae1.ei);
-                    System.out.print("[");
-                    System.out.print(ae1.idx);
-                    System.out.println("]");
+                    System.out.print("race for array element at ");
+                    System.out.print(ae1.filePos );
+                    System.out.print( " for index " );
+                    System.out.println(ae1.idx);
                     return true;
                 }
             }
@@ -293,11 +292,10 @@ public class Comp_Graph {
         for (ArrayElements ae1 : var1) {
             for (ArrayElements ae2 : var2) {
                 if (ae1.ei.toString().equals(ae2.ei.toString()) && (ae1.idx == ae2.idx)) {
-                    System.out.print("Intended race for array element ");
-                    System.out.print(ae1.ei);
-                    System.out.print("[");
-                    System.out.print(ae1.idx);
-                    System.out.println("]");
+                    System.out.print("Intended race for array element at ");
+                    System.out.print(ae1.filePos );
+                    System.out.print( " for index " );
+                    System.out.println(ae1.idx);
                     //return true;
                 }
             }
