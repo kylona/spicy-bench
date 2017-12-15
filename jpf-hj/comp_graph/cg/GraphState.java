@@ -27,6 +27,10 @@ public class GraphState {
 
   public Map<ThreadInfo, finishNode> currFinNode = new HashMap<ThreadInfo, finishNode>();
 
+  public int numberOfAsyncEdges;
+  public int numberOfFutureEdges;
+  public int numberOfJoinEdges;
+
   public GraphState(CGRaceDetector rd) {
     this.currentNodes = new HashMap<ThreadInfo, Node>(rd.currentNodes);
 
@@ -45,6 +49,9 @@ public class GraphState {
     this.masterFinEnd = rd.masterFinEnd;
     this.masterFin = rd.masterFin;
     this.previousIsolatedNode = rd.previousIsolatedNode;
+    this.numberOfAsyncEdges = rd.numberOfAsyncEdges;
+    this.numberOfFutureEdges = rd.numberOfFutureEdges;
+    this.numberOfJoinEdges = rd.numberOfJoinEdges;
   }
 
   public void resetGraphState(CGRaceDetector rd) {
@@ -66,5 +73,8 @@ public class GraphState {
     rd.masterFinEnd = this.masterFinEnd;
     rd.masterFin = this.masterFin;
     rd.previousIsolatedNode = this.previousIsolatedNode;
-  }
+    rd.numberOfAsyncEdges = this.numberOfAsyncEdges;
+    rd.numberOfFutureEdges = this.numberOfFutureEdges;
+    rd.numberOfJoinEdges = this.numberOfJoinEdges;
+}
 }
