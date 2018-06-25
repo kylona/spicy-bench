@@ -4,7 +4,7 @@ import gov.nasa.jpf.vm.*;
 
 import gov.nasa.jpf.vm.choice.ThreadChoiceFromSet;
 import gov.nasa.jpf.util.ObjectList.TypedIterator;
-
+import static cg.Comp_Graph.*;
 
 public class IsolateChoiceGenerator extends ThreadChoiceFromSet {
 
@@ -24,7 +24,9 @@ public class IsolateChoiceGenerator extends ThreadChoiceFromSet {
   @Override
   public void advance() {
     // System.out.println("Resetting Graph To Check Next Scheduling");
+    //createGraph(owner.graph,dir,vm);
     resetState.resetGraphState(owner);
+    //createGraph(owner.graph,dir,vm);
     super.advance();
   }
 

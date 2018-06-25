@@ -1,3 +1,4 @@
 HJLibFiles/classes/*.class
+jpf-hj/build/classes/*.class
 .*.sw?
 *~

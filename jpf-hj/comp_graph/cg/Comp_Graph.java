@@ -32,9 +32,11 @@ public class Comp_Graph {
     private static int numReports = 0;
 
     static int GRAPH_ITER = 0;
+    static DirectedAcyclicGraph<Node, DefaultEdge> currentGraph = null;
 
     public static boolean analyzeFinishBlock(DirectedAcyclicGraph<Node, DefaultEdge> graph, String finishID, boolean otf) {
         List<activityNode> tasks = getTasksFromFinishBlock(finishID, graph);
+	currentGraph = graph;
 
         for (int i = 0; i < tasks.size() - 1; i++) {
             if (tasks.get(i).var_read != null) {
@@ -146,6 +148,9 @@ public class Comp_Graph {
                     }
                     if (tasks.get(j).array_write_isolated != null) {
                         if (DetectDataRaceArray(tasks.get(i).array_read, tasks.get(j).array_write_isolated)) {
+                            tasks.get(j).setDisplay_name("I'm a data race! I'm a bad boy. 1");
+                            tasks.get(i).setDisplay_name("I'm a data race! I'm a bad boy. 2");
+                            System.out.println("Added Future Edge to mark Data Race");
                             return true;
                         }
                     }
@@ -263,6 +268,7 @@ public class Comp_Graph {
                     System.out.print('.');
                     System.out.println(ae1.fi.getName());
 		    System.out.println("Non-deterministic access between " + ae1.filePos + " and " + ae2.filePos);
+                    
                     return true;
                 }
             }
@@ -303,7 +309,7 @@ public class Comp_Graph {
         return false;
     }
 
-    static void createGraph(DirectedAcyclicGraph<Node, DefaultEdge> graph, String targetDirectory, VM vm) {
+    static int createGraph(DirectedAcyclicGraph<Node, DefaultEdge> graph, String targetDirectory, VM vm) {
         IntegerNameProvider<Node> p1 = new IntegerNameProvider<Node>();
         ComponentAttributeProvider<Node> p2 = new ComponentAttributeProvider<Node>() {
             @Override
@@ -352,6 +358,7 @@ public class Comp_Graph {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return GRAPH_ITER;
     }
 
     private static boolean checkSerialNodes(Node n1, Node n2, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -514,13 +521,13 @@ public class Comp_Graph {
         Target.addAll(source);
     }
 
-    public static void createIsolatedEdges(List<isolatedNode> nodes, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
-        for (int i = 0; i < nodes.size() - 1; i++) {
-            for (int j = 1; j < nodes.size(); j++) {
-                addIsolatedEdge(nodes.get(i), nodes.get(j), graph);
-            }
-        }
-    }
+//    public static void createIsolatedEdges(List<isolatedNode> nodes, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
+//        for (int i = 0; i < nodes.size() - 1; i++) {
+//            for (int j = 1; j < nodes.size(); j++) {
+//                addIsolatedEdge(nodes.get(i), nodes.get(j), graph);
+//            }
+//        }
+//    }
 
     static List<activityNode> getTasksFromFinishBlock(String finID, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
 
