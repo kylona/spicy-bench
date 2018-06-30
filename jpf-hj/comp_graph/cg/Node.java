@@ -67,6 +67,22 @@ class ArrayElements {
         this.idx = idx;
 	this.filePos = filePos;
     }
+
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof ArrayElements)) return false;
+        ArrayElements ae = (ArrayElements) o;
+        if (!this.ei.toString().equals(ae.ei.toString())) return false;
+        if (this.idx != ae.idx) return false;
+        return true;
+    }
+
+    public String toString() {
+        return "array ref on index " + this.idx + " @ " + this.filePos.toString();
+    }
+    public int hashCode() {
+        return this.toString().hashCode();
+    }
 }
 
 class Elements {
@@ -95,6 +111,21 @@ class Elements {
         this.ei = ei;
         this.fi = fi;
 	this.filePos = filePos;
+    }
+
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Elements)) return false;
+        Elements e = (Elements) o;
+        if (!this.ei.toString().equals(e.ei.toString())) return false;
+        if (!this.fi.toString().equals(e.fi.toString())) return false;
+        return true;
+    }
+    public String toString() {
+        return this.fi.getName() + " @ " + this.filePos.toString();
+    }
+    public int hashCode() {
+        return this.toString().hashCode();
     }
 }
 
