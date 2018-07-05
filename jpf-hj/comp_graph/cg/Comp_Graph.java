@@ -62,41 +62,62 @@ public class Comp_Graph {
     private static boolean detectDataRace(Node node1, Node node2) {
         //if either one of them is not an activity node there are no reads or writes to compare
         if (!(node1 instanceof activityNode) || !(node2 instanceof activityNode)) return false;
+	if (node1.ti.equals(node2.ti)) return false; //if on same thread NOTE: optimization not in paper
         activityNode task1 = (activityNode) node1;
         activityNode task2 = (activityNode) node2;
         Set<Pair<Elements,Elements>> race_elements = new HashSet<Pair<Elements,Elements>>();
+        Set<Pair<Elements,Elements>> iso_race_elements = new HashSet<Pair<Elements,Elements>>();
+        Set<Pair<ArrayElements,ArrayElements>> array_race_elements = new HashSet<Pair<ArrayElements,ArrayElements>>();
+        Set<Pair<ArrayElements,ArrayElements>> iso_array_race_elements = new HashSet<Pair<ArrayElements,ArrayElements>>();
 
-	List<Pair<Elements,Elements>> rw_var = intersection(task1.var_read, task2.var_write);
-        race_elements.addAll(rw_var);
+        race_elements.addAll(intersection(task1.var_read, task2.var_write));
+        race_elements.addAll(intersection(task1.var_read, task2.isolated_write));
+        race_elements.addAll(intersection(task1.var_write, task2.var_read));
+        race_elements.addAll(intersection(task1.var_write, task2.var_write));
+        race_elements.addAll(intersection(task1.var_write, task2.isolated_read));
+        race_elements.addAll(intersection(task1.var_write, task2.isolated_write));
+        race_elements.addAll(intersection(task1.isolated_read, task2.var_write));
+        iso_race_elements.addAll(intersection(task1.isolated_read, task2.isolated_write));
+        race_elements.addAll(intersection(task1.isolated_write, task2.var_write));
+        race_elements.addAll(intersection(task1.isolated_write, task2.var_read));
+        race_elements.addAll(intersection(task1.isolated_write, task2.var_read));
+        iso_race_elements.addAll(intersection(task1.isolated_write, task2.isolated_write));
+        iso_race_elements.addAll(intersection(task1.isolated_write, task2.isolated_read));
+        array_race_elements.addAll(intersection(task1.array_read, task2.array_write));
+        array_race_elements.addAll(intersection(task1.array_read, task2.array_write_isolated));
+        array_race_elements.addAll(intersection(task1.array_write, task2.array_read));
+        array_race_elements.addAll(intersection(task1.array_write, task2.array_write));
+        array_race_elements.addAll(intersection(task1.array_write, task2.array_read_isolated));
+        array_race_elements.addAll(intersection(task1.array_write, task2.array_write_isolated));
+        array_race_elements.addAll(intersection(task1.array_read_isolated, task2.array_write));
+        iso_array_race_elements.addAll(intersection(task1.array_read_isolated, task2.array_write_isolated));
+        array_race_elements.addAll(intersection(task1.array_write_isolated, task2.array_read));
+        array_race_elements.addAll(intersection(task1.array_write_isolated, task2.array_write));
+        iso_array_race_elements.addAll(intersection(task1.array_write_isolated, task2.array_read_isolated));
+        iso_array_race_elements.addAll(intersection(task1.array_write_isolated, task2.array_write_isolated));
         
-	List<Pair<Elements,Elements>> wr_var = intersection(task1.var_write, task2.var_read);
-        race_elements.addAll(wr_var);
-
-	List<Pair<Elements,Elements>> ww_var = intersection(task1.var_write, task2.var_write);
-        race_elements.addAll(ww_var);
-
-
-	List<Pair<Elements,Elements>> rw_iso = intersection(task1.isolated_read, task2.isolated_write);
-        race_elements.addAll(rw_iso);
-        
-	List<Pair<Elements,Elements>> wr_iso = intersection(task1.isolated_write, task2.isolated_read);
-        race_elements.addAll(wr_iso);
-
-	List<Pair<Elements,Elements>> ww_iso = intersection(task1.isolated_write, task2.isolated_write);
-        race_elements.addAll(ww_iso);
 
 
         for (Pair<Elements,Elements> race : race_elements) {
             System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
         }
-        return race_elements.size() != 0;
+        for (Pair<ArrayElements,ArrayElements> race : array_race_elements) {
+            System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
+        }
+        for (Pair<Elements,Elements> race : iso_race_elements) {
+            System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
+        }
+        for (Pair<ArrayElements,ArrayElements> race : iso_array_race_elements) {
+            System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
+        }
+        return race_elements.size() + array_race_elements.size() != 0;
     }
 
-    private static List<Pair<Elements,Elements>> intersection(List<Elements> list1, List<Elements> list2) {
-    List<Pair<Elements,Elements>> result = new ArrayList<Pair<Elements,Elements>>();
+    private static <T> List<Pair<T,T>> intersection(List<T> list1, List<T> list2) {
+    List<Pair<T,T>> result = new ArrayList<Pair<T,T>>();
     if (list1 == null || list2 ==  null) return result;
-    for (Elements first : list1) {
-        for (Elements second : list2) {
+    for (T first : list1) {
+        for (T second : list2) {
             if (first != null && first.equals(second)) {
                 result.add(new Pair(first,second));
             }
