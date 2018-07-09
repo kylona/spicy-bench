@@ -68,6 +68,7 @@ public class Edges {
         }
         e1.setAttributes(SpawnEdgeAttributes());
 	CGRaceDetector.numberOfAsyncEdges++;
+    FromNode.setAsync(true);
     }
 
     public static void addJoinEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -79,6 +80,7 @@ public class Edges {
         }
         e1.setAttributes(JoinEdgeAttributes());
 	CGRaceDetector.numberOfJoinEdges++;
+    ToNode.setJoin(true);
     }
 
     public static void addContinuationEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -111,6 +113,8 @@ public class Edges {
             e.printStackTrace();
         }
         e1.setAttributes(IsolatedEdgeAttributes());
+        FromNode.setIsolated(true);
+        ToNode.setIsolated(true);
     }
 
     public static void addSignalEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {

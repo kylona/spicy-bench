@@ -20,7 +20,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private static String dir = null;
 	private static boolean on_the_fly = false;
-	private static boolean drd = true;
+	private static boolean drd = false;
+    public static boolean vs_drd = true;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
 	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
@@ -75,7 +76,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		public void executeInstruction(VM vm, ThreadInfo currentThread,
 				Instruction instructionToExecute) {
 			//scheduler for isolated
-			if(drd){
+			if(drd || vs_drd){
 				if (instructionToExecute instanceof JVMInvokeInstruction) {
 					MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
 					String baseName = mi.getBaseName();
@@ -453,6 +454,9 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 		public void searchFinished(Search search) {
 			createGraph(graph, dir, search.getVM());
+            if(vs_drd) {
+                race = CGAnalyzer.analyzeGraphForDataRace(graph);
+            }
 			if(drd){
 				race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 			}

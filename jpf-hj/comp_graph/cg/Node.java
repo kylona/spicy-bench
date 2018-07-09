@@ -12,6 +12,10 @@ public class Node {
     ThreadInfo ti = null;
     String id = null;
     Node next = null;
+    private boolean isAsync = false;
+    private boolean isJoin = false;
+    private boolean isIsolated = false;
+
     private String display_name = null;
 
     public String getDisplay_name() {
@@ -38,9 +42,37 @@ public class Node {
     public void setNextNode(Node n) {
         next = n;
     }
+
+    public boolean isAsync() {
+        return isAsync;
+    }
+
+    public void setAsync(boolean newAsync) {
+        isAsync = newAsync;
+    }
+
+    public boolean isJoin() {
+        return isJoin;
+    }
+
+    public void setJoin(boolean newJoin) {
+        isJoin = newJoin;
+    }
+
+    public boolean isIsolated() {
+        return isIsolated;
+    }
+
+    public void setIsolated(boolean newIsolated) {
+        isIsolated = newIsolated;
+    }
+
 }
 
-class ArrayElements {
+class DataAccess {
+
+}
+class ArrayElements extends DataAccess {
 
     ElementInfo ei;
     int idx;
@@ -85,7 +117,7 @@ class ArrayElements {
     }
 }
 
-class Elements {
+class Elements extends DataAccess {
 
     ElementInfo ei;
     FieldInfo fi;

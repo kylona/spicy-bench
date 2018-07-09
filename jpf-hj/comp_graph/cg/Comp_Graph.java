@@ -50,7 +50,7 @@ public class Comp_Graph {
 
     private static boolean happensBefore(Node task1, Node task2, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
     //** a very naive approach depth first search for the node
-    //for implementation reasons a node happens before itself
+    //for implementation efficancy a node happens before itself
         if (task1 == task2) return true;
         for (DefaultEdge edge : graph.outgoingEdgesOf(task1)) {
             Node child = graph.getEdgeTarget(edge);
@@ -126,35 +126,6 @@ public class Comp_Graph {
     return result;
 
 }
-
-    private static boolean checkSerialNodes(Node n1, Node n2, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
-
-        for (DefaultEdge edge : graph.outgoingEdgesOf(n1)) {
-            Node n = graph.getEdgeTarget(edge);
-            if (n2.equals(n)) {
-                return true;
-            }
-            if (check(n1, n2, graph.outgoingEdgesOf(n), graph)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean check(Node n1, Node n2, Set<DefaultEdge> outGoingEdges, DirectedAcyclicGraph<Node, DefaultEdge> graph) {
-
-        for (DefaultEdge edge : outGoingEdges) {
-            Node n = graph.getEdgeTarget(edge);
-            if (n2.equals(n)) {
-                return true;
-            }
-            if (check(n1, n2, graph.outgoingEdgesOf(n), graph)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static void registerHeapAccess(Node n1, Elements var, Boolean insnIsRead, Boolean Isolated) {
 
