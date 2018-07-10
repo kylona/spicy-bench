@@ -69,8 +69,16 @@ public class Node {
 
 }
 
-class DataAccess {
+abstract class DataAccess {
+    boolean isolated = false;
+    public boolean isIsolated() {
+        return isolated;
+    }
+    public void setIsolated(boolean isolated) {
+    this.isolated = isolated;
+    }
 
+    abstract public boolean conflictsWith(DataAccess da);
 }
 class ArrayElements extends DataAccess {
 
@@ -115,6 +123,10 @@ class ArrayElements extends DataAccess {
     public int hashCode() {
         return this.toString().hashCode();
     }
+
+    public boolean conflictsWith(DataAccess da) {
+        return false; 
+    }
 }
 
 class Elements extends DataAccess {
@@ -158,6 +170,10 @@ class Elements extends DataAccess {
     }
     public int hashCode() {
         return this.toString().hashCode();
+
+    }
+    public boolean conflictsWith(DataAccess da) {
+        return false; 
     }
 }
 

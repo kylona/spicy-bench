@@ -1,0 +1,110 @@
+
+Global set<accsessTuple> AccessedVariables;
+class accsessTuple() {
+
+    Elements what
+    Set<FilePos> where
+}
+
+Perform a depth first search.
+
+recursiveCheck(currentNode, accessedVariables, checkedNodes) {
+    if (currentNode in checkedNodes) return;
+
+    raceSet = intersect(currentNode.accesses, acessedVariables)
+    if (raceSet.size() != 0) reportDataRace(raceSet);
+
+    for child in currentNode:
+        recursiveCheck(child)
+
+    for newElement in currentNode.accesses:
+        if newElement in AccessedVaribles:
+            oldElement = AccessedVaribles.get(element);
+            if (oldElement.isRead()):
+                AccessedVaribles.set(element, newElement);
+
+
+}
+
+Join Point Algorithm:
+
+Calulating Async Join Pairs:
+
+Stack<AsyncNode> AStack;
+Map<Async,Join> pairMap;
+
+recursivePairing(currentNode):
+
+    currentNode.asyncParent = AStack.peek();
+    if (currentNode is AsyncNode) AStack.push(currentNode);
+    if (currentNode is JoinNode):
+        if AStack is not empty:
+            PairMap.add(new Pair(Astack.pop(), currentNode);
+    for Child in currentNode.children:
+        if (isolation edge) continue;
+        recursivePairing(child)
+
+Detecting Data Races:
+
+Pair<Set<access> program,Set<access> isolation> recursiveDataRaceAsync(currentNode, joinStop):
+
+    reslut = new Pair(new Set<access>program, new Set<access>isolation)
+    if currentNode == joinStop: return result;
+
+    if (currentNode is AsyncNode): 
+       leftChild = currentNode.leftChild
+       rightChild = currentNode.leftChild
+       newJoinStop = pairMap.get(currentNode)
+
+
+       leftResult = recursiveDataRaceAsync(leftChild,newJoinStop)
+       rightResult = recursiveDataRaceAsync(rightChild,newJoinStop)
+              
+
+       //check for data race
+       raceSet = intersect(leftResult.program,rightResult.program)
+
+       //remove races protected by isolation by removing
+       //accesses reachable through an isolation edge from the oposite side.
+       raceSet = raceSet - intersect(leftResult.program, rightResult.isolation)
+       raceSet = raceSet - intersect(rightResult.program, leftResult.isolation)
+       for race in raceSet:
+           reportRace(race)
+
+       asyncResult = union(leftResult,rightResult)
+       //continue parrents recursive search from your join node.
+       result = union(asyncResult, recursiveDataRaceAsync(newJoinStop,joinStop);
+
+    else if (currentNode has isolation edge children):
+       for (child in children):
+           if (child is from isolation edge):
+               result.isolation.add(recursiveDataRaceAsync(currentNode.leftChild, joinStop));
+           else:
+               result.program.add(recursiveDataRaceAsync(currentNode.leftChild, joinStop);
+           result.program.add(currentNode.getAccesses());
+       
+    else:
+       result.add(recursiveDataRaceAsync(currentNode.leftChild, joinStop);
+       result.program = union(result.program, currentNode.getAccesses());
+    return Pair(result,isolation);
+
+
+
+
+
+
+   
+// This code was for a previous revision.
+//Set<access> union(firstSet,secondSet):
+//    for first in firstSet:
+//        boolean addSecond = true;
+//        for second in secondSet:
+//           if first.whichVariable == second.whichVariable:
+//               addSecond = false;
+//               if second is write:
+//                   firstSet.at(first) = second;
+//        if (addSecond) firstSet.add(second);    
+//
+     
+
+

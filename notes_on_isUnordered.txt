@@ -1,0 +1,37 @@
+Algorithms to build a set for each node of nodes that are unordered.
+
+Union join algorithm.
+Disjoint set algorithm.
+
+We traverse the tree using a post order depth first search.
+
+On the recursion, each node returns a set of nodes reachable from itself including itself.
+
+If a node has more than one child a union is performed as follows:
+
+    bigChild = biggest(leftChild, rightChild) //default to left
+    smallChild = smallest(rightChild, leftChild) //default to right
+    for big in bigChild:
+	for small in smallChild:
+            if big == small continue;
+            if isSet(big):
+               if isSet(small): 
+               else
+
+I rejected the above because on-the-fly analisis yeilds it ineffective.
+
+Coorinate system.
+
+Each node in a DAG can be found using a coordinate represented as a string containing numbers.
+
+To do this an arbetrary total ordering is applied to the set of edges comming out of a node. I will call the node
+where an edge begins the parent and the node that an edge terminates at the child.
+
+Then the coordinate is represented 
+
+The top most node of the DAG has only the empty string as its possible coordinates.
+
+aWait and eWait nodes have a set of possible coordiates who's cardinality is equal to its number of parents
+
+All other nodes have a unique coordinate.
+ 
