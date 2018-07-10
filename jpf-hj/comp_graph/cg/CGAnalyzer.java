@@ -47,9 +47,37 @@ public class CGAnalyzer {
 
         Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);
         Set<ValidatedSet> asyncParallel = null;
-        for (DefaultEdge edge : outgoingEdges) {
+        int edgesChecked = 0;
+
+        if (currentNode.isIsolated()) {
+            for (DefaultEdge edge : outgoingEdges) {
+                if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
+                   System.out.println("Do the isolated edge thing"); 
+                   edgesChecked++;
+                }
+            }
+            for (DefaultEdge edge : graph.incomingEdgesOf(currentNode)) {
+                if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
+                   System.out.println("Do the other isolated edge thing"); 
+                }
+            }
+
+        }
+
+        for (DefaultEdge edge : outgoingEdges) {//TODO: refactor. Standard SP-bags
+            //TODO: maybe we want different recursive function depending on
+            //what type of node current node is
+
             //Check for edge types and do stuff
+            if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
+                System.out.println("Skipping Isolated Edge: " +
+                graph.getEdgeSource(edge) + " --> " + graph.getEdgeTarget(edge)); 
+                continue;
+            }
+            edgesChecked++;
             if (edge.getAttributes().equals(JoinEdgeAttributes())) {
+            //this code keeps track of connected asyncs and joins. Add this to
+            //new standard SP-bags algorithm.
                 if (AsyncStack.empty()) {
                     System.out.println("ERROR: Overdrawing Finish: " + currentNode);
                 }
@@ -58,11 +86,6 @@ public class CGAnalyzer {
                     Node joinTarget = graph.getEdgeTarget(edge);
                     System.out.println("Async to Join: " + parentAsync + " --> " + joinTarget);
                 }
-            }
-            if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
-                System.out.println("Skipping Isolated Edge: " +
-                graph.getEdgeSource(edge) + " --> " + graph.getEdgeTarget(edge)); 
-                continue;
             }
             //Edge stuff done.
 
@@ -92,7 +115,8 @@ public class CGAnalyzer {
                 }
             }
             else {
-                if (outgoingEdges.size() != 1) throw new RuntimeException("ERROR: skipped edge");
+                if (outgoingEdges.size() != edgesChecked) throw new
+                RuntimeException("ERROR: skipped " + (outgoingEdges.size()-edgesChecked) + " edges");
                 Node child = (Node) graph.getEdgeTarget(edge);
                 Set<ValidatedSet> result =
                 checkForDataRace(graph,child,activeSet,parallelAccesses,seriesAccesses);

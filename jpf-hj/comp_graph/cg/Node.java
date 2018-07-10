@@ -125,7 +125,7 @@ class ArrayElements extends DataAccess {
     }
 
     public boolean conflictsWith(DataAccess da) {
-        return false; 
+        return this.equals(da); 
     }
 }
 
