@@ -24,9 +24,11 @@ public class IsolateChoiceGenerator extends ThreadChoiceFromSet {
   @Override
   public void advance() {
     // System.out.println("Resetting Graph To Check Next Scheduling");
+    boolean race = owner.race;
     createGraph(owner.graph,dir,vm);
-    if (owner.vs_drd) owner.race = CGAnalyzer.analyzeGraphForDataRace(owner.graph);
+    if (owner.vs_drd) race = CGAnalyzer.analyzeGraphForDataRace(owner.graph);
     resetState.resetGraphState(owner);
+    owner.race = race;
     //createGraph(owner.graph,dir,vm);
     super.advance();
   }

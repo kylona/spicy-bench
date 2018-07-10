@@ -191,7 +191,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
@@ -223,7 +223,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
@@ -238,7 +238,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
@@ -264,7 +264,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
@@ -297,7 +297,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
@@ -312,7 +312,7 @@ public class CGAnalyzer {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
                             + da.toString() + "\n\t" + e.toString();
-                            reportRace(message);
+                            System.out.println(message);
 
                         }
                         else {
