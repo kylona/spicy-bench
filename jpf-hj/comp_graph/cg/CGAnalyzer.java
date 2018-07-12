@@ -10,7 +10,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 public class CGAnalyzer {
     private static boolean race = false;
     private static Stack<Node> AsyncStack = new Stack<Node>();
-    private static Map<Node,Node> asyncToJoin = new HashMap();
+    private static Map<Node, Node> asyncToJoin = new HashMap<Node, Node>();
 
     public static boolean analyzeGraphForDataRace(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
         CGAnalyzer.race = false;
@@ -26,123 +26,142 @@ public class CGAnalyzer {
                                                     seriesAccesses);
         return CGAnalyzer.race;
 
-    } 
+    }
 
+    /**
+     * 
+     * Checks the Current Node for outgoing/incoming edges, and updates the active set's validity
+     * in relation to the isolation edge
+     */
+    private static Set<ValidatedSet> checkIsolatedNode(
+                                               DirectedAcyclicGraph<Node,DefaultEdge> graph,
+                                               Node currentNode,
+                                               ValidatedSet activeSet,
+                                               Set<ValidatedSet> parallelAccesses,
+                                               Set<ValidatedSet> seriesAccesses)
+    {
+        Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);   
+        Node child = null;
+        for (DefaultEdge edge : outgoingEdges) {
+            if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
+                System.out.println("Do the isolated edge thing"); 
+                Node edgeTarget = graph.getEdgeTarget(edge);
+                activeSet.setExpiresAfter(edgeTarget);
+                activeSet = new ValidatedSet();
+                seriesAccesses.add(activeSet);
+            }
+            else
+            {
+                if(child != null)
+                {
+                    throw new RuntimeException("Isolated Node has more than one child");
+                }
+                updateAsyncToJoin(graph, edge);
+                child = graph.getEdgeTarget(edge);
+            }
+        }
+        for (DefaultEdge edge : graph.incomingEdgesOf(currentNode)) {
+            if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
+                System.out.println("Do the other isolated edge thing"); 
+                Node edgeSource = graph.getEdgeSource(edge);
+                activeSet = new ValidatedSet();
+                activeSet.setValidAfter(edgeSource);
+                activeSet.setIsValid(false);
+                seriesAccesses.add(activeSet);
+            }
+        }
+        if(child == null)
+        {
+            throw new RuntimeException("Isolated node did not have a child, graph not ready to be checked");
+        }
+        return checkForDataRace(graph, child, activeSet, 
+                                parallelAccesses, seriesAccesses);
+    }
+
+    private static Set<ValidatedSet> checkAsyncNode(DirectedAcyclicGraph<Node,DefaultEdge> graph,
+                                                  Node currentNode,
+                                                  ValidatedSet activeSet,
+                                                  Set<ValidatedSet> parallelAccesses,
+                                                  Set<ValidatedSet> seriesAccesses)
+    {
+        AsyncStack.push(currentNode); // add to global stack for linking to join
+        Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);
+        Set<ValidatedSet> asyncParallel = null;
+
+        return null;
+    }
+    /**
+     * Update Globabl map to link Join nodes and Async nodes
+     */
+    private static void updateAsyncToJoin(DirectedAcyclicGraph graph, DefaultEdge edge)
+    {
+        if (edge.getAttributes().equals(JoinEdgeAttributes())) {
+            //this code keeps track of connected asyncs and joins. Add this to
+            //new standard SP-bags algorithm.
+                if (AsyncStack.empty()) {
+                    System.out.println("ERROR: Overdrawing Finish: " + graph.getEdgeTarget(edge));
+                }
+                else {
+                    Node parentAsync = AsyncStack.pop();
+                    Node joinTarget = (Node) graph.getEdgeTarget(edge);
+                    System.out.println("Async to Join: " + parentAsync + " --> " + joinTarget);
+                    asyncToJoin.put(parentAsync, joinTarget);
+                }
+        }
+    }
     private static Set<ValidatedSet> checkForDataRace(
                                                DirectedAcyclicGraph<Node,DefaultEdge> graph,
                                                Node currentNode,
                                                ValidatedSet activeSet,
                                                Set<ValidatedSet> parallelAccesses,
                                                Set<ValidatedSet> seriesAccesses
-                                               ) {
-        if(currentNode.isJoin()) {
+                                               ) 
+    {
+        /*
+         * If the current node is a Join, return the DFS seriesAccess, 
+         */
+        if(currentNode.isJoin())
+        {
             return seriesAccesses;
         }
-        if(currentNode.isAsync()) {
-            AsyncStack.push(currentNode);
+
+        /*
+         * Report conflicts on current node, add reads/writes to activeSet
+         */
+        for (ValidatedSet vs : parallelAccesses)
+        {
+            vs.checkForConflicts(currentNode);
         }
-        for (ValidatedSet vs : parallelAccesses) {
-            vs.checkForConflicts(currentNode); 
+        activeSet.addAllFrom(currentNode); 
+        
+        /*
+         * If special node, call helper functions
+         */
+        if(currentNode.isAsync())
+        {
+            return checkAsyncNode(graph, currentNode, activeSet, 
+                                  parallelAccesses, seriesAccesses);
         }
-        activeSet.addAllFrom(currentNode);
-
-        Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);
-        Set<ValidatedSet> asyncParallel = null;
-        int edgesChecked = 0;
-
-        if (currentNode.isIsolated()) {
-            for (DefaultEdge edge : outgoingEdges) {
-                if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
-                   System.out.println("Do the isolated edge thing"); 
-                   Node edgeTarget = graph.getEdgeTarget(edge);
-                   activeSet.setExpiresAfter(edgeTarget);
-                   activeSet = new ValidatedSet();
-                   seriesAccesses.add(activeSet);
-                   edgesChecked++;
-                }
-            }
-            for (DefaultEdge edge : graph.incomingEdgesOf(currentNode)) {
-                if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
-                   System.out.println("Do the other isolated edge thing"); 
-                   Node edgeSource = graph.getEdgeSource(edge);
-                   activeSet = new ValidatedSet();
-                   activeSet.setValidAfter(edgeSource);
-                   activeSet.setIsValid(false);
-                   seriesAccesses.add(activeSet);
-                }
-            }
-
-        }
-
-        for (DefaultEdge edge : outgoingEdges) {//TODO: refactor. Standard SP-bags
-            //TODO: maybe we want different recursive function depending on
-            //what type of node current node is
-
-            //Check for edge types and do stuff
-            if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
-                System.out.println("Skipping Isolated Edge: " +
-                graph.getEdgeSource(edge) + " --> " + graph.getEdgeTarget(edge)); 
-                continue;
-            }
-            edgesChecked++;
-            if (edge.getAttributes().equals(JoinEdgeAttributes())) {
-            //this code keeps track of connected asyncs and joins. Add this to
-            //new standard SP-bags algorithm.
-                if (AsyncStack.empty()) {
-                    System.out.println("ERROR: Overdrawing Finish: " + currentNode);
-                }
-                else {
-                    Node parentAsync = AsyncStack.pop();
-                    Node joinTarget = graph.getEdgeTarget(edge);
-                    System.out.println("Async to Join: " + parentAsync + " --> " + joinTarget);
-                    asyncToJoin.put(parentAsync, joinTarget);
-                }
-            }
-            //Edge stuff done.
-
-            if (currentNode.isAsync()) {
-                Node child = (Node) graph.getEdgeTarget(edge);
-                if (asyncParallel == null) { //first child
-                    Set<ValidatedSet> asyncSeries = new HashSet<ValidatedSet>();
-                    ValidatedSet newActiveSet = new ValidatedSet();
-                    asyncSeries.add(newActiveSet);
-
-                    Set<ValidatedSet> result =
-                    checkForDataRace(graph,child,newActiveSet,parallelAccesses,asyncSeries);
-
-                    asyncParallel = new HashSet<ValidatedSet>();
-                    asyncParallel = union(asyncParallel, result);
-                    seriesAccesses = union(seriesAccesses, result);
-                }
-                else { //second+ child
-                    Set<ValidatedSet> asyncSeries = new HashSet<ValidatedSet>();
-                    ValidatedSet newActiveSet = new ValidatedSet();
-                    asyncSeries.add(newActiveSet);
-
-                    Set<ValidatedSet> result =
-                    checkForDataRace(graph,child,activeSet,asyncParallel,asyncSeries);
-                    union(asyncParallel, result);
-                    union(seriesAccesses, result);
-                }
-            }
-            else {
-                if (outgoingEdges.size() != edgesChecked) throw new
-                RuntimeException("ERROR: skipped " + (outgoingEdges.size()-edgesChecked) + " edges");
-                Node child = (Node) graph.getEdgeTarget(edge);
-                Set<ValidatedSet> result =
-                checkForDataRace(graph,child,activeSet,parallelAccesses,seriesAccesses);
-                return result;
-            }
+        if(currentNode.isIsolated())
+        {
+            return checkIsolatedNode(graph,currentNode, activeSet, 
+                                     parallelAccesses, seriesAccesses);
         }
         
-        if (currentNode.isAsync()) {
-            if (!asyncToJoin.containsKey(currentNode)) throw new RuntimeException("Failed to link Async to Join");
-            Node continueJoin = asyncToJoin.get(currentNode);
-            Set<ValidatedSet> result =
-            checkForDataRace(graph,continueJoin,activeSet,parallelAccesses,seriesAccesses);
-            return result;
+        Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);
+       
+        //Check if the node has one child
+        if (outgoingEdges.size() != 1)
+        {
+            throw new RuntimeException("Expected Node to have one child");
         }
-        return seriesAccesses;
+
+        DefaultEdge edge = outgoingEdges.iterator().next();
+        updateAsyncToJoin(graph, edge);
+        Node child = graph.getEdgeTarget(edge);
+        
+        return checkForDataRace(graph, child, activeSet, 
+                                parallelAccesses, seriesAccesses);
     }
 
 
@@ -165,6 +184,31 @@ public class CGAnalyzer {
         private Set<DataAccess> arrayRead;
         private Set<DataAccess> arrayWrite;
 
+        public Node getExpiresAfter()
+        {
+            return this.expiresAfter;
+        }
+
+        public void setExpiresAfter(Node expiresAfter)
+        {
+            this.expiresAfter = expiresAfter;
+        }
+
+        public Node getValidAfter()
+        {
+            return this.validAfter;
+        }
+
+        public void setValidAfter(Node validAfter)
+        {
+            this.validAfter = validAfter;
+        }
+
+        public void setIsValid(boolean isValid)
+        {
+            this.isValid = isValid;
+        }
+
         public ValidatedSet() {
             this.expiresAfter = null;
             this.validAfter = null;
@@ -175,38 +219,25 @@ public class CGAnalyzer {
             this.arrayWrite = new HashSet<DataAccess>();
         }
 
-        public ValidatedSet(ValidatedSet toCopy) {
-            this.fieldRead = toCopy.fieldRead;
-            this.fieldWrite = toCopy.fieldWrite;
-            this.arrayRead = toCopy.arrayRead;
-            this.arrayWrite = toCopy.arrayWrite;
-            this.isValid = toCopy.isValid;
-            this.expiresAfter = toCopy.expiresAfter;
-            this.validAfter = toCopy.validAfter;
+        public ValidatedSet(
+                            Set<DataAccess> fieldRead,
+                            Set<DataAccess> fieldWrite,
+                            Set<DataAccess> arrayRead,
+                            Set<DataAccess> arrayWrite,
+                            boolean isValid,
+                            Node expiresAfter,
+                            Node validAfter
+                            ) {
+            this.fieldRead = fieldRead;
+            this.fieldWrite = fieldWrite;
+            this.arrayRead = arrayRead;
+            this.arrayWrite = arrayWrite;
+            this.isValid = isValid;
+            this.expiresAfter = expiresAfter;
+            this.validAfter = validAfter;
         }
-
-        public Node getExpiresAfter() {
-            return expiresAfter;
-        }
-
-        public void setExpiresAfter(Node input) {
-            this.expiresAfter = input;
-        }
-
-        public Node getValidAfter() {
-            return validAfter;
-        }
-
-        public void setValidAfter(Node input) {
-            this.validAfter = input;
-        }
-        public void setIsValid(boolean input) {
-            this.isValid = input;
-        }
-
 
         public void checkForConflicts(Node input) {
-            if (!isValidAt(input)) return;
             if (!(input instanceof activityNode)) return;
             activityNode node = (activityNode) input;
 
@@ -358,6 +389,7 @@ public class CGAnalyzer {
             }
 
         }
+
         public void addAllFrom(Node input) {
             if (!(input instanceof activityNode)) return;
             activityNode node = (activityNode) input;
@@ -407,11 +439,10 @@ public class CGAnalyzer {
             }
             return this.isValid;
         }
-
     }
 
     private static void reportRace(String message) {
-        //CGAnalyzer.race = true;
+        CGAnalyzer.race = true;
         System.out.println(message);
     }
 
