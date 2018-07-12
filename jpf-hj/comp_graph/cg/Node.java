@@ -16,6 +16,18 @@ public class Node {
     private boolean isJoin = false;
     private boolean isIsolated = false;
 
+    private int joinEdgesEvaluated = 0;
+
+    public int getJoinEdgesEvaluated()
+    {
+        return this.joinEdgesEvaluated;
+    }
+
+    public void incJoinEdgesEvaluated()
+    {
+        this.joinEdgesEvaluated++;
+    }
+
     private String display_name = null;
 
     public String getDisplay_name() {

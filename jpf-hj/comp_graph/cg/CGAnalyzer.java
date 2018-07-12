@@ -79,17 +79,53 @@ public class CGAnalyzer {
     }
 
     private static Set<ValidatedSet> checkAsyncNode(DirectedAcyclicGraph<Node,DefaultEdge> graph,
-                                                  Node currentNode,
-                                                  ValidatedSet activeSet,
-                                                  Set<ValidatedSet> parallelAccesses,
-                                                  Set<ValidatedSet> seriesAccesses)
+                                                    Node currentNode,
+                                                    ValidatedSet activeSet,
+                                                    Set<ValidatedSet> parallelAccesses,
+                                                    Set<ValidatedSet> seriesAccesses)
     {
         AsyncStack.push(currentNode); // add to global stack for linking to join
         Set<DefaultEdge> outgoingEdges = graph.outgoingEdgesOf(currentNode);
         Set<ValidatedSet> asyncParallel = null;
 
-        return null;
+        if(outgoingEdges.size() != 2)
+        {
+            throw new RuntimeException("Async does not have exactly two children");
+        }
+
+        DefaultEdge left = outgoingEdges.iterator().next();
+        updateAsyncToJoin(graph, left);
+        DefaultEdge right = outgoingEdges.iterator().next();
+        updateAsyncToJoin(graph, right);
+        
+        Node leftChild = graph.getEdgeTarget(left);
+        Node rightChild = graph.getEdgeTarget(right);
+
+        ValidatedSet leftActiveSet = new ValidatedSet();
+        ValidatedSet rightActiveSet = new ValidatedSet();
+        Set<ValidatedSet> leftSeriesSet = new HashSet<ValidatedSet>();
+        leftSeriesSet.add(leftActiveSet);
+        Set<ValidatedSet> rightSeriesSet = new HashSet<ValidatedSet>();
+        rightSeriesSet.add(rightActiveSet);
+
+        leftSeriesSet = checkForDataRace(graph, leftChild, leftActiveSet, parallelAccesses, leftSeriesSet);
+        Set<ValidatedSet> rightParallelToCheck = union(parallelAccesses, leftSeriesSet);
+        rightSeriesSet = checkForDataRace(graph, rightChild, rightActiveSet, rightParallelToCheck, rightSeriesSet);
+
+        if(asyncToJoin.containsKey(currentNode))
+        {
+            Node joinNode = asyncToJoin.get(currentNode);
+            ValidatedSet joinActiveSet = new ValidatedSet();
+            Set<ValidatedSet> joinSeriesSet = union(leftSeriesSet, rightSeriesSet);
+            Set<ValidatedSet> joinResult = checkForDataRace(graph, joinNode, joinActiveSet, parallelAccesses, joinSeriesSet);
+            return joinResult;
+        }
+        else
+        {
+            throw new RuntimeException("Failed to link Async Node to Join Node");
+        }
     }
+
     /**
      * Update Globabl map to link Join nodes and Async nodes
      */
@@ -118,11 +154,17 @@ public class CGAnalyzer {
                                                ) 
     {
         /*
-         * If the current node is a Join, return the DFS seriesAccess, 
+         * If the current node is a Join, increment the number of Edges that have been evaluated on the current node
+         * The Number of incoming edges is always one more than the number of Async Nodes that join at this Join node.
+         * Check to see if we have finished joining all of the Asyncs and should move on.
          */
         if(currentNode.isJoin())
         {
-            return seriesAccesses;
+            currentNode.incJoinEdgesEvaluated();
+            if((graph.incomingEdgesOf(currentNode).size() - currentNode.getJoinEdgesEvaluated()) != 1)
+                return seriesAccesses;         
+                //Else continue with algorithm;
+            
         }
 
         /*
@@ -185,7 +227,7 @@ public class CGAnalyzer {
         private Set<DataAccess> arrayWrite;
 
         public Node getExpiresAfter()
-        {
+        {      
             return this.expiresAfter;
         }
 
