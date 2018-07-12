@@ -10,6 +10,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 public class CGAnalyzer {
     private static boolean race = false;
     private static Stack<Node> AsyncStack = new Stack<Node>();
+    private static Map<Node,Node> asyncToJoin = new HashMap();
 
     public static boolean analyzeGraphForDataRace(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
         CGAnalyzer.race = false;
@@ -53,12 +54,21 @@ public class CGAnalyzer {
             for (DefaultEdge edge : outgoingEdges) {
                 if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
                    System.out.println("Do the isolated edge thing"); 
+                   Node edgeTarget = graph.getEdgeTarget(edge);
+                   activeSet.setExpiresAfter(edgeTarget);
+                   activeSet = new ValidatedSet();
+                   seriesAccesses.add(activeSet);
                    edgesChecked++;
                 }
             }
             for (DefaultEdge edge : graph.incomingEdgesOf(currentNode)) {
                 if (edge.getAttributes().equals(IsolatedEdgeAttributes())) {
                    System.out.println("Do the other isolated edge thing"); 
+                   Node edgeSource = graph.getEdgeSource(edge);
+                   activeSet = new ValidatedSet();
+                   activeSet.setValidAfter(edgeSource);
+                   activeSet.setIsValid(false);
+                   seriesAccesses.add(activeSet);
                 }
             }
 
@@ -85,6 +95,7 @@ public class CGAnalyzer {
                     Node parentAsync = AsyncStack.pop();
                     Node joinTarget = graph.getEdgeTarget(edge);
                     System.out.println("Async to Join: " + parentAsync + " --> " + joinTarget);
+                    asyncToJoin.put(parentAsync, joinTarget);
                 }
             }
             //Edge stuff done.
@@ -120,7 +131,16 @@ public class CGAnalyzer {
                 Node child = (Node) graph.getEdgeTarget(edge);
                 Set<ValidatedSet> result =
                 checkForDataRace(graph,child,activeSet,parallelAccesses,seriesAccesses);
+                return result;
             }
+        }
+        
+        if (currentNode.isAsync()) {
+            if (!asyncToJoin.containsKey(currentNode)) throw new RuntimeException("Failed to link Async to Join");
+            Node continueJoin = asyncToJoin.get(currentNode);
+            Set<ValidatedSet> result =
+            checkForDataRace(graph,continueJoin,activeSet,parallelAccesses,seriesAccesses);
+            return result;
         }
         return seriesAccesses;
     }
@@ -155,25 +175,38 @@ public class CGAnalyzer {
             this.arrayWrite = new HashSet<DataAccess>();
         }
 
-        public ValidatedSet(
-                            Set<DataAccess> fieldRead,
-                            Set<DataAccess> fieldWrite,
-                            Set<DataAccess> arrayRead,
-                            Set<DataAccess> arrayWrite,
-                            boolean isValid,
-                            Node expiresAfter,
-                            Node validAfter
-                            ) {
-            this.fieldRead = fieldRead;
-            this.fieldWrite = fieldWrite;
-            this.arrayRead = arrayRead;
-            this.arrayWrite = arrayWrite;
-            this.isValid = isValid;
-            this.expiresAfter = expiresAfter;
-            this.validAfter = validAfter;
+        public ValidatedSet(ValidatedSet toCopy) {
+            this.fieldRead = toCopy.fieldRead;
+            this.fieldWrite = toCopy.fieldWrite;
+            this.arrayRead = toCopy.arrayRead;
+            this.arrayWrite = toCopy.arrayWrite;
+            this.isValid = toCopy.isValid;
+            this.expiresAfter = toCopy.expiresAfter;
+            this.validAfter = toCopy.validAfter;
         }
 
+        public Node getExpiresAfter() {
+            return expiresAfter;
+        }
+
+        public void setExpiresAfter(Node input) {
+            this.expiresAfter = input;
+        }
+
+        public Node getValidAfter() {
+            return validAfter;
+        }
+
+        public void setValidAfter(Node input) {
+            this.validAfter = input;
+        }
+        public void setIsValid(boolean input) {
+            this.isValid = input;
+        }
+
+
         public void checkForConflicts(Node input) {
+            if (!isValidAt(input)) return;
             if (!(input instanceof activityNode)) return;
             activityNode node = (activityNode) input;
 
@@ -374,10 +407,11 @@ public class CGAnalyzer {
             }
             return this.isValid;
         }
+
     }
 
     private static void reportRace(String message) {
-        CGAnalyzer.race = true;
+        //CGAnalyzer.race = true;
         System.out.println(message);
     }
 

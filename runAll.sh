@@ -5,7 +5,7 @@ sh compileTool.sh
 # Gather the list of benchmarks
 # Run all of them using the runOne.sh script
 
-benchmarks=(Benchmarks2018/*)
+benchmarks=(AllBenchmarks2018/*)
 destination="started-`date +"%F_%H-%M-%S"`"
 
 for b in "${benchmarks[@]}"; do

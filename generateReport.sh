@@ -1,7 +1,8 @@
 #!/bin/bash
 OUTPUT_NAME=output.txt
-YES_MARKER="Data Race detected"
+YES_MARKER="Non-deterministic access between"
 TIME_MARKER="elapsed time:       "
+FINISH_MARKER="search finished"
 parseOutput()
 {
   DISPLAY_NAME=${1%/$OUTPUT_NAME}
@@ -12,8 +13,11 @@ parseOutput()
   else
     echo $DISPLAY_NAME : "NO"
   fi
-  grep "$TIME_MARKER" "$1"
-  echo
+  if  grep -q "$FINISH_MARKER" "$1"  ; then
+    grep "$TIME_MARKER" "$1"
+  else
+    echo "ERROR Exeption Thrown"
+  fi
 }
 export -f parseOutput
 find $1 -name $OUTPUT_NAME | while read file; do parseOutput "$file"; done
