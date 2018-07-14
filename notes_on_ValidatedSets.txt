@@ -1,0 +1,28 @@
+Pseudo Code
+
+recursiveAnalyze(Node n, pBag, sBag) {
+
+case n is async:
+    seriesAccessesFromLeft = recursiveAnalyze(leftChild)
+    seriesAccessesFromRight = recursiveAnalyze(rightChild)
+    this.readyForJoin = true;
+    seriesAccessesFromJoin = recursiveAnalyize(join)
+
+
+case n is join:
+    if all asyncNode in getAsyncs(join) readyForJoin:
+       return  recursiveAnalyze(child)
+    else:
+       return emptySet;
+
+case n is isolation:
+    for Node i in isolationEdgeTargetsFrom(n):
+        activeSet.setExpiresAfter(i)
+    for Node i in isolationEdgeSourcesFrom(n): 
+        activeSet.setValidAfter(i)        
+
+if (reads_and_writes [intersected] pBag != emptySet) report race
+sBag = Union(sBag, reads_and_writes)
+sBag = Union(sBag, recursiveAnalyze(child))
+return sBag
+}

@@ -11,9 +11,11 @@ public class CGAnalyzer {
     private static boolean race = false;
     private static Stack<Node> AsyncStack = new Stack<Node>();
     private static Map<Node, Node> asyncToJoin = new HashMap<Node, Node>();
+    private static boolean searchFinished = false;
 
     public static boolean analyzeGraphForDataRace(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
         CGAnalyzer.race = false;
+        CGAnalyzer.searchFinished = false;
         Node start = getRootOf(graph);
         Set<ValidatedSet> parallelAccesses = new HashSet<ValidatedSet>();
         Set<ValidatedSet> seriesAccesses = new HashSet<ValidatedSet>();
@@ -24,7 +26,7 @@ public class CGAnalyzer {
                                                     activeSet,
                                                     parallelAccesses,
                                                     seriesAccesses);
-        return CGAnalyzer.race;
+        return false;
 
     }
 
@@ -93,9 +95,10 @@ public class CGAnalyzer {
             throw new RuntimeException("Async does not have exactly two children");
         }
 
-        DefaultEdge left = outgoingEdges.iterator().next();
+        Iterator<DefaultEdge> it = outgoingEdges.iterator();
+        DefaultEdge left = it.next();
         updateAsyncToJoin(graph, left);
-        DefaultEdge right = outgoingEdges.iterator().next();
+        DefaultEdge right = it.next(); //i is a bad boy
         updateAsyncToJoin(graph, right);
         
         Node leftChild = graph.getEdgeTarget(left);
@@ -135,7 +138,8 @@ public class CGAnalyzer {
             //this code keeps track of connected asyncs and joins. Add this to
             //new standard SP-bags algorithm.
                 if (AsyncStack.empty()) {
-                    System.out.println("ERROR: Overdrawing Finish: " + graph.getEdgeTarget(edge));
+                    System.out.println("ERROR: Overdrawing Finish: " +
+                    graph.getEdgeSource(edge));
                 }
                 else {
                     Node parentAsync = AsyncStack.pop();
@@ -195,6 +199,10 @@ public class CGAnalyzer {
         //Check if the node has one child
         if (outgoingEdges.size() != 1)
         {
+            if (outgoingEdges.size() == 0 && !searchFinished) {
+                searchFinished = true;
+                return seriesAccesses;
+            }
             throw new RuntimeException("Expected Node to have one child");
         }
 
@@ -208,8 +216,10 @@ public class CGAnalyzer {
 
 
     private static Set<ValidatedSet> union(Set<ValidatedSet> first, Set<ValidatedSet> second) {
-        if (second != null) first.addAll(second);
-        return first;
+        Set<ValidatedSet> result = new HashSet<ValidatedSet>();
+        result.addAll(first);
+        result.addAll(second);
+        return result;
     }
 
     private static Node getRootOf(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -288,7 +298,7 @@ public class CGAnalyzer {
                 if (node.var_write != null) for (DataAccess e : node.var_write) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
@@ -296,13 +306,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
@@ -313,14 +323,14 @@ public class CGAnalyzer {
                 if (node.var_read != null) for (DataAccess e : node.var_read) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
                 if (node.var_write != null) for (DataAccess e : node.var_write) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
@@ -328,13 +338,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
@@ -343,13 +353,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
@@ -361,7 +371,7 @@ public class CGAnalyzer {
                 if (node.array_write != null) for (DataAccess e : node.array_write) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
@@ -369,13 +379,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
@@ -387,14 +397,14 @@ public class CGAnalyzer {
                 if (node.array_read != null) for (DataAccess e : node.array_read) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
                 if (node.array_write != null) for (DataAccess e : node.array_write) {
                     if(da.conflictsWith(e)) {
                         String message = "Non-deterministic access between\n\t"
-                        + da.toString() + "\n\t" + e.toString();
+                        + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                         reportRace(message);
                     }
                 }
@@ -402,13 +412,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
@@ -417,13 +427,13 @@ public class CGAnalyzer {
                     if(da.conflictsWith(e)) {
                         if (da.isIsolated()) {
                             String message = "Intended data race between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             System.out.println(message);
 
                         }
                         else {
                             String message = "Non-deterministic access between\n\t"
-                            + da.toString() + "\n\t" + e.toString();
+                            + da.toString() + "\n\t" + e.toString() + "in node " + node.isAsync();
                             reportRace(message);
                         }
                     }
