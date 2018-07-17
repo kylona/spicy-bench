@@ -78,6 +78,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 			//scheduler for isolated
 			if(drd || vs_drd){
 				if (instructionToExecute instanceof JVMInvokeInstruction) {
+                    System.out.println(instructionToExecute);
 					MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
 					String baseName = mi.getBaseName();
 					if (isIsolatedMethod(baseName)) {

@@ -1,28 +1,46 @@
 Pseudo Code
 
-recursiveAnalyze(Node n, pBag, sBag) {
+Bag recursiveAnalyze(Node n, Bag pBag) {
 
-case n is async:
-    seriesAccessesFromLeft = recursiveAnalyze(leftChild)
-    seriesAccessesFromRight = recursiveAnalyze(rightChild)
+if n is async:
+    Bag seriesLeft = recursiveAnalyze(leftChild, pBag)
+    Bag asyncBag = Union(pBag,seriesLeft);
+    Bag seriesRight = recursiveAnalyze(rightChild, asyncBag)
     this.readyForJoin = true;
-    seriesAccessesFromJoin = recursiveAnalyize(join)
+    Bag seriesJoin = recursiveAnalyize(join)
+    return Union(seriesRight, seriesLeft, seriesJoin);
 
 
-case n is join:
-    if all asyncNode in getAsyncs(join) readyForJoin:
+if n is join:
+    if all asyncNode in getAsyncs(join) are readyForJoin && hasChild():
        return  recursiveAnalyze(child)
     else:
-       return emptySet;
+       emptyBag = new Bag();
+       emptyValidatedSet = new ValidatedSet();
+       emptyBag.add(emptyValidatedSet);
+       emptyBag.setActiveSet(emptyValidatedSet);
+       return emptyBag;
 
-case n is isolation:
-    for Node i in isolationEdgeTargetsFrom(n):
+for ValidatedSet vs in pBag:
+    if vs.isValidAt(n) && intersect(reads_and_writes, vs) != emptySet: report race
+Bag result = recursiveAnalyze(child)
+ValidatedSet activeSet = result.getActiveSet();
+activeSet.addReadsAndWritesFrom(n);
+
+if n is isolation:
+    for Node i in isolationNodesAfter(n):
+        activeSet = new ValidatedSet();
+        result.add(activeSet);
+        result.setActiveSet(activeSet);
         activeSet.setExpiresAfter(i)
-    for Node i in isolationEdgeSourcesFrom(n): 
-        activeSet.setValidAfter(i)        
+        activeSet.setExpiresAfter(joinOf(i));
 
-if (reads_and_writes [intersected] pBag != emptySet) report race
-sBag = Union(sBag, reads_and_writes)
-sBag = Union(sBag, recursiveAnalyze(child))
-return sBag
+    for Node i in isolationNodesBefore(n): 
+        activeSet.setValidAfter(i);
+        activeSet.setValidAfter(joinOf(i));
+        activeSet = new ValidatedSet();
+        result.add(activeSet);
+        result.setActiveSet(activeSet);
+
+return result;
 }
