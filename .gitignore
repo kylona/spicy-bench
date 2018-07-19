@@ -2,3 +2,7 @@ HJLibFiles/classes/*.class
 jpf-hj/build/classes/*.class
 .*.sw?
 *~
+**/*.hg/*
+*.iml
+.idea/
+out
