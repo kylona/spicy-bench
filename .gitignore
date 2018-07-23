@@ -6,3 +6,4 @@ jpf-hj/build/classes/*.class
 *.iml
 .idea/
 out
+**/build/*
