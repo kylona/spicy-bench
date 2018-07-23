@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $SPICY_BENCH_ROOT -z ]; then
+if [ "$SPICY_BENCH_ROOT" -z ]; then
     SPICY_BENCH_ROOT=$3
 fi
 
