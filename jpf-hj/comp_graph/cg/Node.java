@@ -247,6 +247,10 @@ class activityNode extends Node {
     public void createArrayIsolatedWriteList() {
         array_write_isolated = new LinkedList<ArrayElements>();
     }
+
+    public String getDisplay_name() {
+        return "Foo";
+    }
 }
 
 class isolatedNode extends activityNode {

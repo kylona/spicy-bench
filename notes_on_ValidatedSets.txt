@@ -1,13 +1,12 @@
 Pseudo Code
 
-Bag recursiveAnalyze(Node n, Bag pBag) {
-
+Bag recursiveAnalyze(Node n, Bag pBag) { 
 if n is async:
     Bag seriesLeft = recursiveAnalyze(leftChild, pBag)
     Bag asyncBag = Union(pBag,seriesLeft);
     Bag seriesRight = recursiveAnalyze(rightChild, asyncBag)
-    this.readyForJoin = true;
-    Bag seriesJoin = recursiveAnalyize(join)
+    n.readyForJoin = true;
+    Bag seriesJoin = recursiveAnalyize(getJoin(n))
     return Union(seriesRight, seriesLeft, seriesJoin);
 
 
@@ -15,32 +14,36 @@ if n is join:
     if all asyncNode in getAsyncs(join) are readyForJoin && hasChild():
        return  recursiveAnalyze(child)
     else:
-       emptyBag = new Bag();
-       emptyValidatedSet = new ValidatedSet();
-       emptyBag.add(emptyValidatedSet);
-       emptyBag.setActiveSet(emptyValidatedSet);
-       return emptyBag;
+       sBag = new Bag();
+       emptyPocket = new Pocket();
+       sBag.add(emptyPocket);
+       sBag.setOpenPocket(emptyPocket);
+       return sBag;
 
-for ValidatedSet vs in pBag:
-    if vs.isValidAt(n) && intersect(reads_and_writes, vs) != emptySet: report race
-Bag result = recursiveAnalyze(child)
-ValidatedSet activeSet = result.getActiveSet();
-activeSet.addReadsAndWritesFrom(n);
+for Pocket pocket in pBag:
+    pocket.updateZip(n);
+    if !pocket.isZipped() && intersect(reads_and_writes, pocket) != emptySet: report race
+Bag sBag = recursiveAnalyze(child)
+Pocket openPocket = sBag.getOpenPocket();
 
 if n is isolation:
     for Node i in isolationNodesAfter(n):
-        activeSet = new ValidatedSet();
-        result.add(activeSet);
-        result.setActiveSet(activeSet);
-        activeSet.setExpiresAfter(i)
-        activeSet.setExpiresAfter(joinOf(i));
+        openPocket = new Pocket();
+        sBag.add(openPocket);
+        sBag.setOpenPocket(openPocket);
+        openPocket.setSeriesAfter(i)
+        openPocket.setSeriesAfter(joinOf(i));
+        openPocket.addReadsAndWritesFrom(n);
 
     for Node i in isolationNodesBefore(n): 
-        activeSet.setValidAfter(i);
-        activeSet.setValidAfter(joinOf(i));
-        activeSet = new ValidatedSet();
-        result.add(activeSet);
-        result.setActiveSet(activeSet);
+        openPocket.setParallelAfter(i);
+        openPocket.setParallelAfter(joinOf(i));
+        openPocket.addReadsAndWritesFrom(n);
+        openPocket = new Pocket();
+        sBag.add(openPocket);
+        sBag.setOpenPocket(openPocket);
+else:
+    openPocket.addReadsAndWritesFrom(n);
 
-return result;
+return sBag;
 }
