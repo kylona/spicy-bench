@@ -185,7 +185,8 @@ public class CGAnalyzer {false
             }
         }
 
-        //Not a join or async node
+        //Not a join or async nodeg);
+            
         //Pocket S-after, upOrDown, zipped, reads, writes
 
         //Check for data races on way down
