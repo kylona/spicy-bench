@@ -26,7 +26,7 @@ public class CGAnalyzer {
                                                     activeSet,
                                                     parallelAccesses,
                                                     seriesAccesses);
-        return false;
+        return race;
 
     }
 
@@ -203,7 +203,8 @@ public class CGAnalyzer {
                 searchFinished = true;
                 return seriesAccesses;
             }
-            throw new RuntimeException("Expected Node to have one child");
+            
+            throw new RuntimeException("Expected " + currentNode.getDisplay_name() + " to have one child; it has " + outgoingEdges.size());
         }
 
         DefaultEdge edge = outgoingEdges.iterator().next();

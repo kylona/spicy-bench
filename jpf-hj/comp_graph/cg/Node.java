@@ -248,9 +248,9 @@ class activityNode extends Node {
         array_write_isolated = new LinkedList<ArrayElements>();
     }
 
-    public String getDisplay_name() {
-        return "Foo";
-    }
+   // public String getDisplay_name() {
+   //     return this.display_name;
+   // }
 }
 
 class isolatedNode extends activityNode {

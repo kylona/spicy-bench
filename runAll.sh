@@ -14,6 +14,6 @@ for b in "${benchmarks[@]}"; do
     resultsFolder="/home/jpf/$destination/$filename"
     mkdir -p $resultsFolder
     echo "Running $filename..."
-    sh runOne.sh $filename $resultsFolder > $resultsFolder/output.txt 
+    sh runOne.sh $filename $resultsFolder > $resultsFolder/output.txt 2>&1
     echo "Done. Output saved to $resultsFolder/output.txt"
 done
