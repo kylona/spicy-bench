@@ -59,13 +59,21 @@ public class Pocket
     {
         this.zipped = zipped;
     }
+
+    public void updateZip(Node n)
+    {
+        if(!this.zipped && this.sAfter.contains(n))
+        {
+            this.zipped = true;
+        }
+    }
 }
 
 
-public class CGAnalyzer {false
-    private static booleafalsen race = false;
-    private static Stack<falseNode> AsyncStack = new Stack<Node>();
-    private static Map<Nofalsede, Node> asyncToJoin = new HashMap<Node, Node>();
+public class CGAnalyzer {
+    private static boolean race = false;
+    private static Stack<Node> AsyncStack = new Stack<Node>();
+    private static Map<Node, Node> asyncToJoin = new HashMap<Node, Node>();
     private static boolean searchFinished = false;
 
     public static boolean analyzeGraphForDataRace(DirectedAcyclicGraph<Node, DefaultEdge> graph) {
@@ -83,6 +91,18 @@ public class CGAnalyzer {false
                                                     seriesAccesses);
         return false;
 
+    }
+
+    Bag unionBag(Bag... bags)
+    {
+        //TODO: Does the new bag's openPocket need to true or false
+        Bag union = new Bag();
+        ArrayList<Pockets> uPockets = union.getPockets();
+        for(Bag b : bags)
+        {
+            uPockets.addAll(b.getPockets);
+        }
+        return union;
     }
 
     Bag recursiveAnalyze(Node n, Bag pBag)
@@ -103,7 +123,7 @@ public class CGAnalyzer {false
             }
 
             Bag seriesLeft = recursiveAnalyze(leftChild, pBag);
-            Bag asyncBag = Union(pBag, seriesLeft);
+            Bag asyncBag = unionBag(pBag, seriesLeft);
 
             for(Pocket p : asyncBag.getPockets)
             {
@@ -134,7 +154,7 @@ public class CGAnalyzer {false
 
             //note that this is the original pBag without all the extra series stuff
             Bag seriesJoin = recursiveAnalyze(getJoin(n), pBag); 
-            return Union(seriesRight, seriesLeft, seriesJoin);
+            return unionBag(seriesRight, seriesLeft, seriesJoin);
         }
 
         if(n.isJoin())
@@ -185,15 +205,17 @@ public class CGAnalyzer {false
             }
         }
 
-        //Not a join or async nodeg);
-            
-        //Pocket S-after, upOrDown, zipped, reads, writes
+        //Not a join or async node;
 
         //Check for data races on way down
         for(Pocket p : pBag)
         {
             p.updateZip(n); //if unzipped && n in S-after: zip
             //TODO check with Kyle for this line
+            if(!pocket.getZipped())
+            {
+                
+            }
         }
 
         Bag sBag = recursiveAnalyze(child, pBag);
@@ -201,8 +223,14 @@ public class CGAnalyzer {false
 
         for(Pocket p : pBag)
         {
-            //TODO check with Kyle for this for loop
+            p.updateZip(n);
+            //TODO check with Kyle for this line
+            if(!pocket.getZipped())
+            {
+
+            }
         }
+
         //continue building sBag
         if(n.isIsolated())
         {
