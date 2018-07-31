@@ -37,8 +37,8 @@ public class Pocket
 {
     private boolean direction; // up is false, down is true
     private boolean zipped;
-    private HashSet<Nodes> sAfter;
-    private HashSet<Nodes> inBag; 
+    private HashSet<Node> sAfter;
+    private HashSet<Node> inBag; 
     
     public boolean getDirection()
     {
@@ -103,6 +103,11 @@ public class CGAnalyzer {
             uPockets.addAll(b.getPockets);
         }
         return union;
+    }
+
+    HashSet<Node> intersect(Pocket... pockets)
+    {
+        return new HashSet<Node>();
     }
 
     Bag recursiveAnalyze(Node n, Bag pBag)
@@ -212,9 +217,9 @@ public class CGAnalyzer {
         {
             p.updateZip(n); //if unzipped && n in S-after: zip
             //TODO check with Kyle for this line
-            if(!pocket.getZipped())
+            if(!pocket.getZipped() && !intersect(new HashSet<Node>(), new HashSet<Node>()).isEmpty())
             {
-                
+                throw new RuntimeException("There is a data race");
             }
         }
 
@@ -225,9 +230,9 @@ public class CGAnalyzer {
         {
             p.updateZip(n);
             //TODO check with Kyle for this line
-            if(!pocket.getZipped())
+            if(!pocket.getZipped() && !intersect(new HashSet<Node>(), new HashSet<Node>()).isEmpty())
             {
-
+                throw new RuntimeException("There is a data race");
             }
         }
 
