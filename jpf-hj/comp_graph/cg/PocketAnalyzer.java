@@ -35,14 +35,12 @@ public class PocketAnalyzer {
         }
 
         public void updateZipDown(Node n) {
-            if(!this.zipped && this.sAfterDown.contains(n))
-            {
+            if(!this.zipped && this.sAfterDown.contains(n)) {
                 this.zipped = true;
             }
         }
         public void updateZipUp(Node n) {
-            if(!this.zipped && this.sAfterUp.contains(n))
-            {
+            if(!this.zipped && this.sAfterUp.contains(n)) {
                 this.zipped = true;
             }
         }
@@ -125,7 +123,6 @@ public class PocketAnalyzer {
                 sBag.add(newPocket);
             }
         }
-
         return union(sBag, resultBag);
     }
 
@@ -180,18 +177,18 @@ public class PocketAnalyzer {
         Set<DefaultEdge> outgoing = graph.outgoingEdgesOf(n);
         Set<Node> children = new HashSet<Node>();
         Node edgeSource;
-        for(DefaultEdge e : outgoing)
-        {
+        for(DefaultEdge e : outgoing) {
             Node child = (Node) graph.getEdgeTarget(e);
             children.add(child);
         }
+        return children;
     }
 
     private static void prepForDownCheck(Bag pBag) {
         for (Pocket pocket : pBag) {
             if ((pocket.sAfterDown != null && pocket.sAfterUp != null) ||
                 (pocket.sAfterDown == null && pocket.sAfterUp == null) ||
-                (pocket.sAfterDown != null && pocket.sAfterUp == null) {
+                (pocket.sAfterDown != null && pocket.sAfterUp == null)) {
                     pocket.setZipped(false);
             } else if (pocket.sAfterDown == null && pocket.sAfterUp != null) {
                     pocket.setZipped(true);
@@ -205,7 +202,7 @@ public class PocketAnalyzer {
         for (Pocket pocket : pBag) {
             if ((pocket.sAfterDown != null && pocket.sAfterUp != null) ||
                 (pocket.sAfterDown == null && pocket.sAfterUp == null) ||
-                (pocket.sAfterDown == null && pocket.sAfterUp != null) {
+                (pocket.sAfterDown == null && pocket.sAfterUp != null)) {
                     pocket.setZipped(false);
             } else if (pocket.sAfterDown != null && pocket.sAfterUp == null) {
                     pocket.setZipped(true);
@@ -215,11 +212,9 @@ public class PocketAnalyzer {
         }
     }
 
-    private static Bag union(Bag... bags)
-    {
+    private static Bag union(Bag... bags) {
         Bag union = new Bag();
-        for(Bag b : bags)
-        {
+        for(Bag b : bags) {
             union.addAll(b);
         }
         return union;
