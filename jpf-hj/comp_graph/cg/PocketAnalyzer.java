@@ -192,6 +192,36 @@ public class PocketAnalyzer {
         return children;
     }
 
+    private static Set<Node> getIsolationNodesBefore(Node n) {
+        if (!n.isIsolated()) throw new RuntimeException();
+        
+        Set<Node> result = null;
+        for (DefaultEdge e : graph.getIncomingEdgesOf(n)) {
+            if (e.getAttributes().equals(IsolatedEdgeAttributes()){
+                if (result != null) throw new RuntimeException("Isolation Node has more than one outgoing edge");
+                Node i = (Node) graph.getEdgeSource(e);
+                result = getIsolationNodesBefore(i);
+                result.add(n);
+            }
+        }
+        return result;
+    }
+
+    private static Set<Node> getIsolationNodesAfter(Node n) {
+        if (!n.isIsolated()) throw new RuntimeException();
+        
+        Set<Node> result = null;
+        for (DefaultEdge e : graph.getOutgoingEdgesOf(n)) {
+            if (e.getAttributes().equals(IsolatedEdgeAttributes()){
+                if (result != null) throw new RuntimeException("Isolation Node has more than one outgoing edge");
+                Node i = (Node) graph.getEdgeTarget(e);
+                result = getIsolationNodesAfter(i);
+                result.add(n);
+            }
+        }
+        return result;
+    }
+
     private static void prepForDownCheck(Bag pBag) {
         for (Pocket pocket : pBag) {
             if ((pocket.sAfterDown != null && pocket.sAfterUp != null) ||
