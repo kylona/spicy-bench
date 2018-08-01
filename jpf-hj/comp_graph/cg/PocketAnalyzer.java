@@ -76,22 +76,25 @@ public class PocketAnalyzer {
                 prepForDownCheck(asyncBag);
                 List<Node> childSeries = new ArrayList<Node>();
                 Bag seriesResult = recursiveAnalyze(child, asyncBag, childSeries);
-                //TODO the following two lines are calling non-existent methods at the moment
-                checkForMissingNodes(childSeries, seriesResult);
                 checkForPocketIntersect(seriesResult);
+                checkForMissingNodes(childSeries, seriesResult);
                 sBag = union(sBag, seriesResult);
                 asyncBag = union(asyncBag, seriesResult);
             }
             n.setReadyForJoin(true);
             Bag joinResult = recursiveAnalyze(getJoin(n), pBag, new ArrayList<Node>());
             sBag = union(sBag, joinResult);
+            for (Pocket pocket : sBag) {
+                pocket.updateZipUp(n);
+            }
             return sBag;
         }
 
         if (n.isJoin()) {
-            //TODO method doesn't exist
             if (getAsync(n).isReadyForJoin()) {
-              //TODO incorrect call to recursive analyze
+                for (Pocket pocket : pBag) {
+                    pocket.updateZipDown(n);
+                }
                 return recursiveAnalyze(getChild(n), pBag, seriesNodes);
             }
             else {
@@ -180,6 +183,28 @@ public class PocketAnalyzer {
         seriesResult.add(newPocket);
     }
 
+    private static void checkForPocketIntersect(Bag seriesResult) {
+        for (Pocket first : seriesResult) {
+            for (Pocket second : seriesResult) {
+                //boolean firstIsUp = first.sAfterUp!=null && first.sAfterDown==null;
+                boolean firstIsDown = first.sAfterUp==null && first.sAfterDown!=null;
+                boolean secondIsUp = second.sAfterUp!=null && second.sAfterDown==null;
+                //boolean secondIsDown = second.sAfterUp==null && second.sAfterDown!=null;
+                if (firstIsDown && secondIsUp) {
+                    Set<Node> intersect = new HashSet<Node>(first); 
+                    intersect.retainAll(second);
+                    first.removeAll(intersect);
+                    Pocket newPocket = new Pocket(intersect,first.sAfterDown,second.sAfterUp);
+                    seriesResult.add(newPocket);
+                    if (first.isEmpty()) {
+                        seriesResult.remove(first);
+                    } else {
+                        System.out.println("Aparently this does happen");
+                    }
+                }
+            }
+        }
+    }
 
     private static Node getAsync(Node n) {
         //TODO
@@ -194,7 +219,7 @@ public class PocketAnalyzer {
     private static Node getChild(Node n) {
         if (getChildren(n).size() == 1) {
             return getChildren(n).iterator().next();
-        }
+        } else throw new RuntimeException("getChild called on node with more than one child");
     }
 
     private static Set<Node> getChildren(Node n) {
