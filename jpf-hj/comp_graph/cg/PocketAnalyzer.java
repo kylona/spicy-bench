@@ -1,9 +1,7 @@
 package cg;
 
-import java.io.*;
 import java.util.*;
-import static cg.Edges.*;
-import org.jgrapht.traverse.DepthFirstIterator;
+
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
@@ -45,7 +43,7 @@ public class PocketAnalyzer {
             }
         }
 
-        public Pocket(Container<Node> data, Container<Node> sAfterUp, Container<Node> sAfterDown) {
+        public Pocket(Collection<Node> data, Collection<Node> sAfterUp, Collection<Node> sAfterDown) {
              super(data);
              if (sAfterUp != null) this.sAfterUp = new HashSet(sAfterUp);
              if (sAfterDown != null) this.sAfterDown = new HashSet(sAfterDown);
@@ -66,16 +64,20 @@ public class PocketAnalyzer {
         Bag sBag = new Bag();
 
         if (n.isAsync()) {
+          //TODO bad constructure call
             Bag asyncBag = new Bag(pBag);
+            //TODO no getchildren
             for (Node child : n.getChildren()) {
                 prepForDownCheck(asyncBag);
                 List<Node> childSeries = new ArrayList<Node>();
                 Bag seriesResult = recursiveAnalyze(child, asyncBag, childSeries);
+                //TODO the following two lines are calling non-existent methods at the moment
                 checkForMissingNodes(childSeries, seriesResult);
                 checkForPocketIntersect(seriesResult);
-                sBag = union(sBag, seriesResult); 
+                sBag = union(sBag, seriesResult);
                 asnycBag = union(asyncBag, seriesResult);
             }
+            //TODO method doesn't exist
             n.setReadyForJoin(true);
             Bag joinResult = recursiveAnalyze(getJoin(n), pBag, new ArrayList<Node>());
             sBag = union(sBag, joinResult);
@@ -83,26 +85,31 @@ public class PocketAnalyzer {
         }
 
         if (n.isJoin()) {
+            //TODO method doesn't exist
             if (getAsync(n).isReadyForJoin()) {
+              //TODO incorrect call to recursive analyze
                 return recursiveAnalyze(getChild(n));
             }
             else {
                 seriesNodes.clear();
-                return new sBag();
+                //TODO which one is correct
+                return new Bag();
+//                return sBag;
             }
         }
         seriesNodes.add(n);
 
-        if (n.isIsolation() && getIsolationNodesAfter(n).size() != 0) {
-            Set<Nodes> isolationNodesAfter = getIsolationNodesAfter(n);
+        if (n.isIsolated() && getIsolationNodesAfter(n).size() != 0) {
+            Set<Node> isolationNodesAfter = getIsolationNodesAfter(n);
             if (!isolationNodesAfter.isEmpty()) {
                 for (Node i : getIsolationNodesAfter(n)) {
                     Set<Node> sAfterDown = new HashSet();
                     sAfterDown.add(i);
                     sAfterDown.add(getJoin(i));
+                    //TODO check if this is algorithmically correct, Jacob changed this for syntax correction
+                  Pocket newPocket = new Pocket(seriesNodes, null, sAfterDown);
+                  sBag.add(newPocket);
                 }
-                newPocket = new Pocket(seriesNodes, null, sAfterDown);
-                sBag.add(newPocket);
 
             }
         }
@@ -114,11 +121,12 @@ public class PocketAnalyzer {
         
         checkForDataRaceUp(pBag, n);//check all up bags
 
-        if (n.isIsolation() && getIsolationNodesBefore(n).size() != 0) {
+        if (n.isIsolated() && getIsolationNodesBefore(n).size() != 0) {
             for (Node i : getIsolationNodesBefore(n)) {
                 Set<Node> seriesAfter = new HashSet();
                 seriesAfter.add(i);
                 seriesAfter.add(getAsync(i));
+                //TODO doesn't like this call syntactically; UP is a boolean, likely is under construction
                 Pocket newPocket = new Pocket(seriesNodes, UP, seriesAfter);
                 sBag.add(newPocket);
             }
