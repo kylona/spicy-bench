@@ -14,13 +14,20 @@ public class PocketAnalyzer {
 
     private static class Bag extends HashSet<Pocket> {
 
+        public Bag(Bag toCopy) {
+            super(toCopy);
+        }
+
+        public Bag() {
+            super();
+        }
     }
 
 
     public static class Pocket extends HashSet<Node> {
         private boolean zipped;
-        private HashSet<Node> sAfterUp;
-        private HashSet<Node> sAfterDown; 
+        HashSet<Node> sAfterUp;
+        HashSet<Node> sAfterDown; 
         
         DirectedAcyclicGraph<Node, DefaultEdge> graph;
 
@@ -61,13 +68,11 @@ public class PocketAnalyzer {
     }
 
     private static Bag recursiveAnalyze(Node n, Bag pBag, List<Node> seriesNodes) {
-        Bag sBag = new Bag();
 
         if (n.isAsync()) {
-          //TODO bad constructure call
             Bag asyncBag = new Bag(pBag);
-            //TODO no getchildren
-            for (Node child : n.getChildren()) {
+            Bag sBag = new Bag();
+            for (Node child : getChildren(n)) {
                 prepForDownCheck(asyncBag);
                 List<Node> childSeries = new ArrayList<Node>();
                 Bag seriesResult = recursiveAnalyze(child, asyncBag, childSeries);
@@ -75,9 +80,8 @@ public class PocketAnalyzer {
                 checkForMissingNodes(childSeries, seriesResult);
                 checkForPocketIntersect(seriesResult);
                 sBag = union(sBag, seriesResult);
-                asnycBag = union(asyncBag, seriesResult);
+                asyncBag = union(asyncBag, seriesResult);
             }
-            //TODO method doesn't exist
             n.setReadyForJoin(true);
             Bag joinResult = recursiveAnalyze(getJoin(n), pBag, new ArrayList<Node>());
             sBag = union(sBag, joinResult);
@@ -88,29 +92,27 @@ public class PocketAnalyzer {
             //TODO method doesn't exist
             if (getAsync(n).isReadyForJoin()) {
               //TODO incorrect call to recursive analyze
-                return recursiveAnalyze(getChild(n));
+                return recursiveAnalyze(getChild(n), pBag, seriesNodes);
             }
             else {
                 seriesNodes.clear();
-                //TODO which one is correct
                 return new Bag();
-//                return sBag;
             }
         }
+
         seriesNodes.add(n);
+        Bag sBag = new Bag();
 
         if (n.isIsolated() && getIsolationNodesAfter(n).size() != 0) {
             Set<Node> isolationNodesAfter = getIsolationNodesAfter(n);
             if (!isolationNodesAfter.isEmpty()) {
-                for (Node i : getIsolationNodesAfter(n)) {
-                    Set<Node> sAfterDown = new HashSet();
+                Set<Node> sAfterDown = new HashSet();
+                for (Node i : isolationNodesAfter) {
                     sAfterDown.add(i);
                     sAfterDown.add(getJoin(i));
-                    //TODO check if this is algorithmically correct, Jacob changed this for syntax correction
-                  Pocket newPocket = new Pocket(seriesNodes, null, sAfterDown);
-                  sBag.add(newPocket);
                 }
-
+                Pocket newPocket = new Pocket(seriesNodes, null, sAfterDown);
+                sBag.add(newPocket);
             }
         }
         
@@ -122,12 +124,14 @@ public class PocketAnalyzer {
         checkForDataRaceUp(pBag, n);//check all up bags
 
         if (n.isIsolated() && getIsolationNodesBefore(n).size() != 0) {
-            for (Node i : getIsolationNodesBefore(n)) {
-                Set<Node> seriesAfter = new HashSet();
-                seriesAfter.add(i);
-                seriesAfter.add(getAsync(i));
-                //TODO doesn't like this call syntactically; UP is a boolean, likely is under construction
-                Pocket newPocket = new Pocket(seriesNodes, UP, seriesAfter);
+            Set<Node> isolationNodesBefore = getIsolationNodesBefore(n);
+            if (!isolationNodesBefore.isEmpty()) {
+                Set<Node> sAfterUp = new HashSet();
+                for (Node i : isolationNodesBefore) {
+                    sAfterUp.add(i);
+                    sAfterUp.add(getJoin(i));
+                }
+                Pocket newPocket = new Pocket(seriesNodes, sAfterUp, null);
                 sBag.add(newPocket);
             }
         }
@@ -165,6 +169,18 @@ public class PocketAnalyzer {
         return dataRace;
     }
 
+    private static void checkForMissingNodes(Collection<Node> childSeries, Bag seriesResult) {
+        for (Pocket pocket : seriesResult) {
+            for (Node n : pocket) {
+                childSeries.remove(n);
+            }
+        }
+        if (childSeries.isEmpty()) return;
+        Pocket newPocket = new Pocket(childSeries, null, null);
+        seriesResult.add(newPocket);
+    }
+
+
     private static Node getAsync(Node n) {
         //TODO
         return n;
@@ -196,8 +212,8 @@ public class PocketAnalyzer {
         if (!n.isIsolated()) throw new RuntimeException();
         
         Set<Node> result = null;
-        for (DefaultEdge e : graph.getIncomingEdgesOf(n)) {
-            if (e.getAttributes().equals(IsolatedEdgeAttributes()){
+        for (DefaultEdge e : graph.incomingEdgesOf(n)) {
+            if (e.getAttributes().equals(Edges.IsolatedEdgeAttributes())) {
                 if (result != null) throw new RuntimeException("Isolation Node has more than one outgoing edge");
                 Node i = (Node) graph.getEdgeSource(e);
                 result = getIsolationNodesBefore(i);
@@ -211,8 +227,8 @@ public class PocketAnalyzer {
         if (!n.isIsolated()) throw new RuntimeException();
         
         Set<Node> result = null;
-        for (DefaultEdge e : graph.getOutgoingEdgesOf(n)) {
-            if (e.getAttributes().equals(IsolatedEdgeAttributes()){
+        for (DefaultEdge e : graph.outgoingEdgesOf(n)) {
+            if (e.getAttributes().equals(Edges.IsolatedEdgeAttributes())) {
                 if (result != null) throw new RuntimeException("Isolation Node has more than one outgoing edge");
                 Node i = (Node) graph.getEdgeTarget(e);
                 result = getIsolationNodesAfter(i);

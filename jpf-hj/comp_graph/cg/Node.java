@@ -15,6 +15,7 @@ public class Node {
     private boolean isAsync = false;
     private boolean isJoin = false;
     private boolean isIsolated = false;
+    private boolean isReadyForJoin = false;
 
     private int joinEdgesEvaluated = 0;
 
@@ -77,6 +78,14 @@ public class Node {
 
     public void setIsolated(boolean newIsolated) {
         isIsolated = newIsolated;
+    }
+
+    public boolean isReadyForJoin() {
+        return isReadyForJoin;
+    }
+
+    public void setReadyForJoin(boolean input) {
+        isReadyForJoin = input;
     }
 
 }
