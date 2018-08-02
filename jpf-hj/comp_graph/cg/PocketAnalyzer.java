@@ -27,8 +27,8 @@ public class PocketAnalyzer {
     public static class Pocket extends HashSet<Node> {
         private boolean zipped;
         HashSet<Node> sAfterUp;
-        HashSet<Node> sAfterDown; 
-        
+        HashSet<Node> sAfterDown;
+
         DirectedAcyclicGraph<Node, DefaultEdge> graph;
 
         public boolean isZipped() {
@@ -118,12 +118,12 @@ public class PocketAnalyzer {
                 sBag.add(newPocket);
             }
         }
-        
+
         checkForDataRaceDown(pBag, n);//check all down bags
 
         Node child = getChild(n);
         Bag resultBag = recursiveAnalyze(child, pBag, seriesNodes);
-        
+
         checkForDataRaceUp(pBag, n);//check all up bags
 
         if (n.isIsolated() && getIsolationNodesBefore(n).size() != 0) {
@@ -141,10 +141,43 @@ public class PocketAnalyzer {
         return union(sBag, resultBag);
     }
 
-    private static boolean checkForConflicts(Node first, Node Second) {
-        //TODO
+    private static boolean checkForConflicts(Node a, Node b) {
+        if (!(a instanceof activityNode) || !(b instanceof activityNode))
+            return false;
+        activityNode first = (activityNode) a;
+        activityNode second = (activityNode) b;
+        return checkForDataAccessConflicts(first.var_write, second.var_write) ||
+            checkForDataAccessConflicts(first.var_write, second.var_read) ||
+            checkForDataAccessConflicts(first.var_read, second.var_write) ||
+            checkForDataAccessConflicts(first.isolated_write, second.isolated_write) ||
+            checkForDataAccessConflicts(first.isolated_write, second.isolated_read) ||
+            checkForDataAccessConflicts(first.isolated_read, second.isolated_write) ||
+            checkForDataAccessConflicts(first.isolated_write, second.var_write) ||
+            checkForDataAccessConflicts(first.var_write, second.isolated_write) ||
+            checkForDataAccessConflicts(first.isolated_write, second.var_read) ||
+            checkForDataAccessConflicts(first.var_read, second.isolated_write) ||
+            checkForDataAccessConflicts(first.array_write, second.array_write) ||
+            checkForDataAccessConflicts(first.array_write, second.array_read) ||
+            checkForDataAccessConflicts(first.array_read, second.array_write) ||
+            checkForDataAccessConflicts(first.array_write_isolated, second.array_write_isolated) ||
+            checkForDataAccessConflicts(first.array_write_isolated, second.array_read_isolated) ||
+            checkForDataAccessConflicts(first.array_read_isolated, second.array_write_isolated) ||
+            checkForDataAccessConflicts(first.array_write_isolated, second.array_write) ||
+            checkForDataAccessConflicts(first.array_write, second.array_write_isolated) ||
+            checkForDataAccessConflicts(first.array_write_isolated, second.array_read) ||
+            checkForDataAccessConflicts(first.array_read, second.array_write_isolated);
+    }
+
+    private static boolean checkForDataAccessConflicts(List<? extends DataAccess> first, List<? extends DataAccess> second) {
+        if (first == null || second == null)
+            return false;
+        for (DataAccess dataAccess1 : first)
+            for (DataAccess dataAccess2 : second)
+                if (dataAccess1.conflictsWith(dataAccess2))
+                    return true;
         return false;
     }
+
     private static boolean checkForDataRaceDown(Bag pBag, Node n) {
         boolean dataRace = false;
         for (Pocket pocket : pBag) {
@@ -191,7 +224,7 @@ public class PocketAnalyzer {
                 boolean secondIsUp = second.sAfterUp!=null && second.sAfterDown==null;
                 //boolean secondIsDown = second.sAfterUp==null && second.sAfterDown!=null;
                 if (firstIsDown && secondIsUp) {
-                    Set<Node> intersect = new HashSet<Node>(first); 
+                    Set<Node> intersect = new HashSet<Node>(first);
                     intersect.retainAll(second);
                     first.removeAll(intersect);
                     Pocket newPocket = new Pocket(intersect,first.sAfterDown,second.sAfterUp);
@@ -235,7 +268,7 @@ public class PocketAnalyzer {
 
     private static Set<Node> getIsolationNodesBefore(Node n) {
         if (!n.isIsolated()) throw new RuntimeException();
-        
+
         Set<Node> result = null;
         for (DefaultEdge e : graph.incomingEdgesOf(n)) {
             if (e.getAttributes().equals(Edges.IsolatedEdgeAttributes())) {
@@ -250,7 +283,7 @@ public class PocketAnalyzer {
 
     private static Set<Node> getIsolationNodesAfter(Node n) {
         if (!n.isIsolated()) throw new RuntimeException();
-        
+
         Set<Node> result = null;
         for (DefaultEdge e : graph.outgoingEdgesOf(n)) {
             if (e.getAttributes().equals(Edges.IsolatedEdgeAttributes())) {
