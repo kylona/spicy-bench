@@ -149,9 +149,6 @@ public class PocketAnalyzer {
         return checkForDataAccessConflicts(first.var_write, second.var_write) ||
             checkForDataAccessConflicts(first.var_write, second.var_read) ||
             checkForDataAccessConflicts(first.var_read, second.var_write) ||
-            checkForDataAccessConflicts(first.isolated_write, second.isolated_write) ||
-            checkForDataAccessConflicts(first.isolated_write, second.isolated_read) ||
-            checkForDataAccessConflicts(first.isolated_read, second.isolated_write) ||
             checkForDataAccessConflicts(first.isolated_write, second.var_write) ||
             checkForDataAccessConflicts(first.var_write, second.isolated_write) ||
             checkForDataAccessConflicts(first.isolated_write, second.var_read) ||
@@ -159,9 +156,6 @@ public class PocketAnalyzer {
             checkForDataAccessConflicts(first.array_write, second.array_write) ||
             checkForDataAccessConflicts(first.array_write, second.array_read) ||
             checkForDataAccessConflicts(first.array_read, second.array_write) ||
-            checkForDataAccessConflicts(first.array_write_isolated, second.array_write_isolated) ||
-            checkForDataAccessConflicts(first.array_write_isolated, second.array_read_isolated) ||
-            checkForDataAccessConflicts(first.array_read_isolated, second.array_write_isolated) ||
             checkForDataAccessConflicts(first.array_write_isolated, second.array_write) ||
             checkForDataAccessConflicts(first.array_write, second.array_write_isolated) ||
             checkForDataAccessConflicts(first.array_write_isolated, second.array_read) ||
