@@ -71,8 +71,8 @@ public class ZipperAnalyzer {
 
       Node join = null;
       for (Node child : getChldren(n)) {
-        newId = generateNewId();
-        newSBag = new SBag(newId);
+        int newId = generateNewId();
+        SBag newSBag = new SBag(newId);
         isloationZipper.upZip = upZipStart;//reset to same as start
         isolationZipper.downZip = downZipStart;
         join = recursiveAnalyze(child, newSBag, asyncBag);
@@ -84,6 +84,11 @@ public class ZipperAnalyzer {
       n.setReadyForJoin(true);
       Node parentJoin = recursiveAnalyze(join, sBag, pBag);
       isolationZipper.upZip = maxZip;
+      return parentJoin;
+    }
+
+    if (n.isJoin()) {
+       if ( 
     }
     return null;
   }
@@ -105,6 +110,10 @@ public class ZipperAnalyzer {
       children.add(child);
     }
     return children;
+  }
+  
+  private static getAsync(Node n) {
+    
   }
 
   static int counter = 0;
