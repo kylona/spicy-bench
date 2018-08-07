@@ -396,11 +396,11 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	@Override
 		public boolean check(Search search, VM vm) {
-                       // if (false && race){
-                       //     System.out.println("Race Detected but ignored for test");
-                       //     race = false;
-                       // }
-                       // System.out.println("Printed a new Graph! " + createGraph(graph,dir,vm));
+           // if (race){
+           //     System.out.println("Race Detected but ignored for test");
+           //     race = false;
+           // }
+            //System.out.println("Printed a new Graph! " + createGraph(graph,dir,vm));
 			return (!race);
 		}
 

@@ -36,6 +36,7 @@ public class Comp_Graph {
 
     public static boolean analyzeFinishBlock(DirectedAcyclicGraph<Node, DefaultEdge> graph, String finishID, boolean otf) {
         List<activityNode> tasks = getTasksFromFinishBlock(finishID, graph);
+        boolean race = false;
         for (int i = 0; i < tasks.size(); i++) {
 	    Node task1 = tasks.get(i);
             for (int j = i + 1; j < tasks.size(); j++) {
