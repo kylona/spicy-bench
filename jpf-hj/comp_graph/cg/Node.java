@@ -8,14 +8,40 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Node {
-
+    static int nodeCount = 0;
+    public int nodeId;
     ThreadInfo ti = null;
     String id = null;
     Node next = null;
     private boolean isAsync = false;
     private boolean isJoin = false;
     private boolean isIsolated = false;
-    private boolean isReadyForJoin = false;
+    public boolean hasOutgoingIsolationEdge = false;
+    public boolean hasIncomingIsolationEdge = false;
+    private int index = -1;
+
+    public boolean hasOutgoingIsolationEdge() {
+        return hasOutgoingIsolationEdge;
+    }
+
+    public void setOutgoingIsolationEdge(boolean input) {
+        this.hasOutgoingIsolationEdge = input;
+    }
+
+    public boolean hasIncomingIsolationEdge() {
+        return hasIncomingIsolationEdge;
+    }
+
+    public void setIncomingIsolationEdge(boolean input) {
+        this.hasIncomingIsolationEdge = input;
+    }
+    public void setIndex(int input)  {
+        this.index = input;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 
     private int joinEdgesEvaluated = 0;
 
@@ -31,8 +57,14 @@ public class Node {
 
     private String display_name = null;
 
+
     public String getDisplay_name() {
-        return display_name;
+        //return display_name;
+        return String.valueOf(nodeId);
+    }
+
+    public String toString() {
+        return String.valueOf(nodeId);
     }
 
     public void setDisplay_name(String display_name) {
@@ -42,10 +74,12 @@ public class Node {
     public Node(String name, ThreadInfo t) {
         ti = t;
         id = name;
+        nodeId = nodeCount++;
     }
 
     public Node(String name) {
         id = name;
+        nodeId = nodeCount++;
     }
 
     public void setThreadInfo(ThreadInfo t) {
@@ -80,13 +114,6 @@ public class Node {
         isIsolated = newIsolated;
     }
 
-    public boolean isReadyForJoin() {
-        return isReadyForJoin;
-    }
-
-    public void setReadyForJoin(boolean input) {
-        isReadyForJoin = input;
-    }
 
 }
 
@@ -257,9 +284,15 @@ class activityNode extends Node {
         array_write_isolated = new LinkedList<ArrayElements>();
     }
 
-   // public String getDisplay_name() {
-   //     return this.display_name;
-   // }
+    public String getDisplay_name() {
+        StringBuilder sb = new StringBuilder();
+        if (var_write == null) return super.getDisplay_name();
+        for (DataAccess write : var_write) {
+            sb.append(write.toString() + "\n");
+        }
+        //return sb.toString();
+        return String.valueOf(nodeId);
+    }
 }
 
 class isolatedNode extends activityNode {

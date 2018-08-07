@@ -20,8 +20,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private static String dir = null;
 	private static boolean on_the_fly = false;
-	private static boolean drd = true;
-    public static boolean vs_drd = false;
+	private static boolean drd = false;
+    public static boolean zip_drd = true;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
 	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
@@ -32,6 +32,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	private static final String futureGet = "hj.lang.Future.get";
 
 	isolatedNode previousIsolatedNode = null;
+    List<isolatedNode> orderedIsolatedNodes = new ArrayList<isolatedNode>();
 
 	Map<ThreadInfo, Node> currentNodes = new HashMap<ThreadInfo, Node>();
 	Map<ThreadInfo, Stack<finishNode>> finishBlocks = new HashMap<ThreadInfo, Stack<finishNode>>();
@@ -76,7 +77,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		public void executeInstruction(VM vm, ThreadInfo currentThread,
 				Instruction instructionToExecute) {
 			//scheduler for isolated
-			if(drd || vs_drd){
+			if(drd || zip_drd){
 				if (instructionToExecute instanceof JVMInvokeInstruction) {
 					MethodInfo mi = ((JVMInvokeInstruction) instructionToExecute).getInvokedMethod();
 					String baseName = mi.getBaseName();
@@ -299,12 +300,12 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					//add edge to master fin end
 					Node activity = currentNodes.get(currentThread);
 					addContinuationEdge(activity, masterFinEnd, graph);
-					createGraph(graph, dir, vm);
+					System.out.println("Checking Graph " + createGraph(graph, dir, vm));
 					if(drd){
 						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}
-                    if(vs_drd) {
-                        race = CGAnalyzer.analyzeGraphForDataRace(graph);
+                    if(zip_drd) {
+                        race = ZipperAnalyzer.analyze(graph,orderedIsolatedNodes, maxNumberOfTasks);
                     }
 				}
 			}
@@ -332,6 +333,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					addIsolatedEdge(previousIsolatedNode, isolNode, graph);
 				}
 				previousIsolatedNode = isolNode;
+                orderedIsolatedNodes.add(isolNode);
 
 			} else if (methodName.startsWith("stopIsolation")) {
 
@@ -457,8 +459,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	@Override
 		public void searchFinished(Search search) {
 		//	createGraph(graph, dir, search.getVM());
-        //    if(vs_drd) {
-        //        race = CGAnalyzer.analyzeGraphForDataRace(graph);
+        //    if(zip_drd) {
+        //        race = ZipperAnalyzer.analyze(graph, orderedIsolatedNodes, maxNumberOfTasks);
         //    }
 		//	if(drd){
 		//		race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);

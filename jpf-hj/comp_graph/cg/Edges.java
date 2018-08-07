@@ -114,7 +114,13 @@ public class Edges {
         }
         e1.setAttributes(IsolatedEdgeAttributes());
         FromNode.setIsolated(true);
+        FromNode.setOutgoingIsolationEdge(true);
         ToNode.setIsolated(true);
+        ToNode.setIncomingIsolationEdge(true);
+        if (FromNode.getIndex() == -1) { 
+            FromNode.setIndex(0);
+        }
+        ToNode.setIndex(FromNode.getIndex() + 1);
     }
 
     public static void addSignalEdge(Node FromNode, Node ToNode, DirectedAcyclicGraph<Node, DefaultEdge> graph) {

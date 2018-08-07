@@ -24,11 +24,11 @@ public class IsolateChoiceGenerator extends ThreadChoiceFromSet {
   @Override
   public void advance() {
     // System.out.println("Resetting Graph To Check Next Scheduling");
-    int GRAPH_ITER = createGraph(owner.graph,dir,vm);
+    //int GRAPH_ITER = createGraph(owner.graph,dir,vm);
     resetState.resetGraphState(owner);
-    System.out.println("Graph " + GRAPH_ITER + " is a pre-reset graph");
-    GRAPH_ITER = createGraph(owner.graph,dir,vm);
-    System.out.println("Graph " + GRAPH_ITER + " is a reset graph");
+    //System.out.println("Graph " + GRAPH_ITER + " is a pre-reset graph");
+    //GRAPH_ITER = createGraph(owner.graph,dir,vm);
+    //System.out.println("Graph " + GRAPH_ITER + " is a reset graph");
     super.advance();
   }
 
