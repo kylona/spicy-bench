@@ -1,81 +1,81 @@
 
 IntegerCounterIsolated : NO
-elapsed time:       00:00:14
+Time Analizing: 774
 
 ReciprocalArraySum : NO
-elapsed time:       00:00:06
+Time Analizing: 1801
 
 Antidep2VarYes : YES
-elapsed time:       00:04:18
+Time Analizing: 246561
 
 IsolatedBlockNo : NO
-elapsed time:       00:00:02
+Time Analizing: 9
 
 DoubleBranchExample : NO
-elapsed time:       00:00:02
+Time Analizing: 1
 
 SimpleSimpleSimple2 : YES
-elapsed time:       00:00:02
+Time Analizing: 1
 
 SimpleSimpleSimple : YES
-elapsed time:       00:00:02
+Time Analizing: 1
 
 DataRaceIsolateSimple : YES
-elapsed time:       00:00:02
+Time Analizing: 10
 
 PrimeNumCounter : NO
-elapsed time:       00:00:02
+Time Analizing: 34
 
 ClumpedAcess : NO
-elapsed time:       00:00:02
+Time Analizing: 4
 
 DataRaceIsolateSimple1 : YES
-elapsed time:       00:00:02
+Time Analizing: 5
 
 Antidep2OrigYes : YES
-elapsed time:       00:00:03
+Time Analizing: 1234
 
 Antidep1OrigYes : YES
-elapsed time:       00:04:11
+Time Analizing: 247736
 
 PipelineWithFutures : NO
-elapsed time:       00:00:02
+Time Analizing: 61
 
 DoAll1OrigNo : NO
-elapsed time:       00:00:03
+Time Analizing: 650
 
 PrimitiveArrayRace : YES
-elapsed time:       00:00:02
+Time Analizing: 1
 
 PrimitiveArrayNoRace : NO
-elapsed time:       00:00:02
+Time Analizing: 1
 
 ScalarMultiply : NO
-elapsed time:       00:00:02
+Time Analizing: 37
 
 Add : NO
-elapsed time:       00:00:02
+Time Analizing: 18
 
 DoAll2OrigNo : NO
-elapsed time:       00:00:51
+Time Analizing: 47287
 
 VectorAdd : NO
-elapsed time:       00:00:02
+Time Analizing: 5
 
 ReciprocalArraySumFutures : NO
-elapsed time:       00:00:05
+Time Analizing: 32
 
 PrimeNumCounterForAll : NO
-elapsed time:       00:00:02
+Time Analizing: 39
 
 PrimeNumCounterForAsync : NO
-elapsed time:       00:00:28
+Time Analizing: 138
 
 Antidep1VarYes : YES
-elapsed time:       00:00:03
+Time Analizing: 1271
 
 TwoDimArrays : NO
-elapsed time:       00:00:02
+Time Analizing: 22
 
 ForallWithIterable : NO
-elapsed time:       00:00:02
+Time Analizing: 4

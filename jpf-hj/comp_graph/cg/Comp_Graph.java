@@ -42,11 +42,11 @@ public class Comp_Graph {
             for (int j = i + 1; j < tasks.size(); j++) {
                 Node task2 = tasks.get(j);
                 if (!happensBefore(task1, task2, graph) && !happensBefore(task2, task1, graph)){
-                    if (detectDataRace(task1, task2)) return true;
+                    if (detectDataRace(task1, task2)) race = true;
                 }
             }
         } 
-        return false;
+        return race;
     } 
 
     private static boolean happensBefore(Node task1, Node task2, DirectedAcyclicGraph<Node, DefaultEdge> graph) {

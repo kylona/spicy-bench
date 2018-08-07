@@ -28,6 +28,7 @@ public class ZipperAnalyzer {
             recursiveAnalyze(n, bt,sBag, pBag);
         }
         catch (DataRaceException e) {
+            System.out.println("Yeah that was an exception");
             System.out.println(e.message);
             return true;
         }
@@ -321,7 +322,8 @@ public class ZipperAnalyzer {
 
     private static void reportRace(String message) throws DataRaceException {
         race = true;
-        throw new DataRaceException(message);
+        System.out.println(message);
+        if (false) throw new DataRaceException(message);
     }
 
     private static class DataRaceException extends Exception {

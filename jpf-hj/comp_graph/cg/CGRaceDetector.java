@@ -20,8 +20,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private static String dir = null;
 	private static boolean on_the_fly = false;
-	private static boolean drd = false;
-    public static boolean zip_drd = true;
+	private static boolean drd = true;
+    public static boolean zip_drd = false;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
 	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
@@ -30,6 +30,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 	private static final String runtime = "hj.runtime.wsh";
 	private static final String future = "hj.lang.Future";
 	private static final String futureGet = "hj.lang.Future.get";
+
+    static long timeAnalyzing = 0;
 
 	isolatedNode previousIsolatedNode = null;
     List<isolatedNode> orderedIsolatedNodes = new ArrayList<isolatedNode>();
@@ -301,12 +303,14 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					Node activity = currentNodes.get(currentThread);
 					addContinuationEdge(activity, masterFinEnd, graph);
 					System.out.println("Checking Graph " + createGraph(graph, dir, vm));
+                    long time = System.currentTimeMillis();
 					if(drd){
 						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}
                     if(zip_drd) {
                         race = ZipperAnalyzer.analyze(graph,orderedIsolatedNodes, numberOfAsyncEdges);
                     }
+                    timeAnalyzing += System.currentTimeMillis() - time;
 				}
 			}
 		}
@@ -384,8 +388,10 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 			if(enteredMethod.getName().contains("stopFinish") && on_the_fly &&
 					drd) {
+                long time = System.currentTimeMillis();
 				race = analyzeFinishBlock(graph,
 						finishBlocks.get(currentThread).pop().id, on_the_fly);
+                timeAnalyzing += System.currentTimeMillis() - time;
 			}
 		}
 
@@ -467,6 +473,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 		//	}
 		//	check(search, search.getVM());
 		//	
+            System.out.println("Time Analizing: " + timeAnalyzing);
 			System.out.println("Number of Tasks Analysed: " + maxNumberOfTasks);
 			System.out.println("Max Number of Active Tasks: " + maxNumberOfActiveTasks);
 		}
