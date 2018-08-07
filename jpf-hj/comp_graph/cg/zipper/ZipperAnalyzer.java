@@ -30,12 +30,6 @@ public class ZipperAnalyzer {
     private static class IsolationZipper<T> extends Zipper<T> {
         int upZip;
         int downZip;
-        void checkDown(Node n, SBag sBag, PBag pBag) {
-            for (Integer lambdaIdx : pBag.lambdaSet) {
-                for (Node c : lambdaZipper.downPockets.get(lambdaIdx)) {
-                    sBag.checkSet.add(new Pair<Node,Node>(n,c));
-            }
-        }
     }
 
     private class SBag {
@@ -51,9 +45,7 @@ public class ZipperAnalyzer {
         }
     }
 
-    private class PBag {
-        Set<Integer> lambdaSet; //reference in lambdaZipper for what to check
-        SortedList<Integer> isolationSet; //reference in isolationZipper for what to check
+    private class PBag extends HashMap<Integer, List<Integer>> {
 
         public PBag(PBag toCopy) {
             super(toCopy);
@@ -66,8 +58,8 @@ public class ZipperAnalyzer {
 
             int upZipStart = isolationZipper.upZip;
             int downZipStart = isolationZipper.downZip;
-            int maxZip = upZipStart;
-            int minZip = downZipStart;
+            int highZip = upZipStart;
+            int lowZip = downZipStart;
 
             n.setReadyForJoin(false);
 
@@ -79,14 +71,14 @@ public class ZipperAnalyzer {
                 isolationZipper.downZip = downZipStart;
                 join = recursiveAnalyze(child, newSBag, asyncBag);
                 lambdaZipper.upPockets.set(newSBag.id, newSBag.seriesSet);
-                maxZip = (maxZip > isolationZipper.upZip) ? maxZip : isolationZipper.upZip;
-                minZip = (minZip < isolationZipper.downZip) ? minZip : isolationZipper.downZip;
+                highZip = (highZip < isolationZipper.upZip) ? highZip : isolationZipper.upZip;
+                lowZip = (lowZip > isolationZipper.downZip) ? lowZip : isolationZipper.downZip;
                 asyncBag.add(newId);
             }
-            isolationZipper.downZip = minZip;
+            isolationZipper.downZip = lowZip;
             n.setReadyForJoin(true);
             Node parentJoin = recursiveAnalyze(join, sBag, pBag);
-            isolationZipper.upZip = maxZip;
+            isolationZipper.upZip = highZip;
             visited.add(n);
             return parentJoin;
         }
@@ -129,6 +121,42 @@ public class ZipperAnalyzer {
 
     }
 
+    private static void checkDown(Node n, SBag sBag, PBag pBag) {
+        for (int branchId : pBag.keySet()) {
+            for (Node c : lambdaZipper.downPockets.get(branchId)) {
+                sBag.checkSet.add(new Pair<Node,Node>(n,c));
+            }
+            int isolationIdx;
+            for (ListIterator it = pBag.get(branchId).iterator(); it.hasPrevious(); isolationIdx = it.previous()) {
+            //traverse the list greatest to least
+                if (isolationIdx <= isolationZipper.downZip) break;
+                for (Node c : isolationZipper.downPockets.get(isolationIdx) {
+                    sBag.checkSet.add(new Pair<Node,Node>(n,c));
+                }
+            }
+        }
+    }
+
+    private static void checkUp(Node n, SBag sBag, PBag pBag) {
+        for (int branchId : pBag.keySet()) {
+            for (Node c : lambdaZipper.upPockets.get(BranchId)) {
+                if sBag.checkSet.contains(new Pair<Node,Node>(n,c)) {
+                    checkRace(n,c);
+                }
+            }
+            for (int isolationIdx : pBag.get(branchId)) {
+                //traverse the list least to greatest
+                if (isolationIdx >= isolationZipper.upZip) break;
+                for (Node c : isolationZipper.upPockets.get(isolationIdx) {
+                    if sBag.checkSet.contains(new Pair<Node,Node>(n,c)) {
+                        checkRace(n,c);
+                    }
+                }
+
+            }
+            
+        }
+    }
     private static Node getChild(Node n) {
         if (getChildren(n).size() == 1) {
             return getChildren(n).iterator().next();
