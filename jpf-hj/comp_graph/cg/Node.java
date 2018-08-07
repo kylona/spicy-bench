@@ -19,6 +19,15 @@ public class Node {
     public boolean hasOutgoingIsolationEdge = false;
     public boolean hasIncomingIsolationEdge = false;
     private int index = -1;
+    private boolean readyForJoin = false;
+
+    public void setReadyForJoin(boolean input) {
+        this.readyForJoin = input;
+    }
+
+    public boolean isReadyForJoin() {
+        return this.readyForJoin;
+    }
 
     public boolean hasOutgoingIsolationEdge() {
         return hasOutgoingIsolationEdge;

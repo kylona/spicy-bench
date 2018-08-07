@@ -305,7 +305,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}
                     if(zip_drd) {
-                        race = ZipperAnalyzer.analyze(graph,orderedIsolatedNodes, maxNumberOfTasks);
+                        race = ZipperAnalyzer.analyze(graph,orderedIsolatedNodes, numberOfAsyncEdges);
                     }
 				}
 			}
