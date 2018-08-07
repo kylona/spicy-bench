@@ -1,0 +1,81 @@
+
+IntegerCounterIsolated : NO
+elapsed time:       00:00:31
+
+ReciprocalArraySum : NO
+elapsed time:       00:00:05
+
+Antidep2VarYes : YES
+elapsed time:       00:00:14
+
+IsolatedBlockNo : NO
+elapsed time:       00:00:00
+
+DoubleBranchExample : NO
+elapsed time:       00:00:00
+
+SimpleSimpleSimple2 : YES
+elapsed time:       00:00:00
+
+SimpleSimpleSimple : YES
+elapsed time:       00:00:00
+
+DataRaceIsolateSimple : YES
+elapsed time:       00:00:00
+
+PrimeNumCounter : NO
+elapsed time:       00:00:01
+
+ClumpedAcess : NO
+elapsed time:       00:00:01
+
+DataRaceIsolateSimple1 : YES
+elapsed time:       00:00:00
+
+Antidep2OrigYes : YES
+elapsed time:       00:00:01
+
+Antidep1OrigYes : YES
+elapsed time:       00:00:16
+
+PipelineWithFutures : NO
+elapsed time:       00:00:00
+
+DoAll1OrigNo : NO
+elapsed time:       00:00:01
+
+PrimitiveArrayRace : YES
+elapsed time:       00:00:00
+
+PrimitiveArrayNoRace : NO
+elapsed time:       00:00:00
+
+ScalarMultiply : NO
+elapsed time:       00:00:00
+
+Add : NO
+elapsed time:       00:00:00
+
+DoAll2OrigNo : NO
+elapsed time:       00:00:49
+
+VectorAdd : NO
+elapsed time:       00:00:00
+
+ReciprocalArraySumFutures : NO
+elapsed time:       00:00:03
+
+PrimeNumCounterForAll : NO
+elapsed time:       00:00:01
+
+PrimeNumCounterForAsync : NO
+elapsed time:       00:00:59
+
+Antidep1VarYes : YES
+elapsed time:       00:00:00
+
+TwoDimArrays : NO
+elapsed time:       00:00:00
+
+ForallWithIterable : NO
+elapsed time:       00:00:00

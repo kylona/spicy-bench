@@ -1,0 +1,44 @@
+
+Antidep2VarYes : YES
+elapsed time:       00:00:14
+
+
+IsolatedBlockNo : NO
+elapsed time:       00:00:02
+
+
+SimpleSimpleSimple2 : YES
+elapsed time:       00:00:02
+
+
+SimpleSimpleSimple : YES
+elapsed time:       00:00:01
+
+
+DataRaceIsolateSimple : YES
+elapsed time:       00:00:01
+
+
+DataRaceIsolateSimple1 : YES
+elapsed time:       00:00:02
+
+
+Antidep2OrigYes : YES
+elapsed time:       00:00:02
+
+
+Antidep1OrigYes : YES
+elapsed time:       00:00:14
+
+
+DoAll1OrigNo : NO
+elapsed time:       00:00:02
+
+
+DoAll2OrigNo : NO
+elapsed time:       00:00:05
+
+
+Antidep1VarYes : YES
+elapsed time:       00:00:02
+
