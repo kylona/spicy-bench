@@ -51,7 +51,7 @@ public class ZipperAnalyzer {
         }
     }
 
-    private class PBag extends HashSet<Pair<Integer,List<Integer>> {
+    private class PBag {
         Set<Integer> lambdaSet; //reference in lambdaZipper for what to check
         SortedList<Integer> isolationSet; //reference in isolationZipper for what to check
 
