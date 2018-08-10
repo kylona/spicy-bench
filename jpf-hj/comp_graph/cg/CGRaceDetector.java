@@ -20,7 +20,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private static String dir = null;
 	private static boolean on_the_fly = false;
-	private static boolean drd = true;
+	private static boolean drd = false;
     public static boolean zip_drd = false;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
@@ -304,6 +304,7 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					addContinuationEdge(activity, masterFinEnd, graph);
 					System.out.println("Checking Graph " + createGraph(graph, dir, vm));
                     long time = System.currentTimeMillis();
+                    System.out.println("GraphSize: " + graph.vertexSet().size());
 					if(drd){
 						race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
 					}

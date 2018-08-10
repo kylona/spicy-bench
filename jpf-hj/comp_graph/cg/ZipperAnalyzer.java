@@ -254,9 +254,9 @@ public class ZipperAnalyzer {
             for (Node c : lambdaZipper.downPockets.get(branchId)) {
                 bt.checkSet.add(new CheckPair(n,c));
             }
-            for (int isolationIdx : pBag.get(branchId)) {
-                //TODO: traverse the list greatest to least
-                if (isolationZipper.downZip != NULL && isolationIdx <= isolationZipper.downZip) continue;
+            for(int i = pBag.size() - 1; i >= 0; i--) {
+                int isolationIdx = pBag.get(branchId).get(i);
+                if (isolationZipper.downZip != NULL && isolationIdx <= isolationZipper.downZip) break;
                 for (Node c : isolationZipper.downPockets.get(isolationIdx)) {
                     CheckPair newPair = new CheckPair(n,c);
                     bt.checkSet.add(newPair);

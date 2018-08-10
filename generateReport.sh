@@ -1,7 +1,7 @@
 #!/bin/bash
 OUTPUT_NAME=output.txt
 YES_MARKER="Non-deterministic access between"
-TIME_MARKER="Time Analizing: "
+TIME_MARKER="GraphSize: "
 FINISH_MARKER="search finished"
 parseOutput()
 {
