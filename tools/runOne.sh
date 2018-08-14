@@ -8,11 +8,11 @@ mkdir -p "$RESULTS_FOLDER/build"
 mkdir -p "$RESULTS_FOLDER/results"
 
 # some prereqs for jpf & hjlib
-PathToHJLib="HJLibFiles/lib/byu-hjlib.jar"
-PathToRunJPF="HJLibFiles/lib/RunJPF.jar"
-PathToOther="HJLibFiles/lib/jpf-extras.jar:HJLibFiles/lib/junit-4.12.jar:HJLibFiles/lib/jpf-classes.jar"
-LibPath=$SPICY_BENCH_ROOT/jpf-hj/lib
-NativeClassPath="$SPICY_BENCH_ROOT/jpf-hj/build/classes;$SPICY_BENCH_ROOT/jpf-hj/lib/jgrapht-ext-0.9.1-uber.jar"
+PathToHJLib="../lib/byu-hjlib.jar"
+PathToRunJPF="../lib/RunJPF.jar"
+PathToOther="../lib/jpf-extras.jar:HJLibFiles/lib/junit-4.12.jar:HJLibFiles/lib/jpf-classes.jar"
+LibPath=$SPICY_BENCH_ROOT/lib
+NativeClassPath="$SPICY_BENCH_ROOT/src/jpf-hj/build/classes;$SPICY_BENCH_ROOT/lib/jgrapht-ext-0.9.1-uber.jar"
 
 # try to find any java file with the name supplied in the first argument under the current directory anywhere
 name="$1"
