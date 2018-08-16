@@ -1,52 +1,45 @@
 #!/bin/bash
-if [ "$SPICY_BENCH_ROOT" -z ]; then
-    SPICY_BENCH_ROOT=$3
-fi
 
-RESULTS_FOLDER="$2"
-mkdir -p "$RESULTS_FOLDER/build"
-mkdir -p "$RESULTS_FOLDER/results"
-
-# some prereqs for jpf & hjlib
-PathToHJLib="../lib/byu-hjlib.jar"
-PathToRunJPF="../lib/RunJPF.jar"
-PathToOther="../lib/jpf-extras.jar:HJLibFiles/lib/junit-4.12.jar:HJLibFiles/lib/jpf-classes.jar"
-LibPath=$SPICY_BENCH_ROOT/lib
-NativeClassPath="$SPICY_BENCH_ROOT/src/jpf-hj/build/classes;$SPICY_BENCH_ROOT/lib/jgrapht-ext-0.9.1-uber.jar"
-
-# try to find any java file with the name supplied in the first argument under the current directory anywhere
-name="$1"
-src=${name##*.}
-FoundJava=$(find . -path ./jpf/jpf-core/src/tests -prune -o -name "$src.java" -print -quit)
-if [ -z $FoundJava ]; then
-  echo 'Could not find source for' $name
+die_with_msg() {
+  echo "$1"
   exit 1
-fi
+}
+
+[[ $# -eq 3 ]] || die_with_msg "Usage: runOne.sh benchmark detector path/to/jpf-core"
+
+BENCHMARK="$1"
+DETECTOR="$2"
+
+SRC="benchmarks/AllBenchmarks2018"
+LIB_CP="lib/byu-hjlib.jar:lib/hj-lib-byu.jar:lib/jpf-hj.jar"
+JAVAC_CP="$SRC:$LIB_CP"
+CONFIG_DIR="config"
+
+OUTPUT_DIR="build"
+CLASSES_DIR="$OUTPUT_DIR/benchmarks"
+
+# try to find any java file with the name supplied in the first argument
+name=${BENCHMARK##*.}
+SRC_FILE=$(find "$SRC" -name "$name.java" -print -quit)
+[ -f "$SRC_FILE" ] || die_with_msg "Could not find source for $BENCHMARK"
+
+# try to find extension.jpf
+DETECTOR_JPF=$(find "$CONFIG_DIR" -name "$DETECTOR.jpf" -print -quit)
+[ -f "$DETECTOR_JPF" ] || die_with_msg "Could not find jpf config for $DETECTOR"
+
+mkdir -p "$CLASSES_DIR"
 
 # compile the classes and build the jpf configuration
-echo "Compiling: $FoundJava"
-if ! javac -cp $PathToHJLib:$PathToOther -d "$RESULTS_FOLDER/build" $FoundJava; then
-  echo 'Compile Step Failed'
-  exit 1
+echo "Compiling: $SRC_FILE"
+if ! javac -cp $JAVAC_CP -d $CLASSES_DIR $SRC_FILE; then
+  die_with_msg "Compilation failed"
 fi
+
 echo "Making $name.jpf"
+sed "s/SED_WILL_REPLACE/$BENCHMARK/" "$DETECTOR_JPF" > "$OUTPUT_DIR/$name.jpf"
 
-echo "target=$name
-Results_directory=$RESULTS_FOLDER/results/
-Contains_isolated_sections=true
-On_the_fly=false
-Data_race_detection=true
-classpath=$RESULTS_FOLDER/build:$PathToHJLib:$PathToOther
-sourcepath=$(dirname $FoundJava)
-native_classpath+=$NativeClassPath
-JPF.vm=VMListener
-vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
-vm.scheduler.sync.class=extensions.HjSyncPolicy
-listener+=cg.CGRaceDetector
-vm.max_transition_length=MAX" > $RESULTS_FOLDER/build/$name.jpf
-
+JAVAC_CP="$CLASSES_DIR:$LIB_CP"
 # now, run the data race detector
-/usr/bin/time -f "Native Running Time: %e seconds" java -cp $RESULTS_FOLDER/build:$PathToHJLib:$PathToOther $name
+time java -cp $JAVAC_CP $BENCHMARK
 echo "----------------------------------------------"
-#/var/jpf-core/bin/jpf $RESULTS_FOLDER/build/$name.jpf
-java -ea -jar $PathToRunJPF $RESULTS_FOLDER/build/$name.jpf
+time "$3/bin/jpf" $OUTPUT_DIR/$name.jpf
