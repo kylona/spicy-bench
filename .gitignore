@@ -7,3 +7,4 @@ jpf-hj/build/classes/*.class
 .idea/
 out
 **/build/*
+.syntastic_javac_config

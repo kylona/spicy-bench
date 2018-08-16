@@ -101,7 +101,6 @@ public class FastTrackTool extends PropertyListenerAdapter {
 	protected static VectorClock ts_get_V(ShadowThread st) { Assert.panic("Bad");	return null; }
 	protected static void ts_set_V(ShadowThread st, VectorClock V) { Assert.panic("Bad");  }
 
-
 	protected void maxAndIncEpochAndCV(ShadowThread st, VectorClock other, OperationInfo info) {
 		final int tid = st.getTid();
 		final VectorClock tV = ts_get_V(st);
