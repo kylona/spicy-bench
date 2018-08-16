@@ -2,14 +2,14 @@ package common;
 
 import gov.nasa.jpf.vm.ElementInfo;
 import gov.nasa.jpf.vm.ThreadInfo;
+import gov.nasa.jpf.vm.Instruction;
 
 public interface StructuredParallelRaceDetectorTool {
   // For rewinding
   void resetState(Object state);
   Object getImmutableState();
   // Event handling
-  void handleRead(ThreadInfo ti, ElementInfo ei);
-  void handleWrite(ThreadInfo ti, ElementInfo ei);
+  void handleAccess(Instruction insn);
   void handleAcquire(ThreadInfo ti);
   void handleRelease(ThreadInfo ti);
   void handleFork(ThreadInfo parent, ThreadInfo child);

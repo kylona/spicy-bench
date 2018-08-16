@@ -8,11 +8,14 @@ import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.vm.ApplicationContext;
 import gov.nasa.jpf.vm.bytecode.ArrayElementInstruction;
 import gov.nasa.jpf.vm.bytecode.FieldInstruction;
+import gov.nasa.jpf.vm.bytecode.ReadOrWriteInstruction;
+import gov.nasa.jpf.vm.choice.ThreadChoiceFromSet;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ElementInfo;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.MethodInfo;
 import gov.nasa.jpf.vm.ThreadInfo;
+import gov.nasa.jpf.vm.ThreadList;
 import gov.nasa.jpf.vm.VM;
 
 import java.util.Stack;
@@ -39,6 +42,11 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
     startTime = System.currentTimeMillis();
   }
 
+	@Override
+  public void searchFinished(Search search) {
+    System.out.println("Time Analyzing: " + (System.currentTimeMillis() - startTime));
+  }
+
   @Override
   public void stateAdvanced(Search search) {
     if (search.isNewState())
@@ -55,6 +63,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 	@Override
   public void executeInstruction(VM vm, ThreadInfo ti, Instruction inst) {
     //scheduler for isolated
+    //TODO verify whether check for ti.isFirstStepInsn() is needed
     if (inst instanceof JVMInvokeInstruction) {
       MethodInfo mi = ((JVMInvokeInstruction) inst).getInvokedMethod();
       if (isIsolatedMethod(mi)) {
@@ -64,293 +73,164 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       return;
     }
 
-    if (isValidArrayInstruction(inst, ti)) {
-      ElementInfo ei = ((ArrayElementInstruction) instructionToExecute).peekArrayElementInfo(currentThread);
-      int idx = ((ArrayElementInstruction) instructionToExecute).peekIndex(currentThread);
-      String filePos = instructionToExecute.getFilePos();
-      ArrayElements ae = new ArrayElements(ei, idx, filePos);
-      Boolean isReadInsn = ((ArrayElementInstruction) inst).isRead();
-      Boolean isIsolatedNode = false;
-      if (n instanceof isolatedNode)
-        isIsolatedNode = true;
-    } else if (isValidFieldInstruction(inst, vm)) {
-      ElementInfo ei = ((FieldInstruction) inst).peekElementInfo(ti);
-      FieldInfo fi = ((FieldInstruction) inst).getFieldInfo();
-      String filePos = inst.getFilePos();
-      Elements var = new Elements(ei, fi, filePos);
-
-      Boolean isReadInsn = ((ReadOrWriteInstruction) inst).isRead();
-      //Boolean isIsolatedNode = (thread_holding_isolated == ti);
-      Boolean isIsolatedNode = false;
-      if (n instanceof isolatedNode)
-        isIsolatedNode = true;
-      registerHeapAccess(n, var, isReadInsn , isIsolatedNode);
+    if (inst instanceof ReadOrWriteInstruction) {
+      tool.handleAccess(inst);
     }
   }
 
 	@Override
   public void threadStarted(VM vm, ThreadInfo startedThread) {
-
-    String thread_object = startedThread.getThreadObject().toString();
-    String threadID = extractThreadName(startedThread);
-
-    Node n = null;
-    if (thread_object.startsWith(runtime) || thread_object.startsWith(future)) {
-      n = searchGraph(threadID+"-1", graph);
-      n.setThreadInfo(startedThread);
-    }
-
-    //update currentNodes map
-    currentNodes.put(startedThread, n);
-
-    //add finishStack
-    Stack<finishNode> stk = new Stack<finishNode>();
-
-    //add task's current finishscope to stack
-    stk.push((finishNode) finishScope.get(threadID));
-    finishBlocks.put(startedThread, stk);
+    ThreadInfo parent = null; //TODO find parent
+    tool.handleFork(parent, startedThread);
   }
 
 	@Override
-  public void threadTerminated(VM vm, ThreadInfo startedThread) {
-    String thread_object = startedThread.getThreadObject().toString();
-    String threadID = extractThreadName(startedThread);
+  public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+    //TODO possibly call tool.handleJoin(parent, terminatedThread);
+    String threadObject = terminatedThread.getThreadObject().toString();
+    String threadID = extractThreadName(terminatedThread);
 
-    if (thread_object.startsWith(future)) {
-      Node currentNode = currentNodes.get(startedThread);
-
-      if (futureJoinNode.containsKey(threadID)) {
-        addJoinEdge(currentNode, futureJoinNode.get(threadID), graph);
-      } else {
-        futureJoinNode.put(threadID, currentNode);
-      }
-    }
-    updateTaskCount();
-  }
-
-	public String makeLabel(ThreadInfo ti, String objectID) {
-		String [] theadSplit = objectID.split("@");
-		String output = theadSplit[0]+"T:"+getThreadName(theadSplit[1]);
-		String trace;
-		try {
-			trace = ti.getStackTrace();
-		}
-		catch(Exception e) {
-			return objectID+"+eof";
-		}
-		String[] lines = trace.split("\\s+");
-		String found="";
-
-		//We need to search each line in the trace.
-		for (String line : lines) {
-			boolean invalid = false;
-			if (line.equals("at")||line.equals("")||line.equals(" ")) {
-				invalid = true;
-			}
-			else {
-				for(String bad: invalidText) {
-					if (line.contains(bad)) {
-						invalid = true;
-					}
-				}
-				for(String bad: systemLibrary) {
-					if (line.contains(bad)) {
-						invalid = true;
-					}
-				}
-			}
-
-			if (!invalid) {
-				found =line;
-				break;
-			}
-		}
-		String[] outLine = found.split("\\(");
-		String source = outLine[1].substring(0, outLine[1].length()-1);
-		return output+"+"+source;
-	}
-
-	@Override
-  public void objectCreated(VM vm, ThreadInfo ti, ElementInfo newObject) {
-    if (newObject.toString().startsWith(runtime) || newObject.toString().startsWith(future)) {
-      String newObjectID = getObjectId(newObject.toString());
-      activityNode currentNode = (activityNode) currentNodes.get(ti);
-
-      if (newObjectID.contains("Activity") || newObjectID.contains("Future")) {
-
-        //create child node
-        activityNode child = new activityNode(newObjectID + "-1");
-        child.setDisplay_name(makeLabel(ti,newObjectID));
-        graph.addVertex(child);
-
-        if (!newObjectID.contains("Suspendable")) {
-          addSpawnEdge(currentNodes.get(ti), child, graph);
-
-          //create next node for parent task
-          activityNode nextNode = createNextNode(ti);
-          graph.addVertex(nextNode);
-          addContinuationEdge(currentNode, nextNode, graph);
-
-          //update current nodes map
-          currentNodes.put(ti, nextNode);
-
-          //update child's finish scope
-          finishScope.put(newObjectID, finishBlocks.get(ti).peek());
-        }
-
-        updateTaskCount();
-      } else if (newObjectID.contains("FinishScope")) {
-
-        if (ti.getGlobalId() != 0) {
-          finishNode fin = new finishNode(newObjectID, ti);
-          fin.setDisplay_name(makeLabel(ti,newObjectID));
-          graph.addVertex(fin);
-          addContinuationEdge(currentNode, fin, graph);
-          finishNode end = new finishNode(newObjectID + "-end", ti);
-          end.setDisplay_name(makeLabel(ti,newObjectID+"-end") );
-          graph.addVertex(end);
-
-          //create next node for the task
-          activityNode nextNode = createNextNode(ti);
-          graph.addVertex(nextNode);
-          addContinuationEdge(fin, nextNode, graph);
-
-          currentNodes.put(ti, nextNode);
-
-          //add finish node to the finish stack
-          finishBlocks.get(ti).push(fin);
-        } else {
-          Node activity = null;
-          Set<Node> nodes = graph.vertexSet();
-          for(Node n : nodes) {
-            if (n.id.startsWith("SuspendableActivity") && n.id.endsWith("-1")) {
-              activity = n;
-            }
-          }
-
-          //Master Finish Start
-          finishNode fin = new finishNode(newObjectID, ti);
-          fin.setDisplay_name(makeLabel(ti,newObjectID));
-          graph.addVertex(fin);
-          masterFin = fin;
-
-          //Master Finish end
-          finishNode fin_end = new finishNode(newObjectID+"-end", ti);
-          fin_end.setDisplay_name(makeLabel(ti,newObjectID+"-end"));
-          graph.addVertex(fin_end);
-          masterFinEnd = fin_end;
-
-          //add edge from finish start to suspendable activity
-          addContinuationEdge(fin, activity, graph);
-
-          //add finishScope of suspendable activity
-          String susActID = activity.id.split("-")[0];
-          finishScope.put(susActID, masterFin);
-        }
-      }
+    if (threadObject.startsWith(FUTURE)) {
+      //Node currentNode = currentNodes.get(startedThread);
+      //if (futureJoinNode.containsKey(threadID)) {
+      //  addJoinEdge(currentNode, futureJoinNode.get(threadID), graph);
+      //} else {
+      //  futureJoinNode.put(threadID, currentNode);
+      //}
     }
   }
 
 	@Override
-  public void objectReleased(VM vm, ThreadInfo ti, ElementInfo releasedObject) {
+  public void objectCreated(VM vm, ThreadInfo ti, ElementInfo newObject) {
+    //if (newObject.toString().startsWith(RUNTIME) || newObject.toString().startsWith(FUTURE)) {
+    //  String newObjectID = getObjectId(newObject.toString());
+    //  activityNode currentNode = (activityNode) currentNodes.get(ti);
 
-    if (releasedObject.toString().startsWith(runtime)) {
+    //  if (newObjectID.contains("Activity") || newObjectID.contains("Future")) {
 
-      String objectName = extractObjectName(releasedObject);
-      if (objectName.startsWith("SuspendableActivity")) {
-        //add edge to master fin end
-        Node activity = currentNodes.get(ti);
-        addContinuationEdge(activity, masterFinEnd, graph);
-        System.out.println("Checking Graph " + createGraph(graph, dir, vm));
-                  long time = System.currentTimeMillis();
-                  System.out.println("GraphSize: " + graph.vertexSet().size());
-        if (drd) {
-          race = analyzeFinishBlock(graph, masterFin.id, on_the_fly);
-        }
-                  if (zip_drd) {
-                      race = ZipperAnalyzer.analyze(graph,orderedIsolatedNodes, numberOfAsyncEdges);
-                  }
-                  timeAnalyzing += System.currentTimeMillis() - time;
-      }
-    }
+    //    //create child node
+    //    activityNode child = new activityNode(newObjectID + "-1");
+    //    child.setDisplay_name(makeLabel(ti,newObjectID));
+    //    graph.addVertex(child);
+
+    //    if (!newObjectID.contains("Suspendable")) {
+    //      addSpawnEdge(currentNodes.get(ti), child, graph);
+
+    //      //create next node for parent task
+    //      activityNode nextNode = createNextNode(ti);
+    //      graph.addVertex(nextNode);
+    //      addContinuationEdge(currentNode, nextNode, graph);
+
+    //      //update current nodes map
+    //      currentNodes.put(ti, nextNode);
+
+    //      //update child's finish scope
+    //      finishScope.put(newObjectID, finishBlocks.get(ti).peek());
+    //    }
+
+    //    updateTaskCount();
+    //  } else if (newObjectID.contains("FinishScope")) {
+
+    //    if (ti.getGlobalId() != 0) {
+    //      finishNode fin = new finishNode(newObjectID, ti);
+    //      fin.setDisplay_name(makeLabel(ti,newObjectID));
+    //      graph.addVertex(fin);
+    //      addContinuationEdge(currentNode, fin, graph);
+    //      finishNode end = new finishNode(newObjectID + "-end", ti);
+    //      end.setDisplay_name(makeLabel(ti,newObjectID+"-end") );
+    //      graph.addVertex(end);
+
+    //      //create next node for the task
+    //      activityNode nextNode = createNextNode(ti);
+    //      graph.addVertex(nextNode);
+    //      addContinuationEdge(fin, nextNode, graph);
+
+    //      currentNodes.put(ti, nextNode);
+
+    //      //add finish node to the finish stack
+    //      finishBlocks.get(ti).push(fin);
+    //    } else {
+    //      Node activity = null;
+    //      Set<Node> nodes = graph.vertexSet();
+    //      for(Node n : nodes) {
+    //        if (n.id.startsWith("SuspendableActivity") && n.id.endsWith("-1")) {
+    //          activity = n;
+    //        }
+    //      }
+
+    //      //Master Finish Start
+    //      finishNode fin = new finishNode(newObjectID, ti);
+    //      fin.setDisplay_name(makeLabel(ti,newObjectID));
+    //      graph.addVertex(fin);
+    //      masterFin = fin;
+
+    //      //Master Finish end
+    //      finishNode fin_end = new finishNode(newObjectID+"-end", ti);
+    //      fin_end.setDisplay_name(makeLabel(ti,newObjectID+"-end"));
+    //      graph.addVertex(fin_end);
+    //      masterFinEnd = fin_end;
+
+    //      //add edge from finish start to suspendable activity
+    //      addContinuationEdge(fin, activity, graph);
+
+    //      //add finishScope of suspendable activity
+    //      String susActID = activity.id.split("-")[0];
+    //      finishScope.put(susActID, masterFin);
+    //    }
+    //  }
+    //}
   }
+
+	//@Override
+  //public void objectReleased(VM vm, ThreadInfo ti, ElementInfo releasedObject) {
+  //  if (releasedObject.toString().startsWith(RUNTIME)) {
+  //    String objectName = extractObjectName(releasedObject);
+  //    if (objectName.startsWith("SuspendableActivity")) {
+  //      //add edge to master fin end
+  //      Node activity = currentNodes.get(ti);
+  //      addContinuationEdge(activity, masterFinEnd, graph);
+  //      System.out.println("Checking Graph " + createGraph(graph, dir, vm));
+  //                long time = System.currentTimeMillis();
+  //                System.out.println("GraphSize: " + graph.vertexSet().size());
+  //    }
+  //  }
+  //}
 
 	@Override
   public void methodEntered(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
 
-    String methodName = extractMethodName(enteredMethod);
-    if (methodName.startsWith("startIsolation")) {
-      activityNode currentActivity = (activityNode) currentNodes.get(ti);
-      String [] s = currentActivity.id.split("-");
-      int next_num = Integer.parseInt(s[1]) + 1;
+    //String methodName = extractMethodName(enteredMethod);
+    //if (methodName.startsWith("startIsolation")) {
+    //  //TODO verify whether we need this block
+    //} else if (methodName.startsWith("stopIsolation")) {
+    //  //TODO verify
+    //  tool.handleRelease(ti);
+    //} else if (methodName.startsWith("stopFinish")) {
+    //  String threadID = extractThreadName(ti);
+    //  //TODO possibly join
+    //  if (finishBlocks.get(ti).size() == 1) {
+    //    if (!threadID.contains("Suspendable")) {
+    //      //TODO
+    //    }
+    //  } else if (finishBlocks.get(ti).size() > 1) {
+    //    //TODO
+    //  }
+    //} else if (enteredMethod.getBaseName().equals(futureGet)) {
+    //  String futureThreadName = extractCalleeName(ti);
+    //  //TODO possibly join
 
-      isolatedNode isolNode = new isolatedNode("Isolated_" + s[0] + "-" + next_num, ti);
-      isolNode.setDisplay_name(makeLabel(ti,"Isolated@" + next_num));
-      graph.addVertex(isolNode);
-
-      currentNodes.put(ti, isolNode);
-
-      addContinuationEdge(currentActivity, isolNode, graph);
-
-      if (previousIsolatedNode != null) {
-        addIsolatedEdge(previousIsolatedNode, isolNode, graph);
-      }
-      previousIsolatedNode = isolNode;
-              orderedIsolatedNodes.add(isolNode);
-
-    } else if (methodName.startsWith("stopIsolation")) {
-
-      Node isolatedNode = currentNodes.get(ti);
-      activityNode nextNode = createNextNode(ti);
-      graph.addVertex(nextNode);
-      addContinuationEdge(isolatedNode, nextNode, graph);
-
-      currentNodes.put(ti, nextNode);
-
-    } else if (methodName.startsWith("stopFinish")) {
-      String threadID = extractThreadName(ti);
-
-      if (finishBlocks.get(ti).size() == 1) {
-        if (!threadID.contains("Suspendable")) {
-          Node currentNode = currentNodes.get(ti);
-          Node fin = finishScope.get(threadID);
-          String finishJoin = fin.id;
-          Node finishJoinNode = searchGraph(finishJoin+"-end", graph);
-          addJoinEdge(currentNode, finishJoinNode, graph);
-        }
-      } else if (finishBlocks.get(ti).size() > 1) {
-        createFinEndNode(ti);
-      }
-    } else if (enteredMethod.getBaseName().equals(futureGet)) {
-
-      String futureThreadName = extractCalleeName(ti);
-
-      Node oldActNode = currentNodes.get(ti);
-      Node newActNode = createNextNode(ti);
-      graph.addVertex(newActNode);
-      addContinuationEdge(oldActNode, newActNode, graph);
-
-      currentNodes.put(ti, newActNode);
-
-      if (!futureJoinNode.containsKey(futureThreadName)) {
-        futureJoinNode.put(futureThreadName, newActNode);
-      } else {
-        addJoinEdge(futureJoinNode.get(futureThreadName), newActNode, graph);
-      }
-
-      updateTaskCount();
-    }
+    //  //if (!futureJoinNode.containsKey(futureThreadName)) {
+    //  //  futureJoinNode.put(futureThreadName, newActNode);
+    //  //} else {
+    //  //  addJoinEdge(futureJoinNode.get(futureThreadName), newActNode, graph);
+    //  //}
+    //}
   }
 
 	@Override
   public void methodExited(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
-
-    if (enteredMethod.getName().contains("stopFinish") && on_the_fly &&
-        drd) {
-              long time = System.currentTimeMillis();
-      race = analyzeFinishBlock(graph,
-          finishBlocks.get(ti).pop().id, on_the_fly);
-              timeAnalyzing += System.currentTimeMillis() - time;
+    if (enteredMethod.getName().contains("stopFinish")) {
+      //TODO join?
     }
   }
 
@@ -374,22 +254,15 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 	}
 
 	ChoiceGenerator<ThreadInfo> getRunnableCG(String id, ThreadInfo tiCurrent, VM vm) {
-		ThreadInfo[] timeoutRunnables
-			= getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
+		ThreadInfo[] timeoutRunnables = getTimeoutRunnables(vm, tiCurrent.getApplicationContext());
 		if (timeoutRunnables.length == 0) {
 			return null;
-		} else if (timeoutRunnables.length == 1
-				&& timeoutRunnables[0] == tiCurrent) {
+		} else if (timeoutRunnables.length == 1 && timeoutRunnables[0] == tiCurrent) {
 			return null;
 		} else {
-			return new IsolateChoiceGenerator(this, id, timeoutRunnables, true, dir, vm);
+			return new ThreadChoiceFromSet(id, timeoutRunnables, true);
 		}
 	}
-
-	@Override
-  public void searchFinished(Search search) {
-    System.out.println("Time Analyzing: " + (System.currentTimeMillis() - startTime));
-  }
 
   //Helper Methods
   String extractCalleeName(ThreadInfo ti) {
@@ -410,7 +283,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
     return mi.getBaseName().equals("edu.rice.hj.Module2.isolated");
   }
 
-  static boolean isLibraryInstruction(Instruction insn) {
+  boolean isLibraryInstruction(Instruction insn) {
     String className = ((FieldInstruction) insn).getClassName();
     return className.startsWith("java") || className.startsWith("hj") ||
         (className.startsWith("edu") &&
@@ -424,8 +297,20 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
            className.startsWith("edu.rice.hj.api.HjSuspendingCallable")));
   }
 
-  static boolean isValidFieldInstruction(Instruction insn, VM vm) {
+  boolean isValidFieldInstruction(Instruction insn, VM vm) {
     return insn instanceof FieldInstruction && !isLibraryInstruction(insn);
   }
 
+  String getObjectId(String str) {
+      String[] s = str.split("\\.");
+      return s[s.length - 1];
+  }
+
+  String extractObjectName(ElementInfo ei) {
+      return getObjectId(ei.toString());
+  }
+
+  String extractThreadName(ThreadInfo ti) {
+      return getObjectId(ti.getThreadObject().toString());
+  }
 }
