@@ -1,4 +1,4 @@
-package common;
+package extensions.util;
 
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
@@ -18,17 +18,40 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.ThreadList;
 import gov.nasa.jpf.vm.VM;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
+/**
+ * Data race detector for structured parallel programs.
+ * This class makes JPF enumerate all thread schedules over isolated
+ * regions in a Habanero Java program. It takes a tool as an input and
+ * the tool is responsible for implementing an algorithm that can detect
+ * data race in the program. This class passes information about each
+ * read/write and synchronization event to the tool and also tells the
+ * tool when to record a snapshot of its state and when to reset its state
+ * when JPF backtracks.
+ */
 public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
-	private static final String RUNTIME = "hj.runtime.wsh";
-	private static final String FUTURE = "hj.lang.Future";
-	private static final String FUTURE_GET = "hj.lang.Future.get";
+  // Method names
+  // I think that we only need to trigger fork and join handlers on
+  // Thread.start and Thread.join because Habanero Java classes just
+  // extend Thread. We may need to change Thread.join to Activity.join
+  private static final String THREAD_START = "java.lang.Thread.join";
+  private static final String THREAD_JOIN = "java.lang.Thread.join";
+  private static final String START_ISOLATION = "";//TODO
+  private static final String STOP_ISOLATION = "";//TODO
   private long startTime;
 
+  // Tool that implements data race detection algorithm
   private final StructuredParallelRaceDetectorTool tool;
+
+  // State stack for tool. Used to reset tool state when JPF backtracks
   private final Stack<Object> toolState = new Stack<>();
 
+  // Subclass should extend this class and call super(conf, jpf, tool); with a specific tool
 	public StructuredParallelRaceDetector(Config conf, JPF jpf, StructuredParallelRaceDetectorTool tool) {
     this.tool = tool;
 	}
@@ -68,111 +91,34 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
         ChoiceGenerator<ThreadInfo> cg = getRunnableCG("ISOLATED", ti, vm);
         vm.getSystemState().setNextChoiceGenerator(cg);
       }
-      return;
-    }
-
-    if (inst instanceof ReadOrWriteInstruction) {
-      tool.handleAccess(inst);
-    }
-  }
-
-	@Override
-  public void threadStarted(VM vm, ThreadInfo startedThread) {
-    ThreadInfo parent = null; //TODO find parent
-    tool.handleFork(parent, startedThread);
-  }
-
-	@Override
-  public void objectCreated(VM vm, ThreadInfo ti, ElementInfo newObject) {
-    //if (newObject.toString().startsWith(RUNTIME) || newObject.toString().startsWith(FUTURE)) {
-    //  String newObjectID = getObjectId(newObject.toString());
-    //  activityNode currentNode = (activityNode) currentNodes.get(ti);
-
-    //  if (newObjectID.contains("Activity") || newObjectID.contains("Future")) {
-
-    //    //create child node
-    //    activityNode child = new activityNode(newObjectID + "-1");
-    //    child.setDisplay_name(makeLabel(ti,newObjectID));
-    //    graph.addVertex(child);
-
-    //    if (!newObjectID.contains("Suspendable")) {
-    //      addSpawnEdge(currentNodes.get(ti), child, graph);
-
-    //      //create next node for parent task
-    //      activityNode nextNode = createNextNode(ti);
-    //      graph.addVertex(nextNode);
-    //      addContinuationEdge(currentNode, nextNode, graph);
-
-    //      //update current nodes map
-    //      currentNodes.put(ti, nextNode);
-
-    //      //update child's finish scope
-    //      finishScope.put(newObjectID, finishBlocks.get(ti).peek());
-    //    }
-
-    //    updateTaskCount();
-    //  } else if (newObjectID.contains("FinishScope")) {
-
-    //    if (ti.getGlobalId() != 0) {
-    //      finishNode fin = new finishNode(newObjectID, ti);
-    //      fin.setDisplay_name(makeLabel(ti,newObjectID));
-    //      graph.addVertex(fin);
-    //      addContinuationEdge(currentNode, fin, graph);
-    //      finishNode end = new finishNode(newObjectID + "-end", ti);
-    //      end.setDisplay_name(makeLabel(ti,newObjectID+"-end") );
-    //      graph.addVertex(end);
-
-    //      //create next node for the task
-    //      activityNode nextNode = createNextNode(ti);
-    //      graph.addVertex(nextNode);
-    //      addContinuationEdge(fin, nextNode, graph);
-
-    //      currentNodes.put(ti, nextNode);
-
-    //      //add finish node to the finish stack
-    //      finishBlocks.get(ti).push(fin);
-    //    } else {
-    //      Node activity = null;
-    //      Set<Node> nodes = graph.vertexSet();
-    //      for(Node n : nodes) {
-    //        if (n.id.startsWith("SuspendableActivity") && n.id.endsWith("-1")) {
-    //          activity = n;
-    //        }
-    //      }
-
-    //      //Master Finish Start
-    //      finishNode fin = new finishNode(newObjectID, ti);
-    //      fin.setDisplay_name(makeLabel(ti,newObjectID));
-    //      graph.addVertex(fin);
-    //      masterFin = fin;
-
-    //      //Master Finish end
-    //      finishNode fin_end = new finishNode(newObjectID+"-end", ti);
-    //      fin_end.setDisplay_name(makeLabel(ti,newObjectID+"-end"));
-    //      graph.addVertex(fin_end);
-    //      masterFinEnd = fin_end;
-
-    //      //add edge from finish start to suspendable activity
-    //      addContinuationEdge(fin, activity, graph);
-
-    //      //add finishScope of suspendable activity
-    //      String susActID = activity.id.split("-")[0];
-    //      finishScope.put(susActID, masterFin);
-    //    }
-    //  }
-    //}
+    } else if (inst instanceof ReadOrWriteInstruction)
+      tool.handleAccess(ti.getId(), inst);
   }
 
 	@Override
   public void methodEntered(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
-    //TODO too.handleRelease if method is stopIsolation
-    //TODO add thread to finish scope if method is startFinish
+    String mname = enteredMethod.getBaseName();
+    if (mname.startsWith(STOP_ISOLATION)) {
+      tool.handleRelease(ti.getId());
+    } else if (mname.startsWith(THREAD_START)) {
+      //TODO figure out how to get thread id of the started thread
+      // If there is a way to get to the Thread object that the method
+      // was called on then that would work
+      tool.handleFork(ti.getId(), -1);
+    }
   }
 
 	@Override
-  public void methodExited(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
-    //TODO tool.handleJoin if method is stopFinish or Future.get
-    //TODO track finish scope to join all threads created in this block
+  public void methodExited(VM vm, ThreadInfo ti, MethodInfo exitedMethod) {
+    String mname = exitedMethod.getBaseName();
+    if (mname.startsWith(START_ISOLATION)) {
+      tool.handleAcquire(ti.getId());
+    } else if (mname.startsWith(THREAD_JOIN)) {
+      //TODO figure out how to get thread id of the future object joined with
+      // If there is a way to get to the Thread object that the method
+      // was called on then that would work
+      tool.handleJoin(ti.getId(), -1);
+    }
   }
 
 	@Override
@@ -205,53 +151,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 		}
 	}
 
-  //Helper Methods
-  String extractCalleeName(ThreadInfo ti) {
-    String[] str = ti.getThisElementInfo().toString().split("\\.");
-    return str[str.length - 1];
-  }
-
-  boolean isValidArrayInstruction(Instruction insn, ThreadInfo ti) {
-    if (!(insn instanceof ArrayElementInstruction))
-      return false;
-    ArrayElementInstruction ainsn = (ArrayElementInstruction)insn;
-    ElementInfo ei = ainsn.peekArrayElementInfo(ti);
-    String className = ei.getClassInfo().getName();
-    return !className.startsWith("[Ljava") && !className.startsWith("[Ledu");
-  }
-
   boolean isIsolatedMethod(MethodInfo mi) {
     return mi.getBaseName().equals("edu.rice.hj.Module2.isolated");
-  }
-
-  boolean isLibraryInstruction(Instruction insn) {
-    String className = ((FieldInstruction) insn).getClassName();
-    return className.startsWith("java") || className.startsWith("hj") ||
-        (className.startsWith("edu") &&
-         !(className.startsWith("edu.rice.hj.api.HjActor") ||
-           className.startsWith("edu.rice.hj.api.HjDataDrivenFuture") ||
-           className.startsWith("edu.rice.hj.api.HjFinishAccumulator") ||
-           className.startsWith("edu.rice.hj.api.HjFuture") ||
-           className.startsWith("edu.rice.hj.api.HjLambda") ||
-           className.startsWith("edu.rice.hj.api.HjRunnable") ||
-           className.startsWith("edu.rice.hj.api.HjSuspendable") ||
-           className.startsWith("edu.rice.hj.api.HjSuspendingCallable")));
-  }
-
-  boolean isValidFieldInstruction(Instruction insn, VM vm) {
-    return insn instanceof FieldInstruction && !isLibraryInstruction(insn);
-  }
-
-  String getObjectId(String str) {
-      String[] s = str.split("\\.");
-      return s[s.length - 1];
-  }
-
-  String extractObjectName(ElementInfo ei) {
-      return getObjectId(ei.toString());
-  }
-
-  String extractThreadName(ThreadInfo ti) {
-      return getObjectId(ti.getThreadObject().toString());
   }
 }
