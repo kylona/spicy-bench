@@ -8,7 +8,7 @@ die_with_msg() {
   exit 1
 }
 
-[[ $# -eq 2 ]] || die_with_msg "Usage: runAll.sh detector path/to/jpf-core"
+[[ $# -eq 1 ]] || die_with_msg "Usage: runAll.sh detector"
 
 detector="$1"
 benchmarks=(benchmarks/AllBenchmarks2018/*)
@@ -20,6 +20,6 @@ for b in "${benchmarks[@]}"; do
     resultsFolder="build/$destination/$filename"
     mkdir -p $resultsFolder
     echo "Running $filename..."
-    sh tools/runOne.sh $filename $detector $2 > $resultsFolder/output.txt 2>&1
+    sh tools/runOne.sh $filename $detector > $resultsFolder/output.txt 2>&1
     echo "Done. Output saved to $resultsFolder/output.txt"
 done

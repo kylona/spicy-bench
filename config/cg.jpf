@@ -1,21 +1,7 @@
 target=SED_WILL_REPLACE
 
-native_classpath=build;
-native_classpath+=lib/jpf-hj.jar;
-native_classpath+=lib/hj-lib-byu.jar;
-native_classpath+=lib/jgrapht-ext-0.9.1-uber.jar;
-
-vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
-vm.scheduler.sync.class=extensions.HjSyncPolicy
-listener+=cg.CGRaceDetector
+listener+=extensions.cg.CGRaceDetector
 JPF.vm=VMListener
-vm.max_transition_length=MAX
-
-classpath=build/benchmarks;
-classpath+=lib/byu-hjlib.jar;
-classpath+=lib/hj-lib-byu.jar;
-classpath+=lib/jpf-hj.jar;
-sourcepath=benchmarks/AllBenchmarks2018
 
 Results_directory=build/graphs/
 Contains_isolated_sections=true

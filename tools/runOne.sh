@@ -5,7 +5,7 @@ die_with_msg() {
   exit 1
 }
 
-[[ $# -eq 3 ]] || die_with_msg "Usage: runOne.sh benchmark detector path/to/jpf-core"
+[[ $# -eq 2 ]] || die_with_msg "Usage: runOne.sh benchmark detector"
 
 BENCHMARK="$1"
 DETECTOR="$2"
@@ -42,4 +42,4 @@ JAVAC_CP="$CLASSES_DIR:$LIB_CP"
 # now, run the data race detector
 time java -cp $JAVAC_CP $BENCHMARK
 echo "----------------------------------------------"
-time "$3/bin/jpf" $OUTPUT_DIR/$name.jpf
+time java -ea -jar "lib/RunJPF.jar" $OUTPUT_DIR/$name.jpf

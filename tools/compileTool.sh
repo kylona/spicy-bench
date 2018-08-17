@@ -5,17 +5,15 @@ die_with_msg() {
   exit 1
 }
 
-[[ $# -eq 2 ]] || die_with_msg "Usage: compileTool.sh [cg|fasttrack|spbags] path/to/jpf-core"
+[[ $# -eq 1 ]] || die_with_msg "Usage: compileTool.sh [cg|fasttrack|spbags]"
 
-JPF_JARS="$2/build"
 JARS="lib"
 [[ -d "$JARS" ]] || die_with_msg "Could not find lib directory"
-[[ -d "$JPF_JARS" ]] || die_with_msg "Could not find JPF lib directory"
 
-JAVAC_CP="src/jpf/jpf-$1:$JPF_JARS/jpf.jar:$JARS/jpf-hj.jar:$JARS/hj-lib-byu.jar:$JARS/jgrapht-ext-0.9.1-uber.jar"
+JAVAC_CP="jpf-hj/src:$JARS/jpf.jar:$JARS/jpf-hj.jar:$JARS/hj-lib-byu.jar:$JARS/jgrapht-ext-0.9.1-uber.jar"
 echo "$JAVAC_CP"
 DEST="build"
-SOURCE_FILES=`find src/jpf/jpf-$1 -name "test" -prune -o -type f -name "*.java" -print`
+SOURCE_FILES=`find jpf-hj/src/extensions/$1 -type f -name "*.java"`
 
 if [[ ! -d "$DEST" ]]
 then
