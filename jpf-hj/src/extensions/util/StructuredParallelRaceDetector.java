@@ -63,7 +63,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
     startTime = System.currentTimeMillis();
   }
 
-	@Override
+  @Override
   public void searchFinished(Search search) {
     System.out.println("Time Analyzing: " + (System.currentTimeMillis() - startTime));
   }
@@ -81,7 +81,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   }
 
   // VM interface
-	@Override
+  @Override
   public void executeInstruction(VM vm, ThreadInfo ti, Instruction inst) {
     //scheduler for isolated
     //TODO verify whether check for ti.isFirstStepInsn() is needed
@@ -95,7 +95,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       tool.handleAccess(ti.getId(), inst);
   }
 
-	@Override
+  @Override
   public void methodEntered(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
     String mname = enteredMethod.getBaseName();
     if (mname.startsWith(STOP_ISOLATION)) {
@@ -104,11 +104,12 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       //TODO figure out how to get thread id of the started thread
       // If there is a way to get to the Thread object that the method
       // was called on then that would work
+      
       tool.handleFork(ti.getId(), -1);
     }
   }
 
-	@Override
+  @Override
   public void methodExited(VM vm, ThreadInfo ti, MethodInfo exitedMethod) {
     String mname = exitedMethod.getBaseName();
     if (mname.startsWith(START_ISOLATION)) {
@@ -117,16 +118,17 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       //TODO figure out how to get thread id of the future object joined with
       // If there is a way to get to the Thread object that the method
       // was called on then that would work
+      
       tool.handleJoin(ti.getId(), -1);
     }
   }
 
-	@Override
+  @Override
   public String getErrorMessage () {
     return tool.error();
   }
 
-	@Override
+  @Override
   public boolean check(Search search, VM vm) {
     return !tool.race();
   }
