@@ -38,30 +38,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package extensions.fasttrack;
 
-import acme.util.Util;
-import rr.state.ShadowLock;
-import tools.util.VectorClock;
+import extensions.fasttrack.util.VectorClock;
 
 public class FTLockState extends VectorClock {
-
-	// inherited values field: protected by peer.getLock().
-	// That lock will be held during acquire/release/wait events.
-
-	private final ShadowLock peer;
-	
-	public FTLockState(ShadowLock peer, int size) {
-		super(size);
-		this.peer = peer;
-	}
-
-	public ShadowLock getPeer() {
-		return peer;
-	}
-
-	@Override
-	public synchronized String toString() {
-		return String.format("[peer %s: %s]",  Util.objectToIdentityString(peer), super.toString());
-	}
-
-
+  public FTLockState(int size) {
+    super(size);
+  }
 }

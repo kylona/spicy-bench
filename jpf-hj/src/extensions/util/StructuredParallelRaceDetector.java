@@ -96,7 +96,16 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
         vm.getSystemState().setNextChoiceGenerator(cg);
       }
     } else if (inst instanceof ReadOrWriteInstruction) {
-      tool.handleAccess(ti.getThreadObjectRef(), inst);
+      ReadOrWriteInstruction rw = (ReadOrWriteInstruction)inst;
+      if (rw.getElementInfo(ti) == null) {
+        //TODO verify
+        return;
+      }
+      if (rw.isRead()) {
+        tool.handleRead(ti.getThreadObjectRef(), rw.getElementInfo(ti).getObjectRef());
+      } else {
+        tool.handleWrite(ti.getThreadObjectRef(), rw.getElementInfo(ti).getObjectRef());
+      }
     }
   }
 

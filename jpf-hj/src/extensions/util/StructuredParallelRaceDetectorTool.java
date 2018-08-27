@@ -1,14 +1,12 @@
 package extensions.util;
 
-import gov.nasa.jpf.vm.ElementInfo;
-import gov.nasa.jpf.vm.Instruction;
-
 public interface StructuredParallelRaceDetectorTool {
   // For rewinding
   void resetState(Object state);
   Object getImmutableState();
   // Event handling
-  void handleAccess(int tid, Instruction insn);
+  void handleRead(int tid, int objRef);
+  void handleWrite(int tid, int objRef);
   void handleAcquire(int tid);
   void handleRelease(int tid);
   void handleFork(int parent, int child);

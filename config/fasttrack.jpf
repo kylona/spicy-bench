@@ -1,0 +1,4 @@
+target=SED_WILL_REPLACE
+
+listener+=extensions.fasttrack.FastTrackRaceDetector;
+JPF.vm=VMListener

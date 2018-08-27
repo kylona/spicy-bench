@@ -38,11 +38,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package extensions.fasttrack;
 
-import rr.state.ShadowVar;
-import tools.util.Epoch;
-import tools.util.VectorClock;
+import extensions.fasttrack.util.Epoch;
+import extensions.fasttrack.util.VectorClock;
 
-public class FTVarState extends VectorClock implements ShadowVar {	
+public class FTVarState extends VectorClock {	
 	// inherited values field:
 	//   * if R != SHARED, then values and values[*] are protected by this.
 	//   * if R == SHARED, then:
@@ -55,15 +54,18 @@ public class FTVarState extends VectorClock implements ShadowVar {
 	//      the lock, so no races exist due to program order.
 	
 	// Write-protected by this => No concurrent writes when lock held.
-	public volatile int/*epoch*/ W;
+	public int/*epoch*/ W;
 	
 	// Write-protected by this => No concurrent writes when lock held.
 	// if R == Epoch.SHARED, it will never change again. 
-	public volatile int/*epoch*/ R;
+	public int/*epoch*/ R;
 
-	protected FTVarState() {
-	}
-	
+  public FTVarState(FTVarState other) {
+    R = other.R;
+    W = other.W;
+    copy(other);
+  }
+
 	public FTVarState(boolean isWrite, int/*epoch*/ epoch) {
 		if (isWrite) {
 			R = Epoch.ZERO;
@@ -75,12 +77,12 @@ public class FTVarState extends VectorClock implements ShadowVar {
 	}
 
 	@Override
-	public synchronized void makeCV(int len) {
+	public void makeCV(int len) {
 		super.makeCV(len);
 	}
 
 	@Override
-	public synchronized String toString() {
+	public String toString() {
 		return String.format("[W=%s R=%s V=%s]", Epoch.toString(W), Epoch.toString(R), super.toString());
 	}
 }

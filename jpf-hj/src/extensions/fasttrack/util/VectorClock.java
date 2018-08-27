@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ******************************************************************************/
 
-package fasttrack.util;
+package extensions.fasttrack.util;
 
 /**
  * VectorClock are mutable, extensible functions from ShadowThread 
