@@ -33,16 +33,18 @@ import java.util.Stack;
  * read/write and synchronization event to the tool and also tells the
  * tool when to record a snapshot of its state and when to reset its state
  * when JPF backtracks.
+ * TODO verify that we can use thread object refs instead of thread ids
  */
 public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   // Method names
   // I think that we only need to trigger fork and join handlers on
   // Thread.start and Thread.join because Habanero Java classes just
-  // extend Thread. We may need to change Thread.join to Activity.join
+  // extend Thread.
   private static final String THREAD_START = "java.lang.Thread.join";
   private static final String THREAD_JOIN = "java.lang.Thread.join";
-  private static final String START_ISOLATION = "";//TODO
-  private static final String STOP_ISOLATION = "";//TODO
+  private static final String ISOLATED = "edu.rice.hj.Module2.isolated";
+  private static final String START_ISOLATION = "hj.lang.Runtime.startIsolation";
+  private static final String STOP_ISOLATION = "hj.lang.Runtime.stopIsolation";
   private long startTime;
 
   // Tool that implements data race detection algorithm
@@ -70,42 +72,41 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 
   @Override
   public void stateAdvanced(Search search) {
-    if (search.isNewState())
+    if (search.isNewState()) {
       toolState.push(tool.getImmutableState());
+    }
   }
 
   @Override
   public void stateBacktracked(Search search) {
-    if (!toolState.isEmpty())
+    if (!toolState.isEmpty()) {
       tool.resetState(toolState.pop());
+    }
   }
 
   // VM interface
   @Override
   public void executeInstruction(VM vm, ThreadInfo ti, Instruction inst) {
     //scheduler for isolated
-    //TODO verify whether check for ti.isFirstStepInsn() is needed
     if (inst instanceof JVMInvokeInstruction) {
       MethodInfo mi = ((JVMInvokeInstruction) inst).getInvokedMethod();
-      if (isIsolatedMethod(mi)) {
+      String mname = mi.getBaseName();
+      if (mname.equals(ISOLATED)) {
         ChoiceGenerator<ThreadInfo> cg = getRunnableCG("ISOLATED", ti, vm);
         vm.getSystemState().setNextChoiceGenerator(cg);
       }
-    } else if (inst instanceof ReadOrWriteInstruction)
-      tool.handleAccess(ti.getId(), inst);
+    } else if (inst instanceof ReadOrWriteInstruction) {
+      tool.handleAccess(ti.getThreadObjectRef(), inst);
+    }
   }
 
   @Override
   public void methodEntered(VM vm, ThreadInfo ti, MethodInfo enteredMethod) {
     String mname = enteredMethod.getBaseName();
     if (mname.startsWith(STOP_ISOLATION)) {
-      tool.handleRelease(ti.getId());
+      tool.handleRelease(ti.getThreadObjectRef());
     } else if (mname.startsWith(THREAD_START)) {
-      //TODO figure out how to get thread id of the started thread
-      // If there is a way to get to the Thread object that the method
-      // was called on then that would work
-      
-      tool.handleFork(ti.getId(), -1);
+      tool.handleFork(ti.getThreadObjectRef(), ti.getThis());
     }
   }
 
@@ -113,13 +114,9 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   public void methodExited(VM vm, ThreadInfo ti, MethodInfo exitedMethod) {
     String mname = exitedMethod.getBaseName();
     if (mname.startsWith(START_ISOLATION)) {
-      tool.handleAcquire(ti.getId());
+      tool.handleAcquire(ti.getThreadObjectRef());
     } else if (mname.startsWith(THREAD_JOIN)) {
-      //TODO figure out how to get thread id of the future object joined with
-      // If there is a way to get to the Thread object that the method
-      // was called on then that would work
-      
-      tool.handleJoin(ti.getId(), -1);
+      tool.handleJoin(ti.getThreadObjectRef(), ti.getThis());
     }
   }
 
@@ -133,7 +130,8 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
     return !tool.race();
   }
 
-	static ThreadInfo[] getTimeoutRunnables(VM vm, ApplicationContext appCtx) {
+  // Helper methods
+	ThreadInfo[] getTimeoutRunnables(VM vm, ApplicationContext appCtx) {
 		ThreadList tlist = vm.getThreadList();
 		if (tlist.hasProcessTimeoutRunnables(appCtx)) {
 			return tlist.getProcessTimeoutRunnables(appCtx);
@@ -152,8 +150,4 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 			return new ThreadChoiceFromSet(id, timeoutRunnables, true);
 		}
 	}
-
-  boolean isIsolatedMethod(MethodInfo mi) {
-    return mi.getBaseName().equals("edu.rice.hj.Module2.isolated");
-  }
 }
