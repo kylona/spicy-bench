@@ -14,16 +14,63 @@ public class SPBagsTool implements StructuredParallelRaceDetectorTool {
   boolean race = false;
   String error = "";
 
+  Map<Integer, ShadowSpace> fields = new HashMap<>();
+  Map<String, ShadowSpace> arrays = new HashMap<>();
+  Map<Integer, ShadowSpace> isolatedFields = new HashMap<>();
+  Map<String, ShadowSpace> isolatedArrays = new HashMap<>();
+  UnionFind bags = new UnionFind();
+
+  private static class ShadowSpace {
+    int writer;
+    int reader;
+    ShadowSpace(int writer, int reader) {
+      this.writer = writer;
+      this.reader = reader;
+    }
+    @Override
+    public String toString() {
+      return "ShadowSpace with writer(" + writer + ") and reader(" + reader + ")";
+    }
+  }
+
   private static class SPBagsToolState {
+    final Map<Integer, ShadowSpace> fields;
+    final Map<String, ShadowSpace> arrays;
+    final Map<Integer, ShadowSpace> isolatedFields;
+    final Map<String, ShadowSpace> isolatedArrays;
+    final UnionFind bags;
+    SPBagsToolState(Map<Integer, ShadowSpace> fields,
+        Map<String, ShadowSpace> arrays,
+        Map<Integer, ShadowSpace> isolatedFields,
+        Map<String, ShadowSpace> isolatedArrays,
+        UnionFind bags) {
+      //TODO make copies
+      this.fields = fields;
+      this.arrays = arrays;
+      this.isolatedFields = isolatedFields;
+      this.isolatedArrays = isolatedArrays;
+      this.bags = bags;
+    }
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      return sb.toString();
+    }
   }
 
   @Override
   public void resetState(Object state) {
+    SPBagsToolState toolState = (SPBagsToolState)state;
+    fields = toolState.fields;
+    arrays = toolState.arrays;
+    isolatedFields = toolState.isolatedFields;
+    isolatedArrays = toolState.isolatedArrays;
+    bags = toolState.bags;
   }
 
   @Override
   public Object getImmutableState() {
-    return null;
+    return new SPBagsToolState(fields, arrays, isolatedFields, isolatedArrays, bags);
   }
 
   @Override
