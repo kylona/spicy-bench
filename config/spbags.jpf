@@ -1,0 +1,6 @@
+target=SED_WILL_REPLACE
+
+debug = false
+
+listener+=extensions.spbags.SPBagsRaceDetector;
+JPF.vm=VMListener
