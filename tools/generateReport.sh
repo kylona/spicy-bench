@@ -1,6 +1,6 @@
 #!/bin/bash
 OUTPUT_NAME=output.txt
-YES_MARKER="Non-deterministic access between"
+NO_MARKER="no errors detected"
 TIME_MARKER="GraphSize: "
 FINISH_MARKER="search finished"
 parseOutput()
@@ -8,7 +8,7 @@ parseOutput()
   DISPLAY_NAME=${1%/$OUTPUT_NAME}
   DISPLAY_NAME=${DISPLAY_NAME##*/}
   echo
-  if  grep -q "$YES_MARKER" "$1"  ; then
+  if ! grep -q "$NO_MARKER" "$1"  ; then
     echo $DISPLAY_NAME : "YES"
   else
     echo $DISPLAY_NAME : "NO"

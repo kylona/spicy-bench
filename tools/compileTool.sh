@@ -13,7 +13,7 @@ JARS="lib"
 JAVAC_CP="jpf-hj/src:$JARS/jpf.jar:$JARS/jpf-hj.jar:$JARS/hj-lib-byu.jar:$JARS/jgrapht-ext-0.9.1-uber.jar"
 echo "$JAVAC_CP"
 DEST="build"
-SOURCE_FILES=`find jpf-hj/src/extensions/$1 -type f -name "*.java"`
+SOURCE_FILES=`find jpf-hj/src/extensions/$1 jpf-hj/src/extensions/util -type f -name "*.java"`
 
 if [[ ! -d "$DEST" ]]
 then
