@@ -236,7 +236,7 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
       return XFields.get(objRef);
     } else {
       String key = objRef + ":" + index;
-      if (!XArrays.containsKey(objRef)) {
+      if (!XArrays.containsKey(key)) {
         XArrays.put(key, new FTVarState(isWrite, getThreadState(tid).get(tid)));
       }
       return XArrays.get(key);
