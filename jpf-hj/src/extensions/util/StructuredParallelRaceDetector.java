@@ -57,11 +57,20 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   // Map of thread refs to dense thread ids
   private final Map<Integer, Integer> tids = new HashMap<>();
 
+  // Initial tool state for reset
+  private final Object initialState;
+
   // Subclass should extend this class and call super(conf, jpf, tool); with a specific tool
 	public StructuredParallelRaceDetector(Config conf, JPF jpf, StructuredParallelRaceDetectorTool tool) {
     debug = conf.getString("debug").equalsIgnoreCase("true");
     this.tool = tool;
+    initialState = this.tool.getImmutableState();
 	}
+
+  @Override
+  public void reset() {
+    tool.resetState(initialState);
+  }
 
   void debug(String message) {
     if (debug) {
@@ -86,6 +95,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   @Override
   public void stateAdvanced(Search search) {
     if (search.isNewState()) {
+      debug("Before save state");
       toolState.push(tool.getImmutableState());
     }
   }
@@ -93,7 +103,9 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   @Override
   public void stateBacktracked(Search search) {
     if (!toolState.isEmpty()) {
+      debug("Before reset state");
       tool.resetState(toolState.pop());
+      debug("After reset state");
     }
   }
 
