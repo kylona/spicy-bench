@@ -18,9 +18,7 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.ThreadList;
 import gov.nasa.jpf.vm.VM;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -47,6 +45,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   private static final String STOP_ISOLATION = "hj.lang.Runtime.stopIsolation";
   private long startTime;
   boolean debug = false;
+  int prevStateId = -1;
 
   // Tool that implements data race detection algorithm
   private final StructuredParallelRaceDetectorTool tool;
@@ -75,7 +74,6 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   void debug(String message) {
     if (debug) {
       System.out.println(message);
-      System.out.println("Race is " + tool.race());
       System.out.println(tool.getImmutableState().toString());
     }
   }
@@ -94,19 +92,17 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
 
   @Override
   public void stateAdvanced(Search search) {
-    if (search.isNewState()) {
-      debug("Before save state");
-      toolState.push(tool.getImmutableState());
-    }
+    debug("Before save state advancing from " + prevStateId + " to " + search.getStateId());
+    toolState.push(tool.getImmutableState());
+    prevStateId = search.getStateId();
   }
 
   @Override
   public void stateBacktracked(Search search) {
-    if (!toolState.isEmpty()) {
-      debug("Before reset state");
-      tool.resetState(toolState.pop());
-      debug("After reset state");
-    }
+    debug("Before reset state backtracking from " + prevStateId + " to " + search.getStateId());
+    tool.resetState(toolState.pop());
+    debug("After reset state backtracking from " + prevStateId + " to " + search.getStateId());
+    prevStateId = search.getStateId();
   }
 
   // VM interface

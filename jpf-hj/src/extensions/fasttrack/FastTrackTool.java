@@ -64,46 +64,6 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
   boolean race = false;
   String error = "";
 
-  private static class FastTrackToolState {
-    final Map<Integer, FTThreadState> C = new HashMap<>();
-    final FTLockState L = new FTLockState(INIT_VECTOR_CLOCK_SIZE);
-    final Map<Integer, FTVarState> XFields = new HashMap<>();
-    final Map<String, FTVarState> XArrays = new HashMap<>();
-    public FastTrackToolState(Map<Integer, FTThreadState> c, FTLockState l,
-        Map<Integer, FTVarState> xFields, Map<String, FTVarState> xArrays) {
-      for (Map.Entry<Integer, FTThreadState> threadState : c.entrySet()) {
-        C.put(threadState.getKey(), new FTThreadState(threadState.getValue()));
-      }
-      L.copy(l);
-      for (Map.Entry<Integer, FTVarState> varState : xFields.entrySet()) {
-        XFields.put(varState.getKey(), new FTVarState(varState.getValue()));
-      }
-      for (Map.Entry<String, FTVarState> varState : xArrays.entrySet()) {
-        XArrays.put(varState.getKey(), new FTVarState(varState.getValue()));
-      }
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      for (Map.Entry<Integer, FTThreadState> threadState : C.entrySet()) {
-        sb.append("Thread State " + threadState.getKey() + ": " + threadState.getValue());
-        sb.append(System.lineSeparator());
-      }
-      sb.append("Lock State: " + L);
-      sb.append(System.lineSeparator());
-      for (Map.Entry<Integer, FTVarState> varState : XFields.entrySet()) {
-        sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
-        sb.append(System.lineSeparator());
-      }
-      for (Map.Entry<String, FTVarState> varState : XArrays.entrySet()) {
-        sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
-        sb.append(System.lineSeparator());
-      }
-      return sb.toString();
-    }
-  }
-
   @Override
   public void resetState(Object state) {
     FastTrackToolState toolState = (FastTrackToolState)state;
@@ -115,7 +75,7 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
 
   @Override
   public Object getImmutableState() {
-    return new FastTrackToolState(C, L, XFields, XArrays);
+    return new FastTrackToolState(C, L, XFields, XArrays, race, error);
   }
 
   @Override
@@ -250,5 +210,54 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
       C.get(tid).tick(tid);
     }
     return C.get(tid);
+  }
+
+  private static class FastTrackToolState {
+    final Map<Integer, FTThreadState> C = new HashMap<>();
+    final FTLockState L = new FTLockState(INIT_VECTOR_CLOCK_SIZE);
+    final Map<Integer, FTVarState> XFields = new HashMap<>();
+    final Map<String, FTVarState> XArrays = new HashMap<>();
+    final boolean race;
+    final String error;
+    public FastTrackToolState(Map<Integer, FTThreadState> c, FTLockState l,
+        Map<Integer, FTVarState> xFields, Map<String, FTVarState> xArrays,
+        boolean race, String error) {
+      for (Map.Entry<Integer, FTThreadState> threadState : c.entrySet()) {
+        C.put(threadState.getKey(), new FTThreadState(threadState.getValue()));
+      }
+      L.copy(l);
+      for (Map.Entry<Integer, FTVarState> varState : xFields.entrySet()) {
+        XFields.put(varState.getKey(), new FTVarState(varState.getValue()));
+      }
+      for (Map.Entry<String, FTVarState> varState : xArrays.entrySet()) {
+        XArrays.put(varState.getKey(), new FTVarState(varState.getValue()));
+      }
+      this.race = race;
+      this.error = error;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      for (Map.Entry<Integer, FTThreadState> threadState : C.entrySet()) {
+        sb.append("Thread State " + threadState.getKey() + ": " + threadState.getValue());
+        sb.append(System.lineSeparator());
+      }
+      sb.append("Lock State: " + L);
+      sb.append(System.lineSeparator());
+      for (Map.Entry<Integer, FTVarState> varState : XFields.entrySet()) {
+        sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
+        sb.append(System.lineSeparator());
+      }
+      for (Map.Entry<String, FTVarState> varState : XArrays.entrySet()) {
+        sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
+        sb.append(System.lineSeparator());
+      }
+      sb.append("Race is " + race);
+      sb.append(System.lineSeparator());
+      sb.append("Error is " + error);
+      sb.append(System.lineSeparator());
+      return sb.toString();
+    }
   }
 }
