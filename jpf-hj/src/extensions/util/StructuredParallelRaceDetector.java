@@ -43,6 +43,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   private static final String ISOLATED = "edu.rice.hj.Module2.isolated";
   private static final String START_ISOLATION = "hj.lang.Runtime.startIsolation";
   private static final String STOP_ISOLATION = "hj.lang.Runtime.stopIsolation";
+  private static final String FUTURE_GET = "hj.lang.Future.get";
   private long startTime;
   boolean debug = false;
   int prevStateId = -1;
@@ -156,7 +157,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       debug("Before acquire on " + tid);
       tool.handleAcquire(tid);
       debug("After acquire on " + tid);
-    } else if (mname.startsWith(THREAD_JOIN)) {
+    } else if (mname.startsWith(THREAD_JOIN) || mname.startsWith(FUTURE_GET)) {
       int child = getTid(ti.getThis());
       debug("Before join of " + child + " on " + tid);
       tool.handleJoin(tid, child);
@@ -203,17 +204,18 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   }
 
   String getUniqueLabel(Instruction insn, ThreadInfo ti) {
-    if (isValidArrayElementInstruction(insn, ti)) {
-      ArrayElementInstruction ainsn = (ArrayElementInstruction)insn;
-      return ainsn.peekArrayElementInfo(ti).getObjectRef() + "[" + ainsn.peekIndex(ti) + "]";
-    } else if (isValidFieldInstruction(insn)) {
-      int objRef = ((FieldInstruction)insn).peekElementInfo(ti).getObjectRef();
-      if (insn instanceof StaticFieldInstruction) { 
-        StaticFieldInstruction sinsn = ((StaticFieldInstruction)insn);
-        return objRef + sinsn.getFieldInfo().getName();
-      } else {
-        return objRef + "[-1]";
-      }
+    if (!isValidArrayElementInstruction(insn, ti) && !isValidFieldInstruction(insn)) {
+      return null;
+    }
+    if (insn instanceof ArrayElementInstruction) {
+      ArrayElementInstruction ainsn = ((ArrayElementInstruction)insn);
+      int objRef = ainsn.peekArrayElementInfo(ti).getObjectRef();
+      int index = ainsn.peekIndex(ti);
+      return "array@" + objRef + "[" + index + "]";
+    } else if (insn instanceof FieldInstruction) {
+      FieldInstruction finsn = ((FieldInstruction)insn);
+      ElementInfo ei = finsn.getElementInfo(ti);
+      return finsn.getId(ei);
     }
     return null;
   }
