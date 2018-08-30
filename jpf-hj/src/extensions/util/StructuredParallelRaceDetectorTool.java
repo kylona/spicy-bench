@@ -5,8 +5,8 @@ public interface StructuredParallelRaceDetectorTool {
   void resetState(Object state);
   Object getImmutableState();
   // Event handling
-  void handleRead(int tid, int objRef, int index);
-  void handleWrite(int tid, int objRef, int index);
+  void handleRead(int tid, String uniqueLabel);
+  void handleWrite(int tid, String uniqueLabel);
   void handleAcquire(int tid);
   void handleRelease(int tid);
   void handleFork(int parent, int child);

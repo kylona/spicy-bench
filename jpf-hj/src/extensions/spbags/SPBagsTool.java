@@ -14,10 +14,8 @@ public class SPBagsTool implements StructuredParallelRaceDetectorTool {
   boolean race = false;
   String error = "";
 
-  Map<Integer, ShadowSpace> fields = new HashMap<>();
-  Map<String, ShadowSpace> arrays = new HashMap<>();
-  Map<Integer, ShadowSpace> isolatedFields = new HashMap<>();
-  Map<String, ShadowSpace> isolatedArrays = new HashMap<>();
+  Map<String, ShadowSpace> shadows = new HashMap<>();
+  Map<String, ShadowSpace> isolated = new HashMap<>();
   UnionFind bags = new UnionFind();
 
   private static class ShadowSpace {
@@ -34,21 +32,15 @@ public class SPBagsTool implements StructuredParallelRaceDetectorTool {
   }
 
   private static class SPBagsToolState {
-    final Map<Integer, ShadowSpace> fields;
-    final Map<String, ShadowSpace> arrays;
-    final Map<Integer, ShadowSpace> isolatedFields;
-    final Map<String, ShadowSpace> isolatedArrays;
+    final Map<String, ShadowSpace> shadows;
+    final Map<String, ShadowSpace> isolated;
     final UnionFind bags;
-    SPBagsToolState(Map<Integer, ShadowSpace> fields,
-        Map<String, ShadowSpace> arrays,
-        Map<Integer, ShadowSpace> isolatedFields,
-        Map<String, ShadowSpace> isolatedArrays,
+    SPBagsToolState(Map<String, ShadowSpace> shadows,
+        Map<String, ShadowSpace> isolated,
         UnionFind bags) {
       //TODO make copies
-      this.fields = fields;
-      this.arrays = arrays;
-      this.isolatedFields = isolatedFields;
-      this.isolatedArrays = isolatedArrays;
+      this.shadows = shadows;
+      this.isolated = isolated;
       this.bags = bags;
     }
     @Override
@@ -61,24 +53,22 @@ public class SPBagsTool implements StructuredParallelRaceDetectorTool {
   @Override
   public void resetState(Object state) {
     SPBagsToolState toolState = (SPBagsToolState)state;
-    fields = toolState.fields;
-    arrays = toolState.arrays;
-    isolatedFields = toolState.isolatedFields;
-    isolatedArrays = toolState.isolatedArrays;
+    shadows = toolState.shadows;
+    isolated = toolState.isolated;
     bags = toolState.bags;
   }
 
   @Override
   public Object getImmutableState() {
-    return new SPBagsToolState(fields, arrays, isolatedFields, isolatedArrays, bags);
+    return new SPBagsToolState(shadows, isolated, bags);
   }
 
   @Override
-  public void handleRead(int tid, int objRef, int index) {
+  public void handleRead(int tid, String label) {
   }
 
   @Override
-  public void handleWrite(int tid, int objRef, int index) {
+  public void handleWrite(int tid, String label) {
   }
 
   @Override

@@ -3,4 +3,5 @@ target=SED_WILL_REPLACE
 debug = false
 
 listener+=extensions.fasttrack.FastTrackRaceDetector;
+#listener+=gov.nasa.jpf.listener.StateSpaceDot;
 JPF.vm=VMListener

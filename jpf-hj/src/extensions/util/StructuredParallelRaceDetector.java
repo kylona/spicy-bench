@@ -109,7 +109,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   @Override
   public void executeInstruction(VM vm, ThreadInfo ti, Instruction inst) {
     //scheduler for isolated
-    int objRef = -1;
+    String label;
     if (inst instanceof JVMInvokeInstruction) {
       MethodInfo mi = ((JVMInvokeInstruction) inst).getInvokedMethod();
       String mname = mi.getBaseName();
@@ -117,21 +117,17 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
         ChoiceGenerator<ThreadInfo> cg = getRunnableCG("ISOLATED", ti, vm);
         vm.getSystemState().setNextChoiceGenerator(cg);
       }
-    } else if ((objRef = getAccessedObjRef(inst, ti)) >= 0) {
+    } else if ((label = getUniqueLabel(inst, ti)) != null) {
       ReadOrWriteInstruction rw = (ReadOrWriteInstruction)inst;
       int tid = getTid(ti.getThreadObjectRef());
-      int index = -1;
-      if (inst instanceof ArrayElementInstruction) {
-        index = ((ArrayElementInstruction)inst).peekIndex(ti);
-      }
       if (rw.isRead()) {
-        debug("Before read " + objRef + " at index " + index + " on " + tid);
-        tool.handleRead(tid, objRef, index);
-        debug("After read " + objRef + " at index " + index + " on " + tid);
+        debug("Before read " + label + " on " + tid);
+        tool.handleRead(tid, label);
+        debug("After read " + label + " on " + tid);
       } else {
-        debug("Before write " + objRef + " at index " + index + " on " + tid);
-        tool.handleWrite(tid, objRef, index);
-        debug("After write " + objRef + " at index " + index + " on " + tid);
+        debug("Before write " + label + " on " + tid);
+        tool.handleWrite(tid, label);
+        debug("After write " + label + " on " + tid);
       }
     }
   }
@@ -206,13 +202,15 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
     return tids.get(threadRef);
   }
 
-  int getAccessedObjRef(Instruction insn, ThreadInfo ti) {
+  String getUniqueLabel(Instruction insn, ThreadInfo ti) {
     if (isValidArrayElementInstruction(insn, ti)) {
-      return ((ArrayElementInstruction)insn).peekArrayElementInfo(ti).getObjectRef();
+      ArrayElementInstruction ainsn = (ArrayElementInstruction)insn;
+      return ainsn.peekArrayElementInfo(ti).getObjectRef() + "[" + ainsn.peekIndex(ti) + "]";
     } else if (isValidFieldInstruction(insn)) {
-      return ((FieldInstruction)insn).peekElementInfo(ti).getObjectRef();
+      return ((FieldInstruction)insn).peekElementInfo(ti).getObjectRef() + "[-1]";
     }
-    return -1;
+    //TODO differentiate static fields
+    return null;
   }
 
   boolean isValidArrayElementInstruction(Instruction inst, ThreadInfo ti) {

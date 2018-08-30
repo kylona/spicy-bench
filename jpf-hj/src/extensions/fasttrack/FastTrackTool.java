@@ -59,8 +59,7 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
 
   Map<Integer, FTThreadState> C = new HashMap<>();
   FTLockState L = new FTLockState(INIT_VECTOR_CLOCK_SIZE);
-  Map<Integer, FTVarState> XFields = new HashMap<>();
-  Map<String, FTVarState> XArrays = new HashMap<>();
+  Map<String, FTVarState> X = new HashMap<>();
   boolean race = false;
   String error = "";
 
@@ -69,18 +68,17 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
     FastTrackToolState toolState = (FastTrackToolState)state;
     C = toolState.C;
     L = toolState.L;
-    XFields = toolState.XFields;
-    XArrays = toolState.XArrays;
+    X = toolState.X;
   }
 
   @Override
   public Object getImmutableState() {
-    return new FastTrackToolState(C, L, XFields, XArrays, race, error);
+    return new FastTrackToolState(C, L, X, race, error);
   }
 
   @Override
-  public void handleRead(int tid, int objRef, int index) {
-    FTVarState sx = getVarState(tid, objRef, index, false);
+  public void handleRead(int tid, String label) {
+    FTVarState sx = getVarState(tid, label, false);
 		final int e = getThreadState(tid).get(tid);
 
     final int r = sx.R;
@@ -117,8 +115,8 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
   }
 
   @Override
-  public void handleWrite(int tid, int objRef, int index) {
-    FTVarState sx = getVarState(tid, objRef, index, true);
+  public void handleWrite(int tid, String label) {
+    FTVarState sx = getVarState(tid, label, true);
     final int e = getThreadState(tid).get(tid);
 
     //write same epoch
@@ -189,19 +187,11 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
     error = err;
   }
 
-  FTVarState getVarState(int tid, int objRef, int index, boolean isWrite) {
-    if (index < 0) {
-      if (!XFields.containsKey(objRef)) {
-        XFields.put(objRef, new FTVarState(isWrite, getThreadState(tid).get(tid)));
-      }
-      return XFields.get(objRef);
-    } else {
-      String key = objRef + ":" + index;
-      if (!XArrays.containsKey(key)) {
-        XArrays.put(key, new FTVarState(isWrite, getThreadState(tid).get(tid)));
-      }
-      return XArrays.get(key);
+  FTVarState getVarState(int tid, String label, boolean isWrite) {
+    if (!X.containsKey(label)) {
+      X.put(label, new FTVarState(isWrite, getThreadState(tid).get(tid)));
     }
+    return X.get(label);
   }
 
   FTThreadState getThreadState(int tid) {
@@ -215,22 +205,17 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
   private static class FastTrackToolState {
     final Map<Integer, FTThreadState> C = new HashMap<>();
     final FTLockState L = new FTLockState(INIT_VECTOR_CLOCK_SIZE);
-    final Map<Integer, FTVarState> XFields = new HashMap<>();
-    final Map<String, FTVarState> XArrays = new HashMap<>();
+    final Map<String, FTVarState> X = new HashMap<>();
     final boolean race;
     final String error;
-    public FastTrackToolState(Map<Integer, FTThreadState> c, FTLockState l,
-        Map<Integer, FTVarState> xFields, Map<String, FTVarState> xArrays,
+    public FastTrackToolState(Map<Integer, FTThreadState> c, FTLockState l, Map<String, FTVarState> x,
         boolean race, String error) {
       for (Map.Entry<Integer, FTThreadState> threadState : c.entrySet()) {
         C.put(threadState.getKey(), new FTThreadState(threadState.getValue()));
       }
       L.copy(l);
-      for (Map.Entry<Integer, FTVarState> varState : xFields.entrySet()) {
-        XFields.put(varState.getKey(), new FTVarState(varState.getValue()));
-      }
-      for (Map.Entry<String, FTVarState> varState : xArrays.entrySet()) {
-        XArrays.put(varState.getKey(), new FTVarState(varState.getValue()));
+      for (Map.Entry<String, FTVarState> varState : x.entrySet()) {
+        X.put(varState.getKey(), new FTVarState(varState.getValue()));
       }
       this.race = race;
       this.error = error;
@@ -245,11 +230,7 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
       }
       sb.append("Lock State: " + L);
       sb.append(System.lineSeparator());
-      for (Map.Entry<Integer, FTVarState> varState : XFields.entrySet()) {
-        sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
-        sb.append(System.lineSeparator());
-      }
-      for (Map.Entry<String, FTVarState> varState : XArrays.entrySet()) {
+      for (Map.Entry<String, FTVarState> varState : X.entrySet()) {
         sb.append("Var State " + varState.getKey() + ": " + varState.getValue());
         sb.append(System.lineSeparator());
       }
