@@ -9,6 +9,7 @@ import gov.nasa.jpf.vm.ApplicationContext;
 import gov.nasa.jpf.vm.bytecode.ArrayElementInstruction;
 import gov.nasa.jpf.vm.bytecode.FieldInstruction;
 import gov.nasa.jpf.vm.bytecode.ReadOrWriteInstruction;
+import gov.nasa.jpf.vm.bytecode.StaticFieldInstruction;
 import gov.nasa.jpf.vm.choice.ThreadChoiceFromSet;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ElementInfo;
@@ -31,7 +32,6 @@ import java.util.Stack;
  * read/write and synchronization event to the tool and also tells the
  * tool when to record a snapshot of its state and when to reset its state
  * when JPF backtracks.
- * TODO verify that we can use thread object refs instead of thread ids
  */
 public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   // Method names
@@ -207,9 +207,14 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
       ArrayElementInstruction ainsn = (ArrayElementInstruction)insn;
       return ainsn.peekArrayElementInfo(ti).getObjectRef() + "[" + ainsn.peekIndex(ti) + "]";
     } else if (isValidFieldInstruction(insn)) {
-      return ((FieldInstruction)insn).peekElementInfo(ti).getObjectRef() + "[-1]";
+      int objRef = ((FieldInstruction)insn).peekElementInfo(ti).getObjectRef();
+      if (insn instanceof StaticFieldInstruction) { 
+        StaticFieldInstruction sinsn = ((StaticFieldInstruction)insn);
+        return objRef + sinsn.getFieldInfo().getName();
+      } else {
+        return objRef + "[-1]";
+      }
     }
-    //TODO differentiate static fields
     return null;
   }
 
