@@ -110,6 +110,7 @@ public class FastTrackTool implements StructuredParallelRaceDetectorTool {
     C = toolState.C;
     L = toolState.L;
     XFields = toolState.XFields;
+    XArrays = toolState.XArrays;
   }
 
   @Override
