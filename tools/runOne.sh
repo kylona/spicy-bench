@@ -10,7 +10,7 @@ die_with_msg() {
 BENCHMARK="$1"
 DETECTOR="$2"
 
-SRC="benchmarks/AllBenchmarks2018"
+SRC="benchmarks/"
 LIB_CP="lib/byu-hjlib.jar:lib/hj-lib-byu.jar:lib/jpf-hj.jar"
 JAVAC_CP="$SRC:$LIB_CP"
 CONFIG_DIR="config"
@@ -42,4 +42,4 @@ JAVAC_CP="$CLASSES_DIR:$LIB_CP"
 # now, run the data race detector
 time java -cp $JAVAC_CP $BENCHMARK
 echo "----------------------------------------------"
-time java -ea -jar "lib/RunJPF.jar" $OUTPUT_DIR/$name.jpf
+#time java -ea -jar "lib/RunJPF.jar" $OUTPUT_DIR/$name.jpf
