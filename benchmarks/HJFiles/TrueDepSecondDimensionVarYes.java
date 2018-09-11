@@ -1,4 +1,4 @@
- 
+
 /*
 A translation of: truedep1-var-yes.c
 Originally produced at the Lawrence Livermore National Laboratory
@@ -12,28 +12,32 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class TrueDep1VarYes {
-  static int i;
-  static int len = 100;
-  static int[] a;
+public class TrueDepSecondDimensionVarYes {
+  static int i,j;
+  static int n,m;
+  static int len = 1000;
+  static double[][] b;
   public static void main(String[] args) throws SuspendableException {
     
-    if (args.length > 1) len = Integer.parseInt(args[1]);
+    if(args.length > 1) len = Integer.parseInt(args[1]);
     
-    a = new int[len];
+    b = new double[len][len];
     
       launchHabaneroApp(new HjSuspendable() {
 
           @Override
           public void run() throws SuspendableException {
-
-            forAll(0, len-1, new HjSuspendingProcedure<Integer>() {
-              public void apply(Integer i) throws SuspendableException {
-                a[i] = a[i] + a[0];
+            for(i = 0
+            forAll(1, j<m, new HjSuspendingProcedure<Integer>() {
+              public void apply(Integer i, Integer j) throws SuspendableException {
+                    for (j=1;j<m;j++)
+                        b[i][j]=b[i][j-1]
               }
             });
+            
           }
     });
   }
 
 }
+ 

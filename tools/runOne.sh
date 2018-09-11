@@ -42,4 +42,4 @@ JAVAC_CP="$CLASSES_DIR:$LIB_CP"
 # now, run the data race detector
 time java -cp $JAVAC_CP $BENCHMARK
 echo "----------------------------------------------"
-time java -ea -jar "lib/RunJPF.jar" $OUTPUT_DIR/$name.jpf
+#time java -ea -jar "lib/RunJPF.jar" $OUTPUT_DIR/$name.jpf

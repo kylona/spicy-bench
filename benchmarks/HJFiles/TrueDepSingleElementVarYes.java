@@ -1,4 +1,4 @@
- 
+
 /*
 A translation of: truedep1-var-yes.c
 Originally produced at the Lawrence Livermore National Laboratory
@@ -12,15 +12,16 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class TrueDep1VarYes {
+public class TrueDepSingleElementVarYes {
   static int i;
-  static int len = 100;
+  static int len = 1000;
   static int[] a;
   public static void main(String[] args) throws SuspendableException {
     
     if (args.length > 1) len = Integer.parseInt(args[1]);
     
     a = new int[len];
+    a[0] = 2;
     
       launchHabaneroApp(new HjSuspendable() {
 
