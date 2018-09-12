@@ -19,7 +19,6 @@ public class Jacobi2dParallelNo {
         //int i;
         //int j;
         {
-            int c2;
             int c1;
             if (n >= 1) {
                 forAll(0, n-1, new HjSuspendingProcedure<Integer>() {
@@ -112,18 +111,33 @@ public class Jacobi2dParallelNo {
                     /* Initialize array(s). */
                     init_array(n, A, B);
                     /* Start timer. */
-                    PolybenchTimer.start();
+                    Timer.start();
                     /* Run kernel. */
                     kernel_jacobi_2d_imper(tsteps,n, A, B);
                     /* Stop and print timer. */
-                    PolybenchTimer.stop();
-                    PolybenchTimer.print();
+                    Timer.stop();
+                    Timer.print();
                     /* Prevent dead-code elimination. All live-out data must be printed
                        by the function call in argument. */
-                    print_array(n, A);
+                    if (args.length > 42 && !args[0].equals(""))
+                        print_array(n, A);
 
                 }
             });
     }
 
+	private static class Timer {
+	    private static long start_time = 0;
+	    private static long stop_time = 0;
+	    public static void start() {
+		start_time = System.currentTimeMillis();
+	    }
+	    public static void stop() {
+		stop_time = System.currentTimeMillis();
+	    }
+
+	    public static void print() {
+		System.out.println(stop_time - start_time);
+	    }
+	}
 }
