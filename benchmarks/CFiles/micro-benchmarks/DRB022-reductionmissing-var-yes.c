@@ -43,22 +43,34 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/* 
+A kernel for two level parallelizable loop with reduction:
+if reduction(+:sum) is missing, there is race condition.
+Data race pairs: 
+  sum@72:7 vs. sum@72:7 
+  sum@72:7 vs. sum@72:13
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <stdlib.h>
+int main(int argc, char* argv[])
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+  float temp, sum=0.0;
+  int len=100;
+  if (argc>1)
+    len = atoi(argv[1]);
+  float u[len][len];
+  for (i = 0; i < len; i++)
+    for (j = 0; j < len; j++)
+        u[i][j] = 0.5;
+
+#pragma omp parallel for private (temp,i,j)
+  for (i = 0; i < len; i++)
+    for (j = 0; j < len; j++)
+    {
+      temp = u[i][j];
+      sum = sum + temp * temp;
+    }
+  printf ("sum = %f\n", sum); 
   return 0;
 }
-

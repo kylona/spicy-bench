@@ -44,21 +44,35 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* Data race on outLen due to ++ operation.
+Adding private (outLen) can avoid race condition. But it is wrong semantically.
+Data races on outLen also cause output[outLen++] to have data races.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+Data race pairs (we allow two pairs to preserve the original code pattern):
+1. outLen@72 vs. outLen@72
+2. output[]@72 vs. output[]@72
+*/
+#include <stdlib.h>
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int input[1000]; 
+int output[1000];
+
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i ;
+  int inLen=1000 ; 
+  int outLen = 0;
+
+  for (i=0; i<inLen; ++i) 
+    input[i]= i;  
+
+#pragma omp parallel for
+  for (i=0; i<inLen; ++i) 
+  {
+    output[outLen++] = input[i] ;
+  }  
+
+  printf("output[500]=%d\n",output[500]);
+
   return 0;
 }
-

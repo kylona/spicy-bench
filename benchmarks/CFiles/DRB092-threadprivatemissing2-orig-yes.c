@@ -44,21 +44,41 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+A file-scope variable used within a function called by a parallel region.
+No threadprivate is used to avoid data races.
+This is the case for a variable referenced within a construct. 
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+Data race pairs  sum0@68:7 vs. sum0@68:12
+                 sum0@68:7 vs. sum0@68:7
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <assert.h>
+int sum0=0, sum1=0;
+//#pragma omp threadprivate(sum0)
+
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int i, sum=0;
+#pragma omp parallel
+  {
+#pragma omp for
+    for (i=1;i<=1000;i++)
+    {
+      sum0=sum0+i;
+    }   
+#pragma omp critical
+    {
+      sum= sum+sum0;
+    } 
+  }  
+/*  reference calculation */
+  for (i=1;i<=1000;i++)
+  {
+    sum1=sum1+i;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf("sum=%d; sum1=%d\n",sum,sum1);
+//  assert(sum==sum1);
   return 0;
 }
 

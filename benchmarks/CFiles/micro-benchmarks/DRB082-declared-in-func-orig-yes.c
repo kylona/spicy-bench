@@ -44,21 +44,25 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+A variable is declared inside a function called within a parallel region.
+The variable should be shared if it uses static storage.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+Data race pair: q@57:3 vs. q@57:3 
+*/
+
+void foo()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  static int q; 
+  q += 1;
+}
+
+int main()
+{ 
+  #pragma omp parallel 
+  {
+     foo();
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  return 0;   
 }
 

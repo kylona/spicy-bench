@@ -44,21 +44,50 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+For a variable declared in a scope inside an OpenMP construct:
+* private if the variable has an automatic storage duration
+* shared if the variable has a static storage duration. 
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+Dependence pairs: 
+   tmp@73:5 vs. tmp@73:5
+   tmp@73:5 vs. tmp@74:12
+*/
+#include<stdio.h>
+
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int len=100;
+  int a[len], b[len];
+
+  for (i=0;i<len;i++)
+  {  a[i]=i; b[i]=i;} 
+/* static storage for a local variable */
+#pragma omp parallel 
+  {
+    static int tmp;
+#pragma omp for
+    for (i=0;i<len;i++)
+    {
+      tmp = a[i]+i;
+      a[i] = tmp;
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+/* automatic storage for a local variable */
+#pragma omp parallel 
+  {
+    int tmp;
+#pragma omp for
+    for (i=0;i<len;i++)
+    {
+      tmp = b[i]+i;
+      b[i] = tmp;
+    }
+  }
+
+  printf("a[50]=%d b[50]=%d\n", a[50], b[50]);
+ 
   return 0;
 }
-

@@ -44,21 +44,42 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+Use of private() clause
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <math.h>
+
+#define MSIZE 200
+int n=MSIZE, m=MSIZE;
+double alpha = 0.0543;
+double u[MSIZE][MSIZE], f[MSIZE][MSIZE], uold[MSIZE][MSIZE];
+double dx, dy;
+
+void
+initialize ()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  int i, j, xx, yy;
+
+  dx = 2.0 / (n - 1);
+  dy = 2.0 / (m - 1);
+
+  /* Initialize initial condition and RHS */
+#pragma omp parallel for private(i,j,xx,yy)
+  for (i = 0; i < n; i++)
+    for (j = 0; j < m; j++)
+    {
+      xx = (int) (-1.0 + dx * (i - 1));       /* -1 < x < 1 */
+      yy = (int) (-1.0 + dy * (j - 1));       /* -1 < y < 1 */
+      u[i][j] = 0.0;
+      f[i][j] = -1.0 * alpha * (1.0 - xx * xx) * (1.0 - yy * yy)
+        - 2.0 * (1.0 - xx * xx) - 2.0 * (1.0 - yy * yy);
+
+    }
 }
 
+int main()
+{
+  initialize();
+  return 0;
+}

@@ -44,21 +44,35 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/* 
+The -- operation is not protected, causing race condition.
+Data race pair: numNodes2@75 vs. numNodes2@75
+*/
+#include <stdlib.h>  
+int main(int argc, char* argv[])  
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
-}
+  int len=100;
 
+  if (argc>1)
+    len = atoi(argv[1]);
+
+  int numNodes=len, numNodes2=0; 
+  int x[len]; 
+
+  for (i=0; i< len; i++)
+  {
+    if (i%2==0)
+      x[i]=5;
+    else
+      x[i]= -5;
+  }
+
+#pragma omp parallel for
+  for (i=numNodes-1 ; i>-1 ; --i) {
+    if (x[i]<=0) {
+      numNodes2-- ;
+    }
+  }         
+  return 0;
+} 

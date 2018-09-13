@@ -44,21 +44,34 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Two tasks with a lock synchronization to ensure execution order.
+*/
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <omp.h>
+#include <assert.h> 
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  omp_lock_t lck;
+  int i=0;
+  omp_init_lock(&lck);
+#pragma omp parallel sections
+  {
+#pragma omp section
+    {
+      omp_set_lock(&lck);
+      i += 1;    
+      omp_unset_lock(&lck);
+    }
+#pragma omp section
+    {
+      omp_set_lock(&lck);
+      i += 2;    
+      omp_unset_lock(&lck);
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
-}
 
+  omp_destroy_lock(&lck);
+  assert (i==3);
+  return 0;
+} 

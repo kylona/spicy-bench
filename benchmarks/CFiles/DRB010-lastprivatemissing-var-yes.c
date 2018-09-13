@@ -44,21 +44,24 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+This loop has loop-carried output-dependence due to x=... at line 63.
+The problem can be solved by using lastprivate(x) .
+Data race pair: x@63:5 vs. x@63:5
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <stdlib.h>
+int main(int argc, char* argv[])
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,x;
+  int len = 10000;
+  if (argc>1)
+    len = atoi(argv[1]);
+
+#pragma omp parallel for private (i) 
+  for (i=0;i<len;i++)
+    x=i;
+  printf("x=%d",x);
   return 0;
 }
 

@@ -44,21 +44,37 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+For the case of a variable which is referenced within a construct:
+static data member should be shared, unless it is within a threadprivate directive.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
-{
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+Dependence pair: a.counter@72:6 vs. a.counter@72:6
+*/
+
+#include<iostream>
+#include<cassert>
+using namespace std;
+
+class A {
+public:
+  static int counter; 
+  static int pcounter; 
+#pragma omp threadprivate(pcounter)
+};
+
+int A::counter=0; 
+int A::pcounter=0; 
+
+A a; 
+
+int main()
+{ 
+  #pragma omp parallel 
+  {
+   a.counter++; 
+   a.pcounter++; 
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  assert (A::pcounter == 1);
+  cout<<A::counter <<" "<< A::pcounter<<endl;
+  return 0;   
 }
-

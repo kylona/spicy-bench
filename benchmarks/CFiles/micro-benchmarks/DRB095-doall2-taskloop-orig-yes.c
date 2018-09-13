@@ -43,22 +43,33 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/* 
+Two-dimensional array computation:
+Only one loop is associated with omp taskloop. 
+The inner loop's loop iteration variable will be shared if it is shared in the enclosing context.
+Data race pairs (we allow multiple ones to preserve the pattern):
+  Write_set = {j@69:14, j@69:30}
+  Read_set = {j@69:21, j@69:30, j@70:16}
+  Any pair from Write_set vs. Write_set  and Write_set vs. Read_set is a data race pair.
+*/
+#if (_OPENMP<201511)
+#error "An OpenMP 4.5 compiler is needed to compile this test."
+#endif
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int a[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int i, j;
+#pragma omp parallel
+  {
+#pragma omp single
+    {
+#pragma omp taskloop
+      for (i = 0; i < 100; i++)
+        for (j = 0; j < 100; j++)
+          a[i][j]+=1; 
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf ("a[50][50]=%d\n", a[50][50]);
   return 0;
 }
-

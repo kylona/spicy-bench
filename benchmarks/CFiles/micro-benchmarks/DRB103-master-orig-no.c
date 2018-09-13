@@ -7,27 +7,21 @@ Markus Schordan, and Ian Karlin
 schordan1@llnl.gov, karlin1@llnl.gov)
 LLNL-CODE-732144
 All rights reserved.
-
 This file is part of DataRaceBench. For details, see
 https://github.com/LLNL/dataracebench. Please also see the LICENSE file
 for our additional BSD notice.
-
 Redistribution and use in source and binary forms, with
 or without modification, are permitted provided that the following
 conditions are met:
-
 * Redistributions of source code must retain the above copyright
   notice, this list of conditions and the disclaimer below.
-
 * Redistributions in binary form must reproduce the above copyright
   notice, this list of conditions and the disclaimer (as noted below)
   in the documentation and/or other materials provided with the
   distribution.
-
 * Neither the name of the LLNS/LLNL nor the names of its contributors
   may be used to endorse or promote products derived from this
   software without specific prior written permission.
-
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
 CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -44,21 +38,23 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+A master directive is used to protect memory accesses.
+*/
+#include <omp.h>
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int k;
+
+#pragma omp parallel
+  {
+#pragma omp master
+    {
+      k = omp_get_num_threads();
+      printf ("Number of Threads requested = %i\n",k);
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
   return 0;
 }
-

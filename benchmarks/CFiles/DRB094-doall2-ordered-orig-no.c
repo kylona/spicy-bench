@@ -44,21 +44,30 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* 
+Two-dimensional array computation: 
+ordered(2) is used to associate two loops with omp for.
+The corresponding loop iteration variables are private. 
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+ordered(n) is an OpenMP 4.5 addition. 
+*/
+#if (_OPENMP<201511)
+#error "An OpenMP 4.5 compiler is needed to compile this test."
+#endif
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int a[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i, j;
+#pragma omp parallel for ordered(2)
+  for (i = 0; i < 100; i++)
+    for (j = 0; j < 100; j++)
+    {
+      a[i][j] = a[i][j] + 1;
+#pragma omp ordered depend(sink:i-1,j) depend (sink:i,j-1)
+      printf ("test i=%d j=%d\n",i,j);
+#pragma omp ordered depend(source)
+    }
   return 0;
 }
 

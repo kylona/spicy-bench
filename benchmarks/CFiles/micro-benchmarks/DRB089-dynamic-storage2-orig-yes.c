@@ -44,21 +44,36 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+For the case of a variable which is referenced within a construct:
+objects with dynamic storage duration should be shared.
+Putting it within a threadprivate directive may cause seg fault 
+since threadprivate copies are not allocated.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
-{
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+Dependence pair: *counter@73:7 vs. *counter@73:7
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+
+int* counter; 
+//#pragma omp threadprivate(counter)
+
+int main()
+{ 
+  counter = (int*) malloc(sizeof(int));
+  if (counter== NULL)
+  {
+    fprintf(stderr, "malloc() failes\n");
+    exit(1);
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  *counter = 0; 
+ #pragma omp parallel 
+  {
+    (*counter)++; 
+  }
+  printf("%d \n", *counter);
+  free (counter);
+  return 0;   
 }
 

@@ -43,22 +43,18 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+/* This is a program based on a test contributed by Yizi Gu@Rice Univ.
+ * Missing the ordered clause
+ * Data race pair: x@56:5 vs. x@56:5
+ * */
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int x =0;
+#pragma omp parallel for ordered 
+  for (int i = 0; i < 100; ++i) {
+    x++;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf ("x=%d\n",x);
   return 0;
-}
-
+} 

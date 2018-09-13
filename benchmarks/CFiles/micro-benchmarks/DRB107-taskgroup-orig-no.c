@@ -44,21 +44,35 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/* This is a program based on a test contributed by Yizi Gu@Rice Univ.
+ * Use taskgroup to synchronize two tasks: 
+ * */
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <assert.h>
+#include <unistd.h>
+
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int result = 0;
+#pragma omp parallel
+  {
+#pragma omp single
+    {
+#pragma omp taskgroup
+      {
+#pragma omp task
+        {
+          sleep(3);
+          result = 1; 
+        }
+      }
+#pragma omp task
+      {
+        result = 2; 
+      }
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf ("result=%d\n", result);
+  assert (result==2);
   return 0;
 }
-

@@ -43,22 +43,33 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+   omp for loop is allowed to use the linear clause, an OpenMP 4.5 addition.
+*/
+#if (_OPENMP<201511)
+#error "An OpenMP 4.5 compiler is needed to compile this test."
+#endif
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int len=100;
+  double a[len], b[len], c[len];
+  int i,j=0;
+
+  for (i=0;i<len;i++)
+  {
+    a[i]=((double)i)/2.0; 
+    b[i]=((double)i)/3.0; 
+    c[i]=((double)i)/7.0; 
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+#pragma omp parallel for linear(j)
+  for (i=0;i<len;i++)
+  {
+    c[j]+=a[i]*b[i];
+    j++;
+  }
+
+  printf ("c[50]=%f\n",c[50]);
   return 0;
 }
-

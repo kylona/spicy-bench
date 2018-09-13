@@ -44,21 +44,27 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+Two tasks with depend clause to ensure execution order, no data races.
+i is shared for two tasks based on implicit data-sharing attribute rules.
+*/
+#include <assert.h> 
+#include <unistd.h>
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int i=0;
+#pragma omp parallel
+#pragma omp single
+  {
+#pragma omp task depend (out:i)
+    {
+      sleep(3);
+      i = 1;    
+    }
+#pragma omp task depend (out:i)
+    i = 2;    
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
-}
 
+  assert (i==2);
+  return 0;
+} 

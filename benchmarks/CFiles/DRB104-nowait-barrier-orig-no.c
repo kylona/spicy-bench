@@ -44,21 +44,35 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+This example is based on one code snippet extracted from a paper: 
+Ma etc. Symbolic Analysis of Concurrency Errors in OpenMP Programs, ICPP 2013
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+Explicit barrier to counteract nowait
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <assert.h>
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
-}
+  int i,error;
+  int len = 1000;
+  int a[len], b=5;
 
+  for (i=0; i<len; i++)
+    a[i]= i;
+ 
+#pragma omp parallel shared(b, error) 
+  {
+#pragma omp for nowait
+    for(i = 0; i < len; i++)
+      a[i] = b + a[i]*5;
+
+#pragma omp barrier
+
+#pragma omp single
+    error = a[9] + 1;
+  }
+  assert (error == 51);
+  printf ("error = %d\n", error);
+  return 0;
+}  

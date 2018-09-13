@@ -44,21 +44,22 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+use of omp target: len is not mapped. It should be firstprivate within target.
+*/
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int len = 1000;
+  int a[len];
+
+  for (i=0; i<len; i++)
+    a[i]= i;
+
+#pragma omp target map(a[0:len])
+#pragma omp parallel for
+  for (i=0;i< len;i++)
+    a[i]=a[i]+1;
+
   return 0;
 }
-

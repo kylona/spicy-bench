@@ -44,21 +44,29 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Matrix-vector multiplication: inner level parallelization.
+*/
+#define N 1000
+double a[N][N],v[N],v_out[N];
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
-{
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+void mv()
+{           
+  int i,j;
+  for (i = 0; i < N; i++)
+  {         
+    float sum = 0.0;
+#pragma omp parallel for reduction(+:sum)
+    for (j = 0; j < N; j++)
+    { 
+      sum += a[i][j]*v[j];
+    }  
+    v_out[i] = sum;
+  }         
 }
 
+int main()
+{
+  mv();
+  return 0;
+}

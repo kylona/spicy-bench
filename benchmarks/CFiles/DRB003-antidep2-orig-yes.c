@@ -44,21 +44,31 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+A two-level loop nest with loop carried anti-dependence on the outer level.
+Data race pair: a[i][j]@67:7 vs. a[i+1][j]@67:18
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+
+int main(int argc,char *argv[])
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int i, j;
+  int len = 20; 
+
+  double a[20][20];
+
+  for (i=0; i< len; i++)
+    for (j=0; j<len; j++)
+      a[i][j] = 0.5; 
+
+#pragma omp parallel for private(j)
+  for (i = 0; i < len - 1; i += 1) {
+    for (j = 0; j < len ; j += 1) {
+      a[i][j] += a[i + 1][j];
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+  printf ("a[10][10]=%f\n", a[10][10]);
   return 0;
 }
 

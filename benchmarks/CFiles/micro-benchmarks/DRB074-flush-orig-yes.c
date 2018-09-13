@@ -44,21 +44,33 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+This benchmark is extracted from flush_nolist.1c of OpenMP Application
+Programming Interface Examples Version 4.5.0 .
+We added one critical section to make it a test with only one pair of data races.
+The data race will not generate wrong result though. So the assertion always passes.
+Data race pair:  i@70:10 vs. i@71:11
+*/
+#include<stdio.h>
+#include<assert.h>
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+void f1(int *q)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+#pragma omp critical
+  *q = 1;
+#pragma omp flush
 }
 
+int main()
+{ 
+  int i=0, sum=0; 
+  
+  #pragma omp parallel reduction(+:sum) num_threads(10) 
+  {
+     f1(&i);
+     sum+=i;
+  }
+  assert (sum==10);
+  printf("sum=%d\n", sum);
+  return 0;   
+}

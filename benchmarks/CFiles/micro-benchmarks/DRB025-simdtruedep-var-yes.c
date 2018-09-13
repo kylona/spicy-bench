@@ -43,22 +43,28 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+This one has race condition due to true dependence.
+But data races happen at instruction level, not thread level.
+Data race pair: a[i+1]@68:5 vs. a[i]@68:12  
+*/
+#include <stdlib.h>
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int len=100;
+
+  if (argc>1)
+    len = atoi(argv[1]);
+
+  int a[len], b[len];
+  for (i=0;i<len;i++)
+  {
+    a[i]=i;
+    b[i]=i+1;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+#pragma omp simd
+  for (i=0;i<len-1;i++)
+    a[i+1]=a[i]*b[i];
   return 0;
 }
-

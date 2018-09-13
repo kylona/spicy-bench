@@ -44,21 +44,29 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/* 
+The outer loop has a loop-carried true dependence.
+Data race pair: b[i][j]@69:7 vs. b[i-1][j-1]@69:15
+*/
+#include <stdlib.h>
+int main(int argc, char* argv[])
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+  int len = 1000;
+  if (argc>1)
+    len = atoi(argv[1]);
+
+  int n=len, m=len;
+  double b[len][len];
+
+  for (i=0; i<n; i++)
+    for (j=0; j<m; j++)
+      b[i][j] = 0.5; 
+
+#pragma omp parallel for private(j)
+  for (i=1;i<n;i++)
+    for (j=1;j<m;j++)
+      b[i][j]=b[i-1][j-1];
+
   return 0;
 }
-

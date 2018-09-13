@@ -44,21 +44,29 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+Freshly allocated pointers do not alias to each other.
+*/
+#include <stdlib.h>
+void setup(int N)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  double * m_pdv_sum = (double* ) malloc (sizeof (double) * N );
+  double * m_nvol = (double* ) malloc (sizeof (double) * N );
+
+#pragma omp parallel for schedule(static)
+  for (int i=0; i < N; ++i ) 
+  { 
+    m_pdv_sum[ i ] = 0.0;
+    m_nvol[ i ]   = i*2.5;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+
+  free(m_pdv_sum);
+  free(m_nvol);
 }
 
+int main()
+{
+  int N =1000;
+  setup(N);
+}
+  

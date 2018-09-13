@@ -43,22 +43,19 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+ * Test if atomic can be recognized properly. No data races.
+ * */
+int main (void)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int a=0;
+#pragma omp parallel 
+  {
+#pragma omp atomic
+    a+=1;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf ("a=%d\n",a);
   return 0;
 }
 

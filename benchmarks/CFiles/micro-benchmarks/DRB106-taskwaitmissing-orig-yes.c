@@ -43,22 +43,46 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+/* This is a program based on a test contributed by Yizi Gu@Rice Univ.
+ * Classic Fibonacci calculation using task but missing taskwait. 
+ * Data races pairs: i@61:5 vs i@65:12
+ *                   j@63:5 vs j@65:14
+ * */
+unsigned int input = 10;
+int fib(unsigned int n)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  if (n<2)
+    return n;
+  else
+  {
+    int i, j;
+#pragma omp task shared(i)
+    i=fib(n-1);
+#pragma omp task shared(j)
+    j=fib(n-2);
+
+    int res= i+j; 
+/* We move the original taskwait to a location after i+j to 
+ * simulate the missing taskwait mistake.
+ * Directly removing the taskwait may cause a child task to write to i or j
+ * within the stack of a parent task which may already be gone, causing seg fault.
+ * This change is suggested by Joachim Protze @RWTH-Aachen. 
+ * */
+#pragma omp taskwait
+    return res;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+}
+int main()
+{
+  int result = 0;
+#pragma omp parallel
+  {
+   #pragma omp single
+    {
+      result = fib(input);
+    }
+  }
+  printf ("Fib(%d)=%d (correct answer should be 55)\n", input, result);
   return 0;
 }
-

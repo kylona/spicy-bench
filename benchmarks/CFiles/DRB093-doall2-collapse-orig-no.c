@@ -44,21 +44,19 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/* 
+Two-dimensional array computation: 
+collapse(2) is used to associate two loops with omp for. 
+The corresponding loop iteration variables are private. 
+*/
+int a[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+#pragma omp parallel for collapse(2)
+  for (i=0;i<100;i++)
+    for (j=0;j<100;j++)
+      a[i][j]=a[i][j]+1;
   return 0;
 }
 

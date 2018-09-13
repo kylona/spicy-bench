@@ -44,21 +44,26 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/* 
+A linear expression is used as array subscription.
+Data race pair: a[2*i+1]@64:5 vs. a[i]@64:14
+*/
+#include <stdlib.h>
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+  int a[2000];
+
+  for (i=0; i<2000; i++)
+    a[i]=i; 
+
+#pragma omp parallel for
+  for (i=0;i<1000;i++)
+    a[2*i+1]=a[i]+1;
+
+  printf("a[1001]=%d\n", a[1001]);  
   return 0;
 }
 

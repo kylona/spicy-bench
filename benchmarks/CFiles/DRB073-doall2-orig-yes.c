@@ -43,22 +43,23 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+Two-dimensional array computation using loops: missing private(j).
+References to j in the loop cause data races.
+Data race pairs (we allow multiple ones to preserve the pattern):
+  Write_set = {j@61:10, j@61:20}
+  Read_set = {j@62:20, j@62:12, j61@:14, j61@:20}
+  Any pair from Write_set vs. Write_set  and Write_set vs. Read_set is a data race pair.
+*/
+int a[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+#pragma omp parallel for
+  for (i=0;i<100;i++)
+    for (j=0;j<100;j++)
+      a[i][j]=a[i][j]+1;
   return 0;
 }
 

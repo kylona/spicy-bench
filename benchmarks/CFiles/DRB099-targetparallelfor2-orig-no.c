@@ -43,22 +43,32 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+use of omp target + map + array sections derived from pointers
+*/
+void foo (double* a, double* b, int N)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  int i; 
+#pragma omp target map(to:a[0:N]) map(from:b[0:N])
+#pragma omp parallel for
+  for (i=0;i< N ;i++)
+    b[i]=a[i]*(double)i;
 }
 
+int main(int argc, char* argv[])
+{
+  int i;
+  int len = 1000;
+  double a[len], b[len];
+  for (i=0; i<len; i++)
+  {
+    a[i]= ((double)i)/2.0;
+    b[i]=0.0;
+  }
+
+  foo(a, b, len);
+
+  printf("b[50]=%f\n",b[50]);
+  return 0;
+}

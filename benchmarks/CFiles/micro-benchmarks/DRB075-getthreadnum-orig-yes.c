@@ -44,21 +44,25 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+Test if the semantics of omp_get_thread_num() is correctly recognized.
+Thread with id 0 writes numThreads while other threads read it, causing data races.
+Data race pair: numThreads@60 vs. numThreads@64.
+*/
+#include <omp.h>
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int numThreads=0 ; 
+#pragma omp parallel
+  {
+    if ( omp_get_thread_num()==0 ) {
+      numThreads = omp_get_num_threads();
+    }
+    else
+    {
+      printf("numThreads=%d\n", numThreads);
+    }
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
   return 0;
 }
-

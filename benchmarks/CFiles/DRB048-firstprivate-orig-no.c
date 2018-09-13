@@ -45,20 +45,22 @@ THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+/*
+Example use of firstprivate()
+*/
+void foo(int * a, int n, int g)
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+#pragma omp parallel for firstprivate (g)
+  for (i=0;i<n;i++)
+  {
+    a[i] = a[i]+g;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
 }
 
+int a[100];
+int main()
+{
+  foo(a, 100, 7);
+  return 0;
+}  

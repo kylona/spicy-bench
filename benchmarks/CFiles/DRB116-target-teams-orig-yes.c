@@ -43,22 +43,29 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+
+/*
+use of omp target + teams 
+Without protection, master threads from two teams cause data races.
+Data race pair: a@66:5 vs. a@66:5
+*/
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int len = 100;
+  double a[len];
+
+  /*Initialize with some values*/
+  for (i=0; i<len; i++)
+    a[i]= ((double)i)/2.0;
+
+#pragma omp target map(tofrom: a[0:len]) 
+#pragma omp teams num_teams(2) 
+  {
+    a[50]*=2.0;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+  printf ("a[50]=%f\n", a[50]);
   return 0;
 }
-

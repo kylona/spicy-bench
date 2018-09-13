@@ -44,21 +44,40 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+ Example use of fprintf
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+int main(int argc, char* argv[])
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int ret;
+  FILE* pfile;
+  int len=1000;
+
+  int A[1000];
+
+  for (i=0; i<len; i++)
+    A[i]=i;
+
+  pfile = fopen("mytempfile.txt","a+");
+  if (pfile ==NULL)
+  {
+    fprintf(stderr,"Error in fopen()\n");
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+
+#pragma omp parallel for
+  for (i=0; i<len; ++i)
+  {
+    fprintf(pfile, "%d\n", A[i] );
+  }
+
+  fclose(pfile);
+  ret = remove("mytempfile.txt");
+  if (ret != 0)
+  {
+    fprintf(stderr, "Error: unable to delete mytempfile.txt\n");
+  }
   return 0;
 }
 

@@ -44,21 +44,21 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* 
+Two-dimensional array computation:
+Only one loop is associated with the omp for construct. 
+The inner loop's loop iteration variable needs an explicit private() clause, 
+otherwise it will be shared by default. 
+*/
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+int a[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+#pragma omp parallel for private(j)
+  for (i=0;i<100;i++)
+    for (j=0;j<100;j++)
+      a[i][j]=a[i][j]+1;
   return 0;
 }
 

@@ -44,21 +44,28 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+A function argument passed by value should be private inside the function.
+Variable i is read only.
+*/
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include<stdio.h>
+#include<assert.h>
+/*  argument pass-by-value */
+void f1(int q)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  q += 1;
+}
+
+int main()
+{
+  int i=0;
+  #pragma omp parallel 
+  {
+     f1(i);
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  assert (i==0);
+  printf ("i=%d\n",i);
   return 0;
 }
 

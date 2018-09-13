@@ -44,21 +44,27 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Using lastprivate() to resolve an output dependence.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+Semantics of lastprivate (x):
+causes the corresponding original list item to be updated after the end of the region.
+The compiler/runtime copies the local value back to the shared one within the last iteration.
+*/
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+
+void foo()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,x;
+#pragma omp parallel for private (i) lastprivate (x)
+  for (i=0;i<100;i++)
+    x=i;
+  printf("x=%d",x);
+}
+
+int main()
+{
+  foo();
   return 0;
 }
 

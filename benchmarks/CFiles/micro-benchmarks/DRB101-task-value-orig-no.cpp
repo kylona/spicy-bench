@@ -44,21 +44,46 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/*
+ * Cover an implicitly determined rule: In a task generating construct, 
+ * a variable without applicable rules is firstprivate.
+ * */
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+
+#define MYLEN 100
+int a[MYLEN];
+
+void gen_task(int i)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+#pragma omp task
+  {
+    a[i]= i+1;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+}
+
+int main()
+{
+  int i=0;
+#pragma omp parallel
+  {
+#pragma omp single
+    {
+      for (i=0; i<MYLEN; i++)
+      {
+        gen_task(i);
+      }
+    }
+  }
+  
+  /* correctness checking */
+  for (i=0; i<MYLEN; i++)
+  {
+    //assert (a[i]==i+1);
+    if (a[i]!= i+1)
+    {
+      printf("warning: a[%d] = %d, not expected %d\n", i, a[i], i+1);
+    }
+  }
   return 0;
 }
 

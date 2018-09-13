@@ -44,21 +44,28 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+Classic i-k-j matrix multiplication
+*/
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+#define N 100
+#define M 100 
+#define K 100
+double a[N][M],b[M][K],c[N][K];
+            
+int mmm()   
+{           
+  int i,j,k;
+#pragma omp parallel for private(j,k)
+  for (i = 0; i < N; i++) 
+    for (k = 0; k < K; k++) 
+      for (j = 0; j < M; j++)
+        c[i][j]= c[i][j]+a[i][k]*b[k][j];
+  return 0; 
+} 
+
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  mmm();
   return 0;
-}
-
+}  

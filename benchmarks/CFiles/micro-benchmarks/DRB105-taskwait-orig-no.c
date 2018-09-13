@@ -44,21 +44,38 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+/* This is a program based on a test contributed by Yizi Gu@Rice Univ.
+ * Classic Fibonacci calculation using task+taskwait. No data races.  
+ * */
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <assert.h>
+unsigned int input = 30;
+int fib(unsigned int n)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  if (n<2)
+    return n;
+  else
+  {
+    int i, j;
+#pragma omp task shared(i)
+    i=fib(n-1);
+#pragma omp task shared(j)
+    j=fib(n-2);
+#pragma omp taskwait
+    return i+j;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+}
+int main()
+{
+  int result = 0;
+#pragma omp parallel
+  {
+   #pragma omp single
+    {
+      result = fib(input);
+    }
+  }
+  printf ("Fib(%d)=%d\n", input, result);
+  assert (result==832040);
   return 0;
 }
-

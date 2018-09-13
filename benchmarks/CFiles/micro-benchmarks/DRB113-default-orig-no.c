@@ -44,21 +44,27 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* 
+Two-dimensional array computation:
+default(none) to enforce explictly list all variables in data-sharing attribute clauses
+default(shared) to cover another option.
+*/
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+int a[100][100];
+int b[100][100];
+int main()
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  int i,j;
+#pragma omp parallel for default(none) shared(a) private(i,j)
+  for (i=0;i<100;i++)
+    for (j=0;j<100;j++)
+      a[i][j]=a[i][j]+1;
+
+#pragma omp parallel for default(shared) private(i,j)
+  for (i=0;i<100;i++)
+    for (j=0;j<100;j++)
+      b[i][j]=b[i][j]+1;
+
   return 0;
 }
 

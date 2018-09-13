@@ -44,21 +44,37 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+restrict pointers: no aliasing
+Array initialization using assignments. 
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+C99 is needed to compile this code
+e.g. gcc -std=c99 -c Stress-1.c
+*/
+#include <stdlib.h>
+typedef double real8;
+
+void foo(real8 * restrict newSxx, real8 * restrict newSyy, int length)
 {
-  double pi = 0;
   int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+
+#pragma omp parallel for private (i) firstprivate (length)
+  for (i = 0; i <= length - 1; i += 1) {
+    newSxx[i] = 0.0;
+    newSyy[i] = 0.0;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+}
+
+int main()
+{
+  int length=1000;
+  real8* newSxx = malloc (length* sizeof (real8));
+  real8* newSyy = malloc (length* sizeof (real8));
+
+  foo(newSxx, newSyy, length);
+
+  free (newSxx);
+  free (newSyy);
   return 0;
 }
 

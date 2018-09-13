@@ -44,21 +44,34 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+The loop in this example cannot be parallelized.
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
+Data race pairs: we allow two pairs to preserve the original code pattern.
+ 1. x@71:12 vs. x@72:5
+ 2. x@72:5 vs. x@72:5
+*/
+
 #include <stdio.h>
-    
-int main(int argc, char** argv) 
+#include <stdlib.h>
+
+int main(int argc, char* argv[])
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
+  int len=100; 
+
+  if (argc>1)
+    len = atoi(argv[1]);
+
+  int a[len];
+  int i,x=10;
+
+#pragma omp parallel for 
+  for (i=0;i<len;i++)
+  {
+    a[i] = x;
+    x=i;
   }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
+  printf("x=%d, a[0]=%d\n",x,a[0]);    
   return 0;
-}
+} 
 

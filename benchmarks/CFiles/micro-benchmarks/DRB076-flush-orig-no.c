@@ -44,21 +44,30 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+This benchmark is extracted from flush_nolist.1c of OpenMP
+Application Programming Interface Examples Version 4.5.0 .
 
-// Classic PI calculation using reduction    
-#define num_steps 2000000000 
-#include <stdio.h>
-    
-int main(int argc, char** argv) 
+We privatize variable i to fix data races in the original example.
+Once i is privatized, flush is no longer needed.
+*/
+
+#include<stdio.h>
+#include<assert.h>
+void f1(int *q)
 {
-  double pi = 0;
-  int i;
-#pragma omp parallel for reduction(+:pi)
-  for (i = 0; i < num_steps; i++) {
-    pi += 1.0 / (i * 4.0 + 1.0);
-  }
-  //pi = pi * 4.0;
-  printf("%f\n",pi);
-  return 0;
+  *q = 1;
 }
 
+int main()
+{ 
+  int i=0, sum=0; 
+  #pragma omp parallel reduction(+:sum) num_threads(10) private(i)
+  {
+     f1(&i);
+     sum+= i; 
+  }
+  assert (sum==10);
+  printf("sum=%d\n", sum);
+  return 0;   
+}
