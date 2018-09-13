@@ -17,19 +17,22 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 
 public class Simd1OrigNo {
   static int[] a = new int[100];
+  static int[] b = new int[100];
+  static int[] c = new int[100];
+
   public static void main(String[] args) throws SuspendableException {
-      launchHabaneroApp(new HjSuspendable() {
-
-          @Override
-          public void run() throws SuspendableException {
-
-            forAll(0, 100-1, new HjSuspendingProcedure<Integer>() {
-              public void apply(Integer i) throws SuspendableException {
-                a[i] = a[i]+1;
-              }
-            });
+    launchHabaneroApp(new HjSuspendable() {
+      @Override
+      public void run() throws SuspendableException {
+        forAll(0, 100 - 1, new HjSuspendingProcedure<Integer>() {
+          public void apply(Integer i) throws SuspendableException {
+            a[i] = b[i]*c[i];
           }
-
+        });
+        for(int i = 0; i < 100; i++) {
+          System.out.println(a[i] + ", ");
+        }
+      }
     });
   }
 }
