@@ -19,7 +19,6 @@ import java.util.Map;
 public class CompGraph extends DirectedAcyclicGraph<CompGraphNode, DefaultEdge> {
   public static final long serialVersionUID = -1;
 
-  CompGraphNode first = null;
   public CompGraph() {
     super(DefaultEdge.class);
   }
@@ -73,7 +72,8 @@ public class CompGraph extends DirectedAcyclicGraph<CompGraphNode, DefaultEdge> 
   public void addJoinEdge(CompGraphNode n1, CompGraphNode n2) {
     DefaultEdge e1 = null;
     e1 = addEdge(n1, n2);
-    e1.setAttributes(JoinEdgeAttributes());
+    if (e1 != null)
+      e1.setAttributes(JoinEdgeAttributes());
   }
 
   public void addContinuationEdge(CompGraphNode n1, CompGraphNode n2) {
