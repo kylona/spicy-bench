@@ -1,0 +1,7 @@
+target=SED_WILL_REPLACE
+
+debug = false
+
+listener+=extensions.compgraph.CompGraphRaceDetector;
+#listener+=gov.nasa.jpf.listener.StateSpaceDot;
+JPF.vm=VMListener

@@ -49,7 +49,7 @@ public class StructuredParallelRaceDetector extends PropertyListenerAdapter {
   int prevStateId = -1;
 
   // Tool that implements data race detection algorithm
-  private final StructuredParallelRaceDetectorTool tool;
+  protected final StructuredParallelRaceDetectorTool tool;
 
   // State stack for tool. Used to reset tool state when JPF backtracks
   private final Stack<Object> toolState = new Stack<>();
