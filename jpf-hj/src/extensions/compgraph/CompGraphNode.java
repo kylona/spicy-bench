@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class CompGraphNode {
   public static enum NodeType { ASYNC, JOIN, ACTIVITY, ISOLATED }
-  static final int BOUND = 1;
+  static final int BOUND = 2000;
   static int count = 0;
 
   NodeType type;
@@ -45,7 +45,7 @@ public class CompGraphNode {
   }
 
   public void addAccess(Access a) {
-    if (shortAccessSet.size() < BOUND)
+    if (!largeNode && shortAccessSet.size() < BOUND)
       shortAccessSet.add(a);
     else if (accessSet.size() == 0) {
       accessSet.addAll(shortAccessSet);
