@@ -4,4 +4,3 @@ debug = false
 
 listener+=extensions.compgraph.CompGraphRaceDetector;
 #listener+=gov.nasa.jpf.listener.StateSpaceDot;
-JPF.vm=VMListener

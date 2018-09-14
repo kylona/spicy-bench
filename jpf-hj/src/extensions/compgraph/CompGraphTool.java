@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CompGraphTool implements StructuredParallelRaceDetectorTool {
+  static String DEBUG_DIR = "./debug";
+  static int debugCount = 0;
   CompGraph graph = new CompGraph();
   Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
   CompGraphNode isolatedNode = null;
@@ -23,10 +25,9 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
 
   public void resetState(Object state) {
     CompGraphToolState toolState = (CompGraphToolState)state;
-    graph = new CompGraph();
-    Graphs.addGraph(graph, toolState.graph);
+    graph = toolState.graph;
     isolatedNode = toolState.isolatedNode;
-    currentNodes = new HashMap<>(toolState.currentNodes);
+    currentNodes = toolState.currentNodes;
   }
 
   public Object getImmutableState() {
@@ -118,17 +119,23 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     return "";
   }
 
-  static class CompGraphToolState {
-    final DirectedAcyclicGraph<CompGraphNode, DefaultEdge> graph;
+  class CompGraphToolState {
+    final CompGraph graph;
     final CompGraphNode isolatedNode;
     final Map<Integer, CompGraphNode> currentNodes;
-    CompGraphToolState(DirectedAcyclicGraph<CompGraphNode, DefaultEdge> graph,
-        CompGraphNode isolatedNode,
-        Map<Integer, CompGraphNode> currentNodes) {
-      this.graph = new DirectedAcyclicGraph<>(DefaultEdge.class);
+    CompGraphToolState(CompGraph graph, CompGraphNode isolatedNode, Map<Integer, CompGraphNode> currentNodes) {
+      this.graph = new CompGraph();
       Graphs.addGraph(this.graph, graph);
       this.isolatedNode = isolatedNode;
       this.currentNodes = new HashMap<>(currentNodes);
+    }
+
+    @Override
+    public String toString() {
+      //String fname = DEBUG_DIR + "/graph-" + (debugCount++);
+      //graph.writeGraph(fname);
+      //return "Writing graph: " + fname + "\n";
+      return "";
     }
   }
 }
