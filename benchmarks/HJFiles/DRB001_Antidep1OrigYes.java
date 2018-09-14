@@ -11,7 +11,7 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class Antidep1OrigYes {
+public class DRB001_Antidep1OrigYes {
   static int i;
   static int len = 1000;
   static int[] a = new int[len];
