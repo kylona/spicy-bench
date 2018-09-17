@@ -11,10 +11,10 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class DRB001_Antidep1OrigYes {
+public class DRB007_Indirectaccess3OrigYes {
   static int N = 180;
   static int[] indexSet = {
-    521, 533, 525, 527, 529, 531, // 521+12=533
+    521, 523, 525, 533, 529, 531, // 521+12=533
     547, 549, 551, 553, 555, 557,
     573, 575, 577, 579, 581, 583,
     599, 601, 603, 605, 607, 609,
@@ -50,7 +50,7 @@ public class DRB001_Antidep1OrigYes {
     1977, 1979, 1981, 1983, 1985, 1987,
     2003, 2005, 2007, 2009, 2011, 2013};
   static double[] base = new double[2013+12+1];
-  static double[] xal;
+  static double[] xa1;
   static double[] xa2;
   static int i;
 
@@ -60,10 +60,10 @@ public class DRB001_Antidep1OrigYes {
 
           @Override
           public void run() throws SuspendableException {
-            if (base == 0)
+            if (base == null)
             {
-                printf ("Error in malloc(). Aborting ...\n");
-                return 1;
+                System.out.printf("Error in malloc(). Aborting ...\n");
+                return;
             }
 
             xa1 = base;
