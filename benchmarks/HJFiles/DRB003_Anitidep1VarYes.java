@@ -4,15 +4,15 @@ Originally produced at the Lawrence Livermore National Laboratory
 Written by Chunhua Liao, Pei-Hung Lin, Joshua Asplund,
 Markus Schordan, and Ian Karlin
 
-Translated at Brigham Young University by Kyle Storey
+Translated at Brigham Young University by Joseph Jones
 
 */
 import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class Antidep2OrigYes {
-  static int i, j;
+public class DRB003_Antidep2OrigYes {
+  static int i;
   static int len = 20;
   static double[][] a = new double[len][len];
   public static void main(String[] args) throws SuspendableException {
@@ -28,7 +28,7 @@ public class Antidep2OrigYes {
 
             forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
-                for (j = 0; j < len; j += 1) {
+                for (int j = 0; j < len; j += 1) {
                   a[i][j] += a[i+1][j];
                 }
               }
