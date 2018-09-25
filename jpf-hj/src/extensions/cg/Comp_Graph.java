@@ -62,7 +62,7 @@ public class Comp_Graph {
 
     private static boolean detectDataRace(Node node1, Node node2) {
         //if either one of them is not an activity node there are no reads or writes to compare
-        System.out.println("Considering " + node1 + " and " + node2);
+        //System.out.println("Considering " + node1 + " and " + node2);
         if (!(node1 instanceof activityNode) || !(node2 instanceof activityNode)) return false;
 	if (node1.ti.equals(node2.ti)) return false; //if on same thread NOTE: optimization not in paper
         activityNode task1 = (activityNode) node1;

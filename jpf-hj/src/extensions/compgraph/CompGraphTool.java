@@ -34,22 +34,20 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     return new CompGraphToolState(graph, isolatedNode, currentNodes);
   }
 
-  void ensureActivityNode(int tid) {
-    if (currentNodes.get(tid).isAsync()) {
-      CompGraphNode continueNode = CompGraphNode.mkActivityNode();
-      graph.addVertex(continueNode);
-      graph.addContinuationEdge(currentNodes.get(tid), continueNode);
-      currentNodes.put(tid, continueNode);
-    }
-  }
+  //void ensureActivityNode(int tid) {
+  //  if (currentNodes.get(tid).isAsync()) {
+  //    CompGraphNode continueNode = CompGraphNode.mkActivityNode();
+  //    graph.addVertex(continueNode);
+  //    graph.addContinuationEdge(currentNodes.get(tid), continueNode);
+  //    currentNodes.put(tid, continueNode);
+  //  }
+  //}
 
   public void handleRead(int tid, String uniqueLabel) {
-    ensureActivityNode(tid);
     currentNodes.get(tid).addAccess(uniqueLabel, false);
   }
 
   public void handleWrite(int tid, String uniqueLabel) {
-    ensureActivityNode(tid);
     currentNodes.get(tid).addAccess(uniqueLabel, true);
   }
 
@@ -71,13 +69,6 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
   }
 
   public void handleFork(int parent, int child) {
-    if (currentNodes.get(parent).isAsync()) {
-      CompGraphNode childNode = CompGraphNode.mkActivityNode();
-      graph.addVertex(childNode);
-      graph.addSpawnEdge(currentNodes.get(parent), childNode);
-      currentNodes.put(child, childNode);
-      return;
-    }
     CompGraphNode forkNode = CompGraphNode.mkForkNode();
     CompGraphNode continueNode = CompGraphNode.mkActivityNode();
     CompGraphNode childNode = CompGraphNode.mkActivityNode();

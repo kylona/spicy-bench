@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 public class CompGraphNode {
   public static enum NodeType { ASYNC, JOIN, ACTIVITY, ISOLATED }
-  static final int BOUND = 2000;
   static int count = 0;
 
   NodeType type;
-  Set<Access> accessSet = new HashSet<>();
-  List<Access> shortAccessSet = new ArrayList<>();
-  boolean largeNode = false;
+  Map<String, ObjectAccess> objAccesses = new HashMap<>();
+  Map<String, ArrayAccess> arrAccesses = new HashMap<>();
   int index;
   boolean hasIncomingIsolationEdge = false;
   boolean hasOutgoingIsolationEdge = false;
@@ -40,21 +40,26 @@ public class CompGraphNode {
     return new CompGraphNode(NodeType.ISOLATED);
   }
 
-  public void addAccess(String label, boolean write) {
-    addAccess(new Access(label, write));
+  private String arrLabel(String label) {
+    return label.substring(0, label.indexOf('['));
   }
 
-  public void addAccess(Access a) {
-    if (!largeNode && shortAccessSet.size() < BOUND)
-      shortAccessSet.add(a);
-    else if (accessSet.size() == 0) {
-      accessSet.addAll(shortAccessSet);
-      accessSet.add(a);
-      shortAccessSet.clear();
-      largeNode = true;
-    }
-    else
-      accessSet.add(a);
+  private int arrIndex(String label) {
+    int i = label.indexOf('[');
+    return Integer.parseInt(label.substring(i + 1, label.length() - 1));
+  }
+
+  static int len = 0;
+  public void addAccess(String label, boolean write) {
+    if (label.startsWith("array@")) {
+      String k = arrLabel(label);
+      int i = arrIndex(label);
+      if (arrAccesses.containsKey(k)) {
+        arrAccesses.get(k).insert(i, write);
+      } else
+        arrAccesses.put(k, new ArrayAccess(k, i, write));
+    } else if (!objAccesses.containsKey(label) || !objAccesses.get(label).write)
+      objAccesses.put(label, new ObjectAccess(label, write));
   }
 
   public boolean isJoin() {
@@ -62,7 +67,7 @@ public class CompGraphNode {
   }
 
   public boolean isReadWrite() {
-    return (largeNode && accessSet.size() > 0) || (!largeNode && shortAccessSet.size() > 0);
+    return objAccesses.size() > 0 || arrAccesses.size() > 0;
   }
 
   public boolean isAsync() {
@@ -93,55 +98,33 @@ public class CompGraphNode {
     return hasIncomingIsolationEdge;
   }
 
-  public Set<Access> intersection(CompGraphNode n) {
-    Set<Access> intersection = new HashSet<>();
-    Collection<Access> small;
-    Collection<Access> large;
-    if (largeNode) {
-      if (n.largeNode) {
-        small = (n.accessSet.size() > accessSet.size()) ? accessSet : n.accessSet;
-        large = (n.accessSet.size() > accessSet.size()) ? n.accessSet : accessSet;
-      } else {
-        small = n.shortAccessSet;
-        large = accessSet;
-      }
-    } else if (n.largeNode) {
-      small = shortAccessSet;
-      large = n.accessSet;
-    } else {
-      small = n.shortAccessSet;
-      large = new HashSet<>();
-      for (Access a : shortAccessSet)
-        large.add(a);
-    }
-    for (Access a : small) {
-      if (large.contains(a))
-        intersection.add(a);
-    }
+  public Set<String> intersection(CompGraphNode n) {
+    Set<String> intersection = new HashSet<>();
+    // objects
+    for (String k : objAccesses.keySet())
+      if (n.objAccesses.containsKey(k) && objAccesses.get(k).conflicts(n.objAccesses.get(k)))
+        intersection.add(k);
+    // arrays
+    for (String k : arrAccesses.keySet())
+      if (n.arrAccesses.containsKey(k) && arrAccesses.get(k).conflicts(n.arrAccesses.get(k)))
+        intersection.add(k);
+
     return intersection;
   }
 
   public void union(CompGraphNode n) {
-    Collection<Access> accesses = n.largeNode ? n.accessSet : n.shortAccessSet;
-    for (Access a : accesses)
-      addAccess(a);
+    //TODO
   }
 
   public void clear() {
-    accessSet.clear();
-    shortAccessSet.clear();
+    objAccesses.clear();
+    arrAccesses.clear();
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(super.toString() + "\n");
-    sb.append("Short Access Set\n");
-    for (Access a : shortAccessSet)
-      sb.append(a.label + (a.write ? " write\n" : " read\n"));
-    sb.append("Access Set\n");
-    for (Access a : accessSet)
-      sb.append(a.label + (a.write ? " write\n" : " read\n"));
     return sb.toString();
   }
 }
