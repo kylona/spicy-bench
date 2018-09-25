@@ -12,7 +12,7 @@ die_with_msg() {
 
 detector="$1"
 benchmarks=(benchmarks/AllBenchmarks2018/*)
-destination="started-`date +"%F_%H-%M-%S"`"
+destination="$detector-`date +"%F_%H-%M-%S"`"
 
 for b in "${benchmarks[@]}"; do
     basename=$(basename "$b")
