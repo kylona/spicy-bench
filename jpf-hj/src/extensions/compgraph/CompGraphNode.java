@@ -49,7 +49,6 @@ public class CompGraphNode {
     return Integer.parseInt(label.substring(i + 1, label.length() - 1));
   }
 
-  static int len = 0;
   public void addAccess(String label, boolean write) {
     if (label.startsWith("array@")) {
       String k = arrLabel(label);

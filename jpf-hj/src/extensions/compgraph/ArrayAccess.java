@@ -17,7 +17,6 @@ public class ArrayAccess {
     return i / INTEGER_BIT_NUM * 2;
   }
 
-  static int len = 0;
   public void insert(int i, boolean write) {
     int index = getBitmapIndex(i);
     if (index < begin || index >= begin + bitmap.length)
