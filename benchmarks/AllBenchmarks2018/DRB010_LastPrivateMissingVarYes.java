@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 /*
 A translation of: antidep2-orig-yes.c
 Originally produced at the Lawrence Livermore National Laboratory

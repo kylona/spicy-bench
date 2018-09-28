@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 /*
 A translation of: doall2-orig-no.c
 Originally produced at the Lawrence Livermore National Laboratory

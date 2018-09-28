@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 /*
 A translation of: doall1-orig-no.c
 Originally produced at the Lawrence Livermore National Laboratory
@@ -22,9 +23,9 @@ public class DoAll1OrigNo {
 
             forAll(0, 100-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
-                acquireW(a[i]);
+                acquireW(a, i);
                 a[i] = a[i]+1;
-                releaseW(a[i]);
+                releaseW(a, i);
               }
             });
           }

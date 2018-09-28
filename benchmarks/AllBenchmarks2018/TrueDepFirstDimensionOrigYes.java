@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
  
  
  
@@ -15,14 +16,13 @@ import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
 public class TrueDepFirstDimensionOrigYes {
-  static int i,j;
-  static int n,m = 1000;
+  static int n = 1000, m = 1000;
   static double[][] b;
   public static void main(String[] args) throws SuspendableException {
     
-    b = new double[1000][1000];
-    for(i = 0; i < n; i++)
-        for (j = 0; j < m; j++)
+    b = new double[n][m];
+    for(int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
             b[i][j] = 0.5;
     
       launchHabaneroApp(new HjSuspendable() {
@@ -33,7 +33,7 @@ public class TrueDepFirstDimensionOrigYes {
             forAll(1, n-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
                 acquireR(m);
-                for(j = 1; j < m; j++) {
+                for(int j = 1; j < m; j++) {
                   acquireR(b[i-1], j-1);
                   acquireW(b[i], j);
                   b[i][j] = b[i-1][j-1];

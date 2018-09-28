@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 import static edu.rice.hj.Module2.launchHabaneroApp;
 import edu.rice.hj.api.HjSuspendable;
 import edu.rice.hj.api.SuspendableException;

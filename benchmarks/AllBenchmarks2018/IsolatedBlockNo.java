@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import static edu.rice.hj.Module2.isolated;

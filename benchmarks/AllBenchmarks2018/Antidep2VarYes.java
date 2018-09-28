@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 /*
 A translation of: antidep2-var-yes.c
 Originally produced at the Lawrence Livermore National Laboratory
@@ -35,8 +36,8 @@ public class Antidep2VarYes {
 
             forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
-	        acquireW(a, i);
-	        acquireR(a, i+1);
+                acquireW(a, i);
+                acquireR(a, i+1);
                 a[i] = a[i+1]+1;
                 releaseR(a, i);
                 releaseW(a, i+1);

@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
  
 /*
 A translation of: func-arg-orig-yes.c

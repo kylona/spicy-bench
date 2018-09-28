@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 
 import edu.rice.hj.api.HjRunnable;
 import edu.rice.hj.api.HjSuspendable;

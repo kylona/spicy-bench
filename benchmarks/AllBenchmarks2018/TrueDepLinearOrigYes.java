@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
  
 /*
 A translation of: truedep1-var-yes.c

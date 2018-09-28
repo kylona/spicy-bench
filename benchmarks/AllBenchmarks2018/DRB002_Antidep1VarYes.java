@@ -1,3 +1,4 @@
+import static permission.PermissionChecks.*;
 /*
 A translation of: antidep1-var-yes.c
 Originally produced at the Lawrence Livermore National Laboratory
