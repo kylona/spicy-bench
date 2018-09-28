@@ -15,12 +15,16 @@ public class SimpleSimpleSimple {
               public void run() {
                 async(new HjRunnable() {
                   public void run() {
+                    acquireW(i);
                     i = i + 1;;
+                    releaseW(i);
                   }
                 });
                 async(new HjRunnable() {
                   public void run() {
+                    acquireW(i);
                     i = i * 2;
+                    releaseW(i);
                   }
                 });
               }

@@ -32,8 +32,15 @@ public class TrueDepFirstDimensionOrigYes {
 
             forAll(1, n-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
-                for(j = 1; j < m; j++)
-                    b[i][j] = b[i-1][j-1];
+                acquireR(m);
+                for(j = 1; j < m; j++) {
+                  acquireR(b[i-1], j-1);
+                  acquireW(b[i], j);
+                  b[i][j] = b[i-1][j-1];
+                  releaseW(b[i], j);
+                  releaseR(b[i-1], j-1);
+                }
+                releaseR(m);
               }
             });
             

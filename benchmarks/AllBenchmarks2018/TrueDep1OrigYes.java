@@ -27,7 +27,11 @@ public class TrueDep1OrigYes {
 
             forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(a, i);
+                acquireW(a, i + 1);
                 a[i + 1] = a[i] + 1;
+                releaseW(a, i + 1);
+                releaseR(a, i);
               }
             });
 
