@@ -1,0 +1,31 @@
+======================== Kyle
+Add
+Antidep1OrigYes
+Antidep1VarYes
+Antidep2OrigYes
+Antidep2VarYes
+ClumpedAcess
+DataRaceIsolateSimple1
+DataRaceIsolateSimple
+DoubleBranchExample
+DRB001_Antidep1OrigYes
+DRB002_Antidep1VarYes
+IntegerCounterIsolated
+IsolatedBlockNo
+LinearMissingOrigYes
+MinusMinusOrigYes
+======================= Ben
+PrimeNumCounterForAll
+PrimeNumCounterForAsync
+PrimeNumCounter
+PrimitiveArrayNoRace
+PrimitiveArrayRace
+ScalarMultiply
+SimpleSimpleSimple2
+SimpleSimpleSimple
+Template
+TrueDep1OrigYes
+TrueDepFirstDimensionOrigYes
+TrueDepLinearVarYes
+TwoDimArrays
+VectorAdd
