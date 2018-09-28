@@ -22,4 +22,5 @@ for b in "${benchmarks[@]}"; do
     echo "Running $filename..."
     sh tools/runOne.sh $filename $detector > $resultsFolder/output.txt 2>&1
     echo "Done. Output saved to $resultsFolder/output.txt"
+    sleep 30s
 done
