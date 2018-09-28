@@ -11,7 +11,7 @@ import static edu.rice.hj.Module2.launchHabaneroApp;
 import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
-public class DRB001_Antidep1OrigYes {
+public class Antidep1OrigYes {
   static int i;
   static int len = 1000;
   static int[] a = new int[len];
@@ -27,7 +27,11 @@ public class DRB001_Antidep1OrigYes {
 
             forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireW(a, i);
+                acquireR(a, i+1);
                 a[i] = a[i+1] + 1;
+                releaseR(a, i+1);
+                releaseW(a, i);
               }
             });
 

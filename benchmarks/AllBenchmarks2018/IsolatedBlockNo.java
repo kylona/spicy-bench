@@ -16,7 +16,11 @@ public class IsolatedBlockNo {
               public void apply(Integer i) throws SuspendableException {
                 isolated(new HjRunnable() {
                   public void run() {
+                    acquireW(j);
+                    acquireR(j);
                     j = j + i;
+                    releaseR(j);
+                    releaseW(j);
                   }
                 });
 

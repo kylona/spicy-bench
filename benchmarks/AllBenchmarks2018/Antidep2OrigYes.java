@@ -28,9 +28,13 @@ public class Antidep2OrigYes {
 
             forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+	        acquireW(a[i], 0, len-1);
+	        acquireR(a[i+1], 0, len-1);
                 for (j = 0; j < len; j += 1) {
                   a[i][j] += a[i+1][j];
                 }
+                releaseR(a[i], 0, len-1);
+                releaseW(a[i+1], 0, len-1);
               }
             });
             System.out.println("a[10][10]=" + a[10][10]);

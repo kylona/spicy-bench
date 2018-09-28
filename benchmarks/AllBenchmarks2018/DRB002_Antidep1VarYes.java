@@ -1,10 +1,10 @@
 /*
-A translation of: DRB002-antidep1-var-yes.c
+A translation of: antidep1-var-yes.c
 Originally produced at the Lawrence Livermore National Laboratory
 Written by Chunhua Liao, Pei-Hung Lin, Joshua Asplund,
 Markus Schordan, and Ian Karlin
 
-Translated at Brigham Young University by Joseph Jones
+Translated at Brigham Young University by Kyle Storey
 
 */
 import static edu.rice.hj.Module2.launchHabaneroApp;
@@ -12,10 +12,10 @@ import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
 
-public class DRB002_Antidep1VarYes {
-  static int i;
-  static int len = 1000;
-  static int[] a;
+public class Antidep1VarYes {
+  static int i, j;
+  static int len = 20;
+  static double[][] a;
 
   public static void main(String[] args) throws SuspendableException {
     launchHabaneroApp(new HjSuspendable() {
@@ -27,16 +27,24 @@ public class DRB002_Antidep1VarYes {
             len = Integer.parseInt(args[0]);
           }
 
-          a = new int[len];
+          a = new double[len][len];
 
           for (i = 0; i < len; i++) {
-            a[i] = i;
+            for (j = 0; j < len; j++) {
+              a[i][j] = 0.5;
+            }
           }
 
 
           forAll(0, len-2, new HjSuspendingProcedure<Integer>() {
             public void apply(Integer i) throws SuspendableException {
-              a[i] = a[i+1] + 1;
+              acquireW(a[i], 0, len-1);
+              acquireR(a[i+1], 0, len-1);
+              for (j = 0; j < len; j += 1) {
+                a[i][j] += a[i+1][j];
+              }
+              releaseR(a[i], 0, len-1);
+              releaseW(a[i+1], 0, len-1);
             }
           });
         }

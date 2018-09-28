@@ -1,12 +1,4 @@
 ======================== Kyle
-Add
-Antidep1OrigYes
-Antidep1VarYes
-Antidep2OrigYes
-Antidep2VarYes
-ClumpedAcess
-DataRaceIsolateSimple1
-DataRaceIsolateSimple
 DoubleBranchExample
 DRB001_Antidep1OrigYes
 DRB002_Antidep1VarYes

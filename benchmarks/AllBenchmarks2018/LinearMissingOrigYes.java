@@ -33,8 +33,19 @@ public class LinearMissingOrigYes {
 
             forAll(0, len-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireW(c, j);
+                acquireR(a, i);
+                acquireR(b, i);
                 c[j] += a[i] * b[i];
+                releaseR(b, i);
+                releaseR(a, i);
+                releaseW(c, j);
+
+                acquireW(j);
+                acquireR(j);
                 j++;
+                releaseR(j);
+                releaseW(j);
               }
             });
 

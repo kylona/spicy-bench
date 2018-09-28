@@ -16,13 +16,17 @@ public class DataRaceIsolateSimple1 {
         	public void run() {
                 finish(new HjSuspendable() {
                 	public void run() {
+                        acquireW(DataRaceIsolateSimple1.shared);
                     	DataRaceIsolateSimple1.shared = 0;
+                        releaseW(DataRaceIsolateSimple1.shared);
                     	async(new HjRunnable() {
                                 public void run() {
                                 	isolated(new HjRunnable() {
                                 		public void run() {
                                 			System.out.println("Isolated: m");
+                                            acquireW(DataRaceIsolateSimple1.shared);
                                 			DataRaceIsolateSimple1.shared++;
+                                            releaseW(DataRaceIsolateSimple1.shared);
                                 		}
                                 	});
                                 }
@@ -43,10 +47,14 @@ public class DataRaceIsolateSimple1 {
     	isolated(new HjRunnable() {
     		public void run() {
     			System.out.println("Isolated: p");
-    			DataRaceIsolateSimple1.shared = 0;
+                acquireW(DataRaceIsolateSimple1.shared);
+                DataRaceIsolateSimple1.shared = 0;
+                releaseW(DataRaceIsolateSimple1.shared);
     		}	
     	});	
-    	DataRaceIsolateSimple1.shared = 0;
+        acquireW(DataRaceIsolateSimple1.shared);
+        DataRaceIsolateSimple1.shared = 0;
+        releaseW(DataRaceIsolateSimple1.shared);
     }
   
 }

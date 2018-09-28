@@ -40,8 +40,14 @@ public class MinusMinusOrigYes {
 
             forAll(0, numNodes-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(x);
                 if(x[i]<=0)
+                    acquireR(numNodes);
+                    acquireW(numNodes);
                     numNodes2--;
+                    releaseR(numNodes);
+                    releaseW(numNodes);
+                releaseR(x);
               }
             });
           }
