@@ -1,0 +1,13 @@
+target=SED_WILL_REPLACE
+
+vm.scheduler.sync.class = gov.nasa.jpf.vm.AllRunnablesSyncPolicy
+vm.scheduler.sharedness.class = gov.nasa.jpf.vm.PathSharednessPolicy
+## PreciseRaceDetector
+##
+## Schedules on every shared interaction in jpf-hj runtime leading to glorious
+## state-space explosion in terms of the number of schedules that must be 
+## explored to prove the absence of data-race. 
+## 
+## Sound and complete for every program upto JPF's limitations regarding 
+## sharedness (which are many).
+listener+=gov.nasa.jpf.listener.PreciseRaceDetector

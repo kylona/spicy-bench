@@ -1,7 +1,9 @@
 target=SED_WILL_REPLACE
 
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
+
 listener+=extensions.cg.CGRaceDetector
-JPF.vm=VMListener
 
 Results_directory=build/graphs/
 Contains_isolated_sections=true

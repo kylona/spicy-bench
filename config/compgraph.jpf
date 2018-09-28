@@ -2,5 +2,7 @@ target=SED_WILL_REPLACE
 
 debug = false
 
+vm.scheduler.sharedness.class=extensions.HjSharednessPolicy
+vm.scheduler.sync.class=extensions.HjSyncPolicy
 listener+=extensions.compgraph.CompGraphRaceDetector;
 #listener+=gov.nasa.jpf.listener.StateSpaceDot;
