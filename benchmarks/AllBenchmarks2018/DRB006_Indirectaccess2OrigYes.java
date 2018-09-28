@@ -75,9 +75,15 @@ public class DRB006_Indirectaccess2OrigYes {
              //static scheduling even may not trigger data race!
             forAll(0, N-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(indexSet, i);
                 int idx = indexSet[i];
+                releaseR(indexSet, i);
+                acquireW(xa1, idx);
                 xa1[idx] += 1.0;
+                releaseW(xa1, idx);
+                acquireW(xa1, idx + 12);
                 xa2[idx + 12] += 3.0;
+                releaseW(xa1, idx + 12);
               }
             });
 

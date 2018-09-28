@@ -26,7 +26,13 @@ public class DRB041_3mmParallelNo {
       public void run() throws SuspendableException {
         forAll(0, 100 - 1, new HjSuspendingProcedure<Integer>() {
           public void apply(Integer i) throws SuspendableException {
+            acquireR(b, i);
+            acquireR(c, i);
+            acquireW(a, i);
             a[i] = b[i]*c[i];
+            releaseW(a, i);
+            releaseR(c, i);
+            releaseR(b, i);
           }
         });
         for(int i = 0; i < 100; i++) {

@@ -18,7 +18,13 @@ public class DRB060_MatrixMultiplyOrigNo {
           public void apply(Integer i) throws SuspendableException {
             for (int k = 0; k < K; k++) {
               for (int j = 0; j < M; j++) {
+                acquireR(a[i], k);
+                acquireR(b[k], j);
+                acquireW(c[i], j);
                 c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                releaseW(c[i], j);
+                releaseR(b[k], j);
+                releaseR(a[i], k);
               }
             }
           }

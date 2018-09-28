@@ -22,7 +22,9 @@ public class DoAll1OrigNo {
 
             forAll(0, 100-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireW(a[i]);
                 a[i] = a[i]+1;
+                releaseW(a[i]);
               }
             });
           }

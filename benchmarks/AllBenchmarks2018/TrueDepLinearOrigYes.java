@@ -29,7 +29,11 @@ public class TrueDepLinearOrigYes {
 
             forAll(0, 999, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(a, i);
+                acquireW(a, 2 * i + 1);
                 a[2*i+1] = a[i] + 1;
+                releaseW(a, 2 * i + 1);
+                releaseR(a, i);
               }
             });
             System.out.println("a[1001]=" + a[1001]);

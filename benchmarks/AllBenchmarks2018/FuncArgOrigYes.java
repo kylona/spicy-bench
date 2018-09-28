@@ -17,7 +17,9 @@ public class FuncArgOrigYes {
 
   public static void f1(int q)
   {
+      acquireW(q);
       q += 1;
+      releaseW(q);
   }
   public static void main(String[] args) throws SuspendableException {
 

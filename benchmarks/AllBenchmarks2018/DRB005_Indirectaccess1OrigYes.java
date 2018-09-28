@@ -75,9 +75,15 @@ public class DRB005_Indirectaccess1OrigYes {
 
             forAll(0, N-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(indexSet, i);
                 int idx = indexSet[i];
+                releaseR(indexSet, i);
+                acquireW(xa1, idx);
                 xa1[idx] += 1.0 + i;
+                releaseW(xa1, idx);
+                acquireW(xa1, idx + 12);
                 xa2[idx + 12] += 3.0 + i;
+                releaseW(xa1, idx + 12);
               }
             });
 

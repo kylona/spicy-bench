@@ -28,7 +28,11 @@ public class TrueDepSingleElementOrigYes {
 
             forAll(0, len-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                acquireR(a, 0);
+                acquireW(a, i);
                 a[i] = a[i] + a[0];
+                releaseW(a, i);
+                releaseR(a, 0);
               }
             });
             System.out.println("a[500]=" + a[500]);

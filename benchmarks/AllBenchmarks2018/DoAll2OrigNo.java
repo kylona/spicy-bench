@@ -23,7 +23,9 @@ public class DoAll2OrigNo {
             forAll(0, 100-1,new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
                 for (int j = 0; j < 100; j++) {
+                  acquireW(a[i], j);
                   a[i][j] = a[i][j]+1;
+                  releaseW(a[i], j);
                 }
               }
             });

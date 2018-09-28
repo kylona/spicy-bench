@@ -22,7 +22,9 @@ public class DRB009_LastPrivateMissingOrigYes {
 
             forAll(0, len-1, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
+                 acquireW(x);
                  x = i; 
+                 releaseW(x);
               }
             });
             System.out.printf("x=%d", x);

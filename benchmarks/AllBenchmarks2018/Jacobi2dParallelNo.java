@@ -24,8 +24,14 @@ public class Jacobi2dParallelNo {
                 forAll(0, n-1, new HjSuspendingProcedure<Integer>() {
                     public void apply(Integer c1) throws SuspendableException {
                         for (int c2 = 0; c2 <= n + -1; c2++) {
+                            acquireR(c1);
+                            acquireW(A[c1], c2);
                             A[c1][c2] = (((double )c1) * (c2 + 2) + 2) / n;
+                            releaseW(A[c1], c2);
+                            acquireW(B[c1], c2);
                             B[c1][c2] = (((double )c1) * (c2 + 3) + 3) / n;
+                            releaseW(B[c1], c2);
+                            releaseR(c1);
                         }
                     }
                 });
