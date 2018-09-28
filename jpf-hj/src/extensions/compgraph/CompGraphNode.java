@@ -11,6 +11,7 @@ import java.util.HashMap;
 public class CompGraphNode {
   public static enum NodeType { ASYNC, JOIN, ACTIVITY, ISOLATED }
   static int count = 0;
+  static int asyncCount = 0;
 
   NodeType type;
   Map<String, ObjectAccess> objAccesses = new HashMap<>();
@@ -24,7 +25,16 @@ public class CompGraphNode {
     this.index = count++;
   }
 
+  public static int getAsyncCount() {
+    return asyncCount;
+  }
+
+  public static void resetAsyncCount() {
+    asyncCount = 0;
+  }
+
   public static CompGraphNode mkForkNode() {
+    asyncCount++;
     return new CompGraphNode(NodeType.ASYNC);
   }
 

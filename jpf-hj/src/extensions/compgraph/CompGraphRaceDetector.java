@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
   int count = 0;
+  int asyncCount = 0;
   boolean race = false;
   CompGraphChecker checker = new HappensBeforeCheck();
 
@@ -26,6 +27,9 @@ public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
     if (ei.toString().startsWith("hj.runtime.wsh.SuspendableActivity")) {
       System.out.println("Writing graph " + (++count));
       ((CompGraphTool)tool).writeGraph("./build/graphs/" + vm.getSUTName() + "-" + count + ".dot");
+      if (asyncCount < CompGraphNode.getAsyncCount())
+        asyncCount = CompGraphNode.getAsyncCount();
+      CompGraphNode.resetAsyncCount();
       CompGraph graph = ((CompGraphTool)tool).getGraph();
       race = checker.check(graph);
     }
@@ -39,6 +43,12 @@ public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
   @Override
   public boolean check(Search search, VM vm) {
     return !race;
+  }
+
+  @Override
+  public void searchFinished(Search search) {
+    super.searchFinished(search);
+    System.out.println("Tasks: " + asyncCount);
   }
 
 }
