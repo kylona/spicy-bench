@@ -11,11 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CompGraphTool implements StructuredParallelRaceDetectorTool {
-  static String DEBUG_DIR = "./debug";
-  static int debugCount = 0;
   CompGraph graph = new CompGraph();
   Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
   CompGraphNode isolatedNode = null;
+  int tasks = 0;
 
   public CompGraphTool() {
     CompGraphNode root = CompGraphNode.mkActivityNode();
@@ -28,10 +27,11 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     graph = toolState.graph;
     isolatedNode = toolState.isolatedNode;
     currentNodes = toolState.currentNodes;
+    tasks = toolState.tasks;
   }
 
   public Object getImmutableState() {
-    return new CompGraphToolState(graph, isolatedNode, currentNodes);
+    return new CompGraphToolState(graph, isolatedNode, currentNodes, tasks);
   }
 
   //void ensureActivityNode(int tid) {
@@ -80,6 +80,7 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     graph.addContinuationEdge(forkNode, continueNode);
     currentNodes.put(parent, continueNode);
     currentNodes.put(child, childNode);
+    tasks++;
   }
 
   public void handleJoin(int parent, int child) {
@@ -102,6 +103,10 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     return graph;
   }
 
+  public int getTaskCount() {
+    return tasks;
+  }
+
   public boolean race() {
     return false;
   }
@@ -114,18 +119,17 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
     final CompGraph graph;
     final CompGraphNode isolatedNode;
     final Map<Integer, CompGraphNode> currentNodes;
-    CompGraphToolState(CompGraph graph, CompGraphNode isolatedNode, Map<Integer, CompGraphNode> currentNodes) {
+    final int tasks;
+    CompGraphToolState(CompGraph graph, CompGraphNode isolatedNode, Map<Integer, CompGraphNode> currentNodes, int tasks) {
       this.graph = new CompGraph();
       Graphs.addGraph(this.graph, graph);
       this.isolatedNode = isolatedNode;
       this.currentNodes = new HashMap<>(currentNodes);
+      this.tasks = tasks;
     }
 
     @Override
     public String toString() {
-      //String fname = DEBUG_DIR + "/graph-" + (debugCount++);
-      //graph.writeGraph(fname);
-      //return "Writing graph: " + fname + "\n";
       return "";
     }
   }

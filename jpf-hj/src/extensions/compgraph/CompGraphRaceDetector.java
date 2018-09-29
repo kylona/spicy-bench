@@ -14,8 +14,8 @@ import java.util.Iterator;
 
 public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
   int count = 0;
-  int asyncCount = 0;
   boolean race = false;
+  int maxTasks = 0;
   CompGraphChecker checker = new HappensBeforeCheck();
 
   public CompGraphRaceDetector(Config conf, JPF jpf) {
@@ -25,12 +25,12 @@ public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
   @Override
   public void objectReleased(VM vm, ThreadInfo ti, ElementInfo ei) {
     if (ei.toString().startsWith("hj.runtime.wsh.SuspendableActivity")) {
+      CompGraphTool t = (CompGraphTool)tool;
       System.out.println("Writing graph " + (++count));
-      ((CompGraphTool)tool).writeGraph("./build/graphs/" + vm.getSUTName() + "-" + count + ".dot");
-      if (asyncCount < CompGraphNode.getAsyncCount())
-        asyncCount = CompGraphNode.getAsyncCount();
-      CompGraphNode.resetAsyncCount();
-      CompGraph graph = ((CompGraphTool)tool).getGraph();
+      t.writeGraph("./build/graphs/" + vm.getSUTName() + "-" + count + ".dot");
+      if (t.getTaskCount() > maxTasks)
+        maxTasks = t.getTaskCount();
+      CompGraph graph = t.getGraph();
       race = checker.check(graph);
     }
   }
@@ -48,7 +48,7 @@ public class CompGraphRaceDetector extends StructuredParallelRaceDetector {
   @Override
   public void searchFinished(Search search) {
     super.searchFinished(search);
-    System.out.println("Tasks: " + asyncCount);
+    System.out.println("Tasks: " + maxTasks);
   }
 
 }
