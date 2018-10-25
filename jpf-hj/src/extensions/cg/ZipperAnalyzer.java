@@ -11,6 +11,14 @@ import java.util.*;
 
 public class ZipperAnalyzer {
 
+    private static DirectedAcyclicGraph<Node, DefaultEdge> graph;
+    private static List<Node> isolationNodes;
+    private static IsolationZipper<Integer> isolationZipper;
+    private static Zipper<Integer> lambdaZipper;
+    private static boolean race;
+    private static boolean foundBottom = false;
+    private static final int NULL = -1;
+
     public static boolean analyze(DirectedAcyclicGraph<Node, DefaultEdge> graph, List<? extends Node> isolationNodes, int numThreads) {
         numThreads = numThreads*20 + 100; //max possible lambda size and buffer don't know why
         ZipperAnalyzer.isolationNodes = (List<Node>) isolationNodes;
@@ -35,14 +43,6 @@ public class ZipperAnalyzer {
         return false;
     }
 
-    private static DirectedAcyclicGraph<Node, DefaultEdge> graph;
-    private static List<Node> isolationNodes;
-    private static IsolationZipper<Integer> isolationZipper;
-    private static Zipper<Integer> lambdaZipper;
-    private static Set<Node> visited = new HashSet<>();
-    private static boolean race;
-    private static boolean foundBottom = false;
-    private static final int NULL = -1;
 
     private static class Zipper<T> extends ArrayList<T> {
         List<Set<Node>> upPockets;
@@ -148,14 +148,12 @@ public class ZipperAnalyzer {
             n.setReadyForJoin(true);
             Node parentJoin = recursiveAnalyze(join, bt, sBag, pBag);
             isolationZipper.upZip = highZip;
-            visited.add(n);
             return parentJoin;
         }
 
         else if (n.isJoin()) {
             if (getAsync(n).isReadyForJoin()) {
                 Node child = getChild(n);
-                visited.add(n);
                 if (child != null) return recursiveAnalyze(child,bt,sBag,pBag);
                 else return n;
             }
@@ -190,7 +188,6 @@ public class ZipperAnalyzer {
                 bt.seriesSet = new HashSet<Node>();
                 isolationZipper.upZip = n.getIndex();
             }
-            visited.add(n);
             return join;
         }
 

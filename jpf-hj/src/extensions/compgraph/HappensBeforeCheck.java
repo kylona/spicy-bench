@@ -16,7 +16,6 @@ public class HappensBeforeCheck implements CompGraphChecker {
             && nodes.get(j).isReadWrite()
             && !(nodes.get(j).isIsolated() && nodes.get(i).isIsolated())
             && !graph.happensBefore(nodes.get(i), nodes.get(j))
-            && !graph.happensBefore(nodes.get(j), nodes.get(i))
             && nodes.get(i).intersection(nodes.get(j)).size() > 0
             )
           return true;

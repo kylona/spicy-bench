@@ -9,12 +9,13 @@ import org.jgrapht.Graphs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class CompGraphTool implements StructuredParallelRaceDetectorTool {
-  CompGraph graph = new CompGraph();
-  Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
-  CompGraphNode isolatedNode = null;
-  int tasks = 0;
+  protected CompGraph graph = new CompGraph();
+  protected Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
+  protected CompGraphNode isolatedNode = null;
+  protected int tasks = 0;
 
   public CompGraphTool() {
     CompGraphNode root = CompGraphNode.mkActivityNode();

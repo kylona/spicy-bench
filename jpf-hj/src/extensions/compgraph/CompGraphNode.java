@@ -18,6 +18,7 @@ public class CompGraphNode {
   int index;
   boolean hasIncomingIsolationEdge = false;
   boolean hasOutgoingIsolationEdge = false;
+  boolean readyForJoin = false;
 
   private CompGraphNode(NodeType type) {
     this.type = type;
@@ -109,6 +110,14 @@ public class CompGraphNode {
         intersection.add(k);
 
     return intersection;
+  }
+
+  public void setReadyForJoin(boolean input) {
+    this.readyForJoin = input;
+  }
+
+  public boolean isReadyForJoin() {
+    return this.readyForJoin;
   }
 
   public void union(CompGraphNode n) {
