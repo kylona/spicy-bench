@@ -32,6 +32,7 @@ public class ZipperTool extends CompGraphTool {
     tasks = toolState.tasks;
   }
 
+  @Override
   public Object getImmutableState() {
     return new ZipperToolState(graph, isolatedNode, isolationOrder, currentNodes, tasks);
   }

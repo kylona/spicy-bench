@@ -101,14 +101,15 @@ public class CompGraphNode {
   public Set<String> intersection(CompGraphNode n) {
     Set<String> intersection = new HashSet<>();
     // objects
-    for (String k : objAccesses.keySet())
+    for (String k : objAccesses.keySet()) {
       if (n.objAccesses.containsKey(k) && objAccesses.get(k).conflicts(n.objAccesses.get(k)))
         intersection.add(k);
+    }
     // arrays
-    for (String k : arrAccesses.keySet())
+    for (String k : arrAccesses.keySet()) {
       if (n.arrAccesses.containsKey(k) && arrAccesses.get(k).conflicts(n.arrAccesses.get(k)))
         intersection.add(k);
-
+    }
     return intersection;
   }
 
@@ -132,7 +133,7 @@ public class CompGraphNode {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(super.toString() + "\n");
+    sb.append(index);
     return sb.toString();
   }
 }

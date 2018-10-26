@@ -70,17 +70,26 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
   }
 
   public void handleFork(int parent, int child) {
-    CompGraphNode forkNode = CompGraphNode.mkForkNode();
-    CompGraphNode continueNode = CompGraphNode.mkActivityNode();
-    CompGraphNode childNode = CompGraphNode.mkActivityNode();
-    graph.addVertex(forkNode);
-    graph.addVertex(continueNode);
-    graph.addVertex(childNode);
-    graph.addContinuationEdge(currentNodes.get(parent), forkNode);
-    graph.addSpawnEdge(forkNode, childNode);
-    graph.addContinuationEdge(forkNode, continueNode);
-    currentNodes.put(parent, continueNode);
-    currentNodes.put(child, childNode);
+    if (currentNodes.get(parent).getIndex() != 0) {
+      CompGraphNode forkNode = CompGraphNode.mkForkNode();
+      CompGraphNode continueNode = CompGraphNode.mkActivityNode();
+      CompGraphNode childNode = CompGraphNode.mkActivityNode();
+      graph.addVertex(forkNode);
+      graph.addVertex(continueNode);
+      graph.addVertex(childNode);
+      graph.addContinuationEdge(currentNodes.get(parent), forkNode);
+      graph.addSpawnEdge(forkNode, childNode);
+      graph.addContinuationEdge(forkNode, continueNode);
+      currentNodes.put(parent, continueNode);
+      currentNodes.put(child, childNode);
+    } else {
+      // Special case. We are only concerned with the code inside launchHabaneroApp
+      CompGraphNode continueNode = CompGraphNode.mkActivityNode();
+      graph.addVertex(continueNode);
+      graph.addContinuationEdge(currentNodes.get(parent), continueNode);
+      currentNodes.put(parent, continueNode);
+      currentNodes.put(child, continueNode);
+    }
     tasks++;
   }
 
