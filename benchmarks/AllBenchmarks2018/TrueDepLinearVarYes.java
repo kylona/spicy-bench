@@ -16,7 +16,7 @@ import edu.rice.hj.api.*;
 
 public class TrueDepLinearVarYes {
   static int i;
-  static int len = 2000;
+  static int len = 200;
   static int[] a;
   public static void main(String[] args) throws SuspendableException {
     
@@ -31,7 +31,7 @@ public class TrueDepLinearVarYes {
           @Override
           public void run() throws SuspendableException {
 
-            forAll(0, len/2, new HjSuspendingProcedure<Integer>() {
+            forAll(0, (len - 1)/2, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
                 acquireR(a, i);
                 acquireW(a, 2 * i + 1);
