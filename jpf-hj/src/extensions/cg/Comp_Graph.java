@@ -100,18 +100,18 @@ public class Comp_Graph {
         
 
 
-        for (Pair<Elements,Elements> race : race_elements) {
-            System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
-        }
-        for (Pair<ArrayElements,ArrayElements> race : array_race_elements) {
-            System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
-        }
-        for (Pair<Elements,Elements> race : iso_race_elements) {
-            System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
-        }
-        for (Pair<ArrayElements,ArrayElements> race : iso_array_race_elements) {
-            System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
-        }
+        //for (Pair<Elements,Elements> race : race_elements) {
+        //    System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
+        //}
+        //for (Pair<ArrayElements,ArrayElements> race : array_race_elements) {
+        //    System.out.println("Non-deterministic access between:\n\t" + race.first + "\n\t" + race.second);
+        //}
+        //for (Pair<Elements,Elements> race : iso_race_elements) {
+        //    System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
+        //}
+        //for (Pair<ArrayElements,ArrayElements> race : iso_array_race_elements) {
+        //    System.out.println("Intended race between:\n\t" + race.first + "\n\t" + race.second);
+        //}
         return race_elements.size() + array_race_elements.size() != 0;
     }
 
