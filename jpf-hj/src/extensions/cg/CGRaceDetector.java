@@ -20,8 +20,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 
 	private static String dir = null;
 	private static boolean on_the_fly = false;
-	private static boolean drd = true;
-    public static boolean zip_drd = false;
+	private static boolean drd = false;
+    public static boolean zip_drd = true;
 
 	private static final String[] invalidText = {"edu.rice", "hj.util", "hj.lang"};
 	private static final String[] systemLibrary = {"java.util", "java.runtime", "java.lang", "null", "hj.runtime.wsh"};
