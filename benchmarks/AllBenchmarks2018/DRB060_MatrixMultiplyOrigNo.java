@@ -5,9 +5,9 @@ import edu.rice.hj.api.*;
 
 public class DRB060_MatrixMultiplyOrigNo {
 
-  static int N = 100;
-  static int M = 100;
-  static int K = 100;
+  static int N = 70;
+  static int M = 70;
+  static int K = 70;
 
   public static void main(String[] args) throws SuspendableException {
     double[][] a = new double[N][M];

@@ -15,6 +15,8 @@ parseOutput()
   fi
   if grep -q "$FINISH_MARKER" "$1"  ; then
     grep $TIME_MARKER "$1"
+    grep "states:" "$1"
+    grep "Tasks:" "$1"
   else
     echo "ERROR Exeption Thrown"
   fi

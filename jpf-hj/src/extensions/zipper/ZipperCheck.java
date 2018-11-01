@@ -1,35 +1,32 @@
-package extensions.cg;
+package extensions.zipper;
+import extensions.compgraph.CompGraphNode;
+import extensions.compgraph.CompGraph;
 
-import extensions.cg.Node;
 import org.jgraph.graph.DefaultEdge;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.alg.TarjanLowestCommonAncestor;
-
-import static extensions.cg.Edges.*;
 
 import java.util.*;
 
-public class ZipperAnalyzer {
+public class ZipperCheck {
 
-    private static DirectedAcyclicGraph<Node, DefaultEdge> graph;
-    private static List<Node> isolationNodes;
-    private static IsolationZipper<Integer> isolationZipper;
+    private static CompGraph graph;
+    private static List<CompGraphNode> isolationNodes;
+	private static IsolationZipper<Integer> isolationZipper;
     private static Zipper<Integer> lambdaZipper;
-    private static boolean race;
+    private static boolean race = false;
     private static boolean foundBottom = false;
     private static final int NULL = -1;
 
-    public static boolean analyze(DirectedAcyclicGraph<Node, DefaultEdge> graph, List<? extends Node> isolationNodes, int numThreads) {
-        numThreads = numThreads*20 + 100; //max possible lambda size and buffer don't know why
-        ZipperAnalyzer.isolationNodes = (List<Node>) isolationNodes;
-        ZipperAnalyzer.graph = graph;
-        isolationZipper = new IsolationZipper(isolationNodes.size());
-        lambdaZipper = new Zipper(numThreads);
+    public boolean check(CompGraph graph, List<CompGraphNode> isolationOrder) {
+        ZipperCheck.isolationNodes = isolationOrder;
+        ZipperCheck.graph = graph;
+        isolationZipper = new IsolationZipper();
+        lambdaZipper = new Zipper();
         int newId = generateNewId();
         BranchTrace bt = new BranchTrace(newId);
         Bag sBag = new Bag();
         Bag pBag = new Bag();
-        Node n = graph.iterator().next();
+        CompGraphNode n = (CompGraphNode) graph.iterator().next();
         race = false;
         foundBottom = false;
         try {
@@ -40,43 +37,66 @@ public class ZipperAnalyzer {
             System.out.println(e.message);
             return true;
         }
-        return false;
+        return race;
     }
 
-
     private static class Zipper<T> extends ArrayList<T> {
-        List<Set<Node>> upPockets;
-        List<Set<Node>> downPockets;
-        public Zipper(int numThreads) {
-            super(numThreads);
-            this.upPockets = new ArrayList<Set<Node>>();
-            this.downPockets = new ArrayList<Set<Node>>();
-            for (int i = 0; i < numThreads; i++) {
-                upPockets.add(new HashSet<Node>());
-                downPockets.add(new HashSet<Node>());
-            }
-        }
+        List<Set<CompGraphNode>> upPockets = new ArrayList<Set<CompGraphNode>>();
+        List<Set<CompGraphNode>> downPockets = new ArrayList<Set<CompGraphNode>>();
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < upPockets.size(); i++) {
+            for (int i = 1; i < upPockets.size(); i++) {
                 sb.append(upPockets.get(i) + "|" + i + "|" + downPockets.get(i) + "\n");
             }
             return sb.toString();
+        }
+        public Set<CompGraphNode> getUpPocket(int i) {
+          int size = upPockets.size();
+          if (i >= size) {
+            for (int j = 0; j < i - size + 1; j++) {
+              upPockets.add(new HashSet<CompGraphNode>());
+            }
+          }
+          return upPockets.get(i);
+        }
+        public Set<CompGraphNode> getDownPocket(int i) {
+          int size = downPockets.size();
+          if (i >= size) {
+            for (int j = 0; j < i - size + 1; j++) {
+              downPockets.add(new HashSet<CompGraphNode>());
+            }
+          }
+          return downPockets.get(i);
+        }
+        public Set<CompGraphNode> setUpPocket(int i, Set<CompGraphNode> n) {
+          int size = upPockets.size();
+          if (i >= size) {
+            for (int j = 0; j < i - size + 1; j++) {
+              upPockets.add(new HashSet<CompGraphNode>());
+            }
+          }
+          return upPockets.set(i, n);
+        }
+        public Set<CompGraphNode> setDownPocket(int i, Set<CompGraphNode> n) {
+          int size = downPockets.size();
+          if (i >= size) {
+            for (int j = 0; j < i - size + 1; j++) {
+              downPockets.add(new HashSet<CompGraphNode>());
+            }
+          }
+          return downPockets.set(i, n);
         }
     }
 
     private static class IsolationZipper<T> extends Zipper<T> {
         int upZip = NULL;
         int downZip = NULL;
-        IsolationZipper(int size) {
-            super(size);
-        }
     }
 
     private static class BranchTrace {
         int id;
         List<Integer> isolationNodes;
-        Set<Node> seriesSet;
+        Set<CompGraphNode> seriesSet;
         Set<CheckPair> checkSet;
 
         BranchTrace(int id) {
@@ -98,21 +118,21 @@ public class ZipperAnalyzer {
     }
 
     private static class CheckPair {
-        public Node first;
-        public Node second;
+        public CompGraphNode first;
+        public CompGraphNode second;
         public int hashCode() {
             int code = first.hashCode() + second.hashCode();
             return code;
         }
         @Override
-        public boolean equals(Object pair) {
-            if (pair == null) return false;
-            if (!(pair instanceof CheckPair)) return false;
-            CheckPair p = (CheckPair) pair;
-            return first.equals(p.first) && second.equals(p.second) ||
-                   first.equals(p.second) && second.equals(p.first);
-        }
-        public CheckPair(Node first, Node second) {
+            public boolean equals(Object pair) {
+                if (pair == null) return false;
+                if (!(pair instanceof CheckPair)) return false;
+                CheckPair p = (CheckPair) pair;
+                return first.equals(p.first) && second.equals(p.second) ||
+                    first.equals(p.second) && second.equals(p.first);
+            }
+        public CheckPair(CompGraphNode first, CompGraphNode second) {
             this.first = first;
             this.second = second;
         }
@@ -121,7 +141,7 @@ public class ZipperAnalyzer {
         }
     }
 
-    public static Node recursiveAnalyze(Node n, BranchTrace bt, Bag sBag, Bag pBag) throws DataRaceException {
+    public static CompGraphNode recursiveAnalyze(CompGraphNode n, BranchTrace bt, Bag sBag, Bag pBag) throws DataRaceException {
         if (n.isAsync()) {
             Bag asyncBag = new Bag(pBag);
 
@@ -130,15 +150,15 @@ public class ZipperAnalyzer {
             int highZip = upZipStart;
             int lowZip = downZipStart;
 
-            Node join = null;
+            CompGraphNode join = null;
             n.setReadyForJoin(false);
-            for (Node child : getChildren(n)) {
+            for (CompGraphNode child : getChildren(n)) {
                 int newId = generateNewId();
                 BranchTrace newBranchTrace = new BranchTrace(newId);
                 isolationZipper.upZip = upZipStart;//reset to same as start
                 isolationZipper.downZip = downZipStart;
                 join = recursiveAnalyze(child, newBranchTrace, sBag, asyncBag);
-                lambdaZipper.upPockets.set(newBranchTrace.id, newBranchTrace.seriesSet);
+                lambdaZipper.setUpPocket(newBranchTrace.id, newBranchTrace.seriesSet);
                 highZip = (highZip < isolationZipper.upZip) ? highZip : isolationZipper.upZip;
                 lowZip = (lowZip > isolationZipper.downZip) ? lowZip : isolationZipper.downZip;
                 sBag.put(newId, newBranchTrace.isolationNodes);
@@ -146,35 +166,35 @@ public class ZipperAnalyzer {
             }
             isolationZipper.downZip = lowZip;
             n.setReadyForJoin(true);
-            Node parentJoin = recursiveAnalyze(join, bt, sBag, pBag);
+            CompGraphNode parentJoin = recursiveAnalyze(join, bt, sBag, pBag);
             isolationZipper.upZip = highZip;
             return parentJoin;
         }
 
         else if (n.isJoin()) {
             if (getAsync(n).isReadyForJoin()) {
-                Node child = getChild(n);
+                CompGraphNode child = getChild(n);
                 if (child != null) return recursiveAnalyze(child,bt,sBag,pBag);
                 else return n;
             }
-            lambdaZipper.downPockets.set(bt.id, bt.seriesSet);
-            bt.seriesSet = new HashSet<Node>();
+            lambdaZipper.setDownPocket(bt.id, bt.seriesSet);
+            bt.seriesSet = new HashSet<CompGraphNode>();
             return n;
         } 
 
         else {
             bt.seriesSet.add(n);
             if (n.isIsolated() && n.hasOutgoingIsolationEdge()) {
-                isolationZipper.downPockets.set(n.getIndex(), bt.seriesSet);
-                bt.seriesSet = new HashSet<Node>();
+                isolationZipper.setDownPocket(n.getIndex(), bt.seriesSet);
+                bt.seriesSet = new HashSet<CompGraphNode>();
                 isolationZipper.downZip = n.getIndex();
                 bt.isolationNodes.add(n.getIndex());
             }
 
             checkDown(n, bt, pBag);
 
-            Node child = getChild(n);
-            Node join = null;
+            CompGraphNode child = getChild(n);
+            CompGraphNode join = null;
             if (child != null) {
                 join = recursiveAnalyze(getChild(n), bt, sBag, pBag);
             }
@@ -184,8 +204,8 @@ public class ZipperAnalyzer {
             bt.seriesSet.add(n);
 
             if (n.isIsolated() && n.hasIncomingIsolationEdge()) {
-                isolationZipper.upPockets.set(n.getIndex(), bt.seriesSet);
-                bt.seriesSet = new HashSet<Node>();
+                isolationZipper.setUpPocket(n.getIndex(), bt.seriesSet);
+                bt.seriesSet = new HashSet<CompGraphNode>();
                 isolationZipper.upZip = n.getIndex();
             }
             return join;
@@ -193,68 +213,34 @@ public class ZipperAnalyzer {
 
     }
 
-    private static Map<Node,Node> asyncMap = new HashMap<>();
-    private static TarjanLowestCommonAncestor<Node,DefaultEdge> tjCalc = null;
-    private static Node getAsync(Node n) {
+    private static Map<CompGraphNode,CompGraphNode> asyncMap = new HashMap<>();
+    private static TarjanLowestCommonAncestor<CompGraphNode,DefaultEdge> tjCalc = null;
+    private static CompGraphNode getAsync(CompGraphNode n) {
         if (asyncMap.containsKey(n)) return asyncMap.get(n);
         if (tjCalc == null) tjCalc = new TarjanLowestCommonAncestor<>(graph);
         Set<DefaultEdge> incoming = graph.incomingEdgesOf(n);
-        Node async = n;
+        CompGraphNode async = n;
         for (DefaultEdge e : incoming) {
-            Node parent = (Node) graph.getEdgeSource(e);
+            CompGraphNode parent = (CompGraphNode) graph.getEdgeSource(e);
             async = tjCalc.calculate(graph.iterator().next(), async, parent);
         }
         asyncMap.put(n,async);
         return async;
     }
 
-    private static boolean checkRace(Node a, Node b) throws DataRaceException {
-        System.out.println("Considering " + a + " and " + b);
-        if (!(a instanceof activityNode) || !(b instanceof activityNode))
-            return false;
-        activityNode first = (activityNode) a;
-        activityNode second = (activityNode) b;
-        return checkForDataAccessConflicts(first.var_write, second.var_write) ||
-            checkForDataAccessConflicts(first.var_write, second.var_read) ||
-            checkForDataAccessConflicts(first.var_read, second.var_write) ||
-            checkForDataAccessConflicts(first.isolated_write, second.var_write) ||
-            checkForDataAccessConflicts(first.var_write, second.isolated_write) ||
-            checkForDataAccessConflicts(first.isolated_write, second.var_read) ||
-            checkForDataAccessConflicts(first.var_read, second.isolated_write) ||
-            checkForDataAccessConflicts(first.array_write, second.array_write) ||
-            checkForDataAccessConflicts(first.array_write, second.array_read) ||
-            checkForDataAccessConflicts(first.array_read, second.array_write) ||
-            checkForDataAccessConflicts(first.array_write_isolated, second.array_write) ||
-            checkForDataAccessConflicts(first.array_write, second.array_write_isolated) ||
-            checkForDataAccessConflicts(first.array_write_isolated, second.array_read) ||
-            checkForDataAccessConflicts(first.array_read, second.array_write_isolated);
+    private static boolean checkRace(CompGraphNode a, CompGraphNode b) throws DataRaceException {
+       return race = race || (a.isReadWrite() && b.isReadWrite() && a.intersection(b).size() > 0);
     }
 
-    private static String message;
-    private static boolean checkForDataAccessConflicts(List<? extends DataAccess> first, List<? extends DataAccess> second) throws DataRaceException {
-        if (first == null || second == null)
-            return false;
-        for (DataAccess dataAccess1 : first) {
-            for (DataAccess dataAccess2 : second) {
-                if (dataAccess1.conflictsWith(dataAccess2)) {
-                    message = "Non-deterministic access between\n\t" +
-                    dataAccess1.toString() + "\n\t" + dataAccess2.toString();
-                    reportRace(message);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    private static void checkDown(Node n, BranchTrace bt, Bag pBag) throws DataRaceException {
+    private static void checkDown(CompGraphNode n, BranchTrace bt, Bag pBag) throws DataRaceException {
         for (int branchId : pBag.keySet()) {
-            for (Node c : lambdaZipper.downPockets.get(branchId)) {
+            for (CompGraphNode c : lambdaZipper.getDownPocket(branchId)) {
                 bt.checkSet.add(new CheckPair(n,c));
             }
-            for(int i = pBag.size() - 1; i >= 0; i--) {
+            for(int i = pBag.get(branchId).size() - 1; i >= 0; i--) {
                 int isolationIdx = pBag.get(branchId).get(i);
                 if (isolationZipper.downZip != NULL && isolationIdx <= isolationZipper.downZip) break;
-                for (Node c : isolationZipper.downPockets.get(isolationIdx)) {
+                for (CompGraphNode c : isolationZipper.getDownPocket(isolationIdx)) {
                     CheckPair newPair = new CheckPair(n,c);
                     bt.checkSet.add(newPair);
                 }
@@ -262,9 +248,9 @@ public class ZipperAnalyzer {
         }
     }
 
-    private static void checkUp(Node n, BranchTrace bt, Bag pBag) throws DataRaceException {
+    private static void checkUp(CompGraphNode n, BranchTrace bt, Bag pBag) throws DataRaceException {
         for (int branchId : pBag.keySet()) {
-            for (Node c : lambdaZipper.upPockets.get(branchId)) {
+            for (CompGraphNode c : lambdaZipper.getUpPocket(branchId)) {
                 CheckPair newPair = new CheckPair(n,c);
                 if (bt.checkSet.contains(newPair)) {
                     checkRace(n,c);
@@ -273,39 +259,41 @@ public class ZipperAnalyzer {
             for (int isolationIdx : pBag.get(branchId)) {
                 //traverse the list least to greatest
                 if (isolationIdx >= isolationZipper.upZip) break;
-                for (Node c : isolationZipper.upPockets.get(isolationIdx)) {
+                for (CompGraphNode c : isolationZipper.getUpPocket(isolationIdx)) {
                     if (bt.checkSet.contains(new CheckPair(n,c))) {
                         checkRace(n,c);
                     }
                 }
 
             }
-            
+
         }
     }
-    private static Node getChild(Node n) {
+
+    private static CompGraphNode getChild(CompGraphNode n) {
         if (getChildren(n).size() == 1) {
             return getChildren(n).iterator().next();
         } else {
             if (foundBottom) {
-                throw new RuntimeException("getChild called on node with more than one child");
+                throw new RuntimeException("Found two bottoms. Second at " + n.getIndex());
             }
             else {
+                System.out.println("Bottom at " + n.getIndex());
                 foundBottom = true;
                 return null;
             }
         }
     }
 
-    private static Set<Node> getChildren(Node n) {
+    private static Set<CompGraphNode> getChildren(CompGraphNode n) {
         Set<DefaultEdge> outgoing = graph.outgoingEdgesOf(n);
-        Set<Node> children = new HashSet<Node>();
-        Node edgeSource;
+        Set<CompGraphNode> children = new HashSet<CompGraphNode>();
+        CompGraphNode edgeSource;
         for (DefaultEdge e : outgoing) {
-            if (e.getAttributes().equals(IsolatedEdgeAttributes())) {
+            if (graph.isIsolatedEdge(e)) {
                 continue;
             }
-            Node child = (Node) graph.getEdgeTarget(e);
+            CompGraphNode child = (CompGraphNode) graph.getEdgeTarget(e);
             children.add(child);
         }
         return children;
@@ -324,7 +312,7 @@ public class ZipperAnalyzer {
     }
 
     private static class DataRaceException extends Exception {
-        
+
         String message;
         public DataRaceException(String message) {
             this.message = message;

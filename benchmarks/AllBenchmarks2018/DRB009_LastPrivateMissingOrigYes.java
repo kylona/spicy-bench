@@ -14,7 +14,7 @@ import edu.rice.hj.api.*;
 
 public class DRB009_LastPrivateMissingOrigYes {
   static int i, x;
-  static int len = 10000;
+  static int len = 100;
   public static void main(String[] args) throws SuspendableException {
       launchHabaneroApp(new HjSuspendable() {
 

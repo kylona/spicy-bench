@@ -9,12 +9,13 @@ import org.jgrapht.Graphs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class CompGraphTool implements StructuredParallelRaceDetectorTool {
-  CompGraph graph = new CompGraph();
-  Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
-  CompGraphNode isolatedNode = null;
-  int tasks = 0;
+  protected CompGraph graph = new CompGraph();
+  protected Map<Integer, CompGraphNode> currentNodes = new HashMap<>();
+  protected CompGraphNode isolatedNode = null;
+  protected int tasks = 0;
 
   public CompGraphTool() {
     CompGraphNode root = CompGraphNode.mkActivityNode();
@@ -69,17 +70,26 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
   }
 
   public void handleFork(int parent, int child) {
-    CompGraphNode forkNode = CompGraphNode.mkForkNode();
-    CompGraphNode continueNode = CompGraphNode.mkActivityNode();
-    CompGraphNode childNode = CompGraphNode.mkActivityNode();
-    graph.addVertex(forkNode);
-    graph.addVertex(continueNode);
-    graph.addVertex(childNode);
-    graph.addContinuationEdge(currentNodes.get(parent), forkNode);
-    graph.addSpawnEdge(forkNode, childNode);
-    graph.addContinuationEdge(forkNode, continueNode);
-    currentNodes.put(parent, continueNode);
-    currentNodes.put(child, childNode);
+    if (currentNodes.get(parent).getIndex() != 0) {
+      CompGraphNode forkNode = CompGraphNode.mkForkNode();
+      CompGraphNode continueNode = CompGraphNode.mkActivityNode();
+      CompGraphNode childNode = CompGraphNode.mkActivityNode();
+      graph.addVertex(forkNode);
+      graph.addVertex(continueNode);
+      graph.addVertex(childNode);
+      graph.addContinuationEdge(currentNodes.get(parent), forkNode);
+      graph.addSpawnEdge(forkNode, childNode);
+      graph.addContinuationEdge(forkNode, continueNode);
+      currentNodes.put(parent, continueNode);
+      currentNodes.put(child, childNode);
+    } else {
+      // Special case. We are only concerned with the code inside launchHabaneroApp
+      CompGraphNode continueNode = CompGraphNode.mkActivityNode();
+      graph.addVertex(continueNode);
+      graph.addContinuationEdge(currentNodes.get(parent), continueNode);
+      currentNodes.put(parent, continueNode);
+      currentNodes.put(child, continueNode);
+    }
     tasks++;
   }
 

@@ -18,9 +18,9 @@ public class TrueDepLinearOrigYes {
   static int[] a;
   public static void main(String[] args) throws SuspendableException {
     
-    a = new int[2000];
+    a = new int[200];
     
-    for(i = 0; i < 2000; i++)
+    for(i = 0; i < 200; i++)
         a[i] = i;
     
       launchHabaneroApp(new HjSuspendable() {
@@ -28,7 +28,7 @@ public class TrueDepLinearOrigYes {
           @Override
           public void run() throws SuspendableException {
 
-            forAll(0, 999, new HjSuspendingProcedure<Integer>() {
+            forAll(0, 99, new HjSuspendingProcedure<Integer>() {
               public void apply(Integer i) throws SuspendableException {
                 acquireR(a, i);
                 acquireW(a, 2 * i + 1);
@@ -37,7 +37,7 @@ public class TrueDepLinearOrigYes {
                 releaseR(a, i);
               }
             });
-            System.out.println("a[1001]=" + a[1001]);
+            System.out.println("a[1001]=" + a[101]);
             
           }
     });

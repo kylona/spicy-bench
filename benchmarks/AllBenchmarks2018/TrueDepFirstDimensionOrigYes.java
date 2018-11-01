@@ -16,7 +16,7 @@ import static edu.rice.hj.Module2.forAll;
 import edu.rice.hj.api.*;
 
 public class TrueDepFirstDimensionOrigYes {
-  static int n = 1000, m = 1000;
+  static int n = 100, m = 100;
   static double[][] b;
   public static void main(String[] args) throws SuspendableException {
     
@@ -46,7 +46,7 @@ public class TrueDepFirstDimensionOrigYes {
             
           }
     });
-    System.out.printf("b[500][500]=%f\n", b[500][500]);  
+    System.out.printf("b[500][500]=%f\n", b[50][50]);  
   }
 
 }
