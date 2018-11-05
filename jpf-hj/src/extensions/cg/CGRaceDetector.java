@@ -224,7 +224,8 @@ public class CGRaceDetector extends PropertyListenerAdapter {
 					graph.addVertex(child);
 
 					if(!newObjectID.contains("Suspendable")){
-						addSpawnEdge(currentNodes.get(currentThread), child, graph);
+                        if(newObjectID.contains("Future")) addFutureEdge(currentNodes.get(currentThread), child, graph);
+                        else addSpawnEdge(currentNodes.get(currentThread), child, graph);
 
 						//create next node for parent task
 						activityNode nextNode = createNextNode(currentThread);
