@@ -271,9 +271,14 @@ public class ZipperCheck {
     }
 
     private static CompGraphNode getChild(CompGraphNode n) {
-        if (getChildren(n).size() == 1) {
+        int size = getChildren(n).size();
+        if (size == 1) {
             return getChildren(n).iterator().next();
-        } else {
+        }
+        else if (size > 1) {
+                throw new RuntimeException("called getChild on node with more than one child:" + n.getIndex());
+        }
+        else {
             if (foundBottom) {
                 throw new RuntimeException("Found two bottoms. Second at " + n.getIndex());
             }
