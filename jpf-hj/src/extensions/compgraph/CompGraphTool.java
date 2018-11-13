@@ -78,7 +78,9 @@ public class CompGraphTool implements StructuredParallelRaceDetectorTool {
       graph.addVertex(continueNode);
       graph.addVertex(childNode);
       graph.addContinuationEdge(currentNodes.get(parent), forkNode);
+
       graph.addSpawnEdge(forkNode, childNode);
+      
       graph.addContinuationEdge(forkNode, continueNode);
       currentNodes.put(parent, continueNode);
       currentNodes.put(child, childNode);

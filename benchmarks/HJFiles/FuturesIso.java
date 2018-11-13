@@ -21,6 +21,7 @@ public class FuturesIso
     {
         public void run() 
         {
+
             //Main Task / 1
             finish(new HjSuspendable()
             {
@@ -37,7 +38,7 @@ public class FuturesIso
 
                 final HjFuture<String> fut4 = future(() -> 
                 {
-                    x--;
+                    x++;
                     //future 4
                     return "future 4";
                 });
